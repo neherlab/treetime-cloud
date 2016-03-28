@@ -8,21 +8,34 @@ import Login from './components/login.js';
 import Header from './components/header.js'
 import Footer from './components/footer.js'
 import TreeTimeForm from './components/welcome.js'
-
+import Wait from './components/wait.js'
+import Res from "./components/results.js"
 var settings = {
   
   doBuildTree:true,
   shouldReuseBranchLen:false,
   doReroot:false,
   gtr:"Jukes-Cantor",
-  shouldUseBranchPenalty:{
+  shouldUseBranchLenPenalty:{
       bool:true,
       value:0.0
   },
   shouldUseSlope:{
       bool:true,
       value:0.0
-  }
+  },
+  doResolvePoly: false,
+  doCoalescent:{
+    bool:true,
+    Tc:0.0
+  },
+  doRelaxedClock:{
+    bool:true,
+    alpha:0.0,
+    beta:0.0
+  },
+  doRootJoint:true,
+  doCalcGTR:true
 };
 
 var Main  = React.createClass( {
@@ -56,6 +69,18 @@ var Main  = React.createClass( {
   
   handle_run(){
     console.log("APP:: RUN button pressed");
+    request.post("/" + this.state.UID + "/run/")
+      .set('Content-Type', 'application/json')
+      .send({settings: this.state.settings})
+      .end(this.on_run_status);
+  },
+
+  on_run_status(err, res){
+    var status = JSON.parse(res.text).status;
+    console.log(status);
+    if (status == "OK"){
+      browserHistory.push('wait/'); 
+    }
   },
 
   on_settings_changed(name, setting){
@@ -71,6 +96,11 @@ var Main  = React.createClass( {
 
   },
 
+  on_all_done(){
+      console.log("ALL don, redirecting to RESULTS page");
+      browserHistory.push('results/'); 
+  },
+
   render(){
     return (
         <div>
@@ -84,7 +114,8 @@ var Main  = React.createClass( {
               state:this.state.state,
               handle_run: this.handle_run,
               handle_settings_change: this.on_settings_changed,
-              handle_state_changed: this.on_state_changed
+              handle_state_changed: this.on_state_changed, 
+              handle_all_done: this.on_all_done
             }
           )
         }
@@ -98,7 +129,8 @@ ReactDOM.render((
   <Router history={browserHistory} >
     <Route path="/" component={Main}>
       <Route path="/:user_id/app/" component={TreeTimeForm} />
-      <Route path="/:user_id/login/" component={Login} />
+      <Route path="wait/" component={Wait} />
+      <Route path="results/" component={Res} />
     </Route>
   </Router>),
 document.getElementById('react'));
