@@ -1,0 +1,329 @@
+#react{
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+
+}
+
+#react h1{
+  font-size: 48px;
+  color:#565656;
+}
+
+#react h2{
+  font-size: 32px;
+  color:#565656;
+}
+
+#header{
+
+  float:left;
+  position:relative;
+  width:100%;
+  margin-bottom: 40px;
+  border-bottom: solid 1px lightgrey;
+}
+
+#logo{
+  position: absolute; 
+  float:left;
+  width:200px;
+  height:150px;
+  border-right: solid 1px lightgrey;
+}
+
+#name{
+  text-align: center;
+  
+  width:100%;
+  min-width: 400px;
+  height:150px; 
+}
+
+#footer{
+  text-align: right;
+  float:left;
+  width: 100%;
+  color:grey;
+  font-style: italic;
+  padding: 20px;
+  margin-top: 50px;
+  border-top: solid 2px grey
+}
+
+#copyright{
+}
+
+#authors{
+  margin-right: 20px;
+  margin-left:10px;
+  float:right;
+}
+
+#welcome_container{
+  margin: 0 auto;
+  width:80%;
+  position: relative;
+  text-align: center;
+}
+
+#welcome_welcome{
+  text-align: left;
+}
+
+#welcome_files{
+  text-align:center;
+  border-style:solid;
+  border-width: 1px;
+  width:100%;
+  display: inline-block;
+  padding: 20px;
+}
+
+#welcome_params {
+  padding: 20px;
+  margin: 0px;
+  text-align:left;
+  border-style:solid;
+  border-width: 1px;
+  width:100%;
+  display: inline-block;
+
+}
+
+#welcome_params div{
+  margin-top: 30px;
+  height:15;
+}
+
+#welcome_treeupload{
+  float:left;
+  width:33%;
+  display: inline-block;
+}
+#welcome_alnupload{
+  float:left;
+  width:33%;
+}
+
+#welcome_metaupload{
+  float:left;
+  widowsidth:33%;
+}
+
+#welcome_treeupload_or{
+  margin: 0px;
+  padding: 0px;
+}
+
+#welcome_coalescent {
+  position:relative;
+  float:left;
+  width:100%;
+}
+
+#welcome_coalescent div{
+  position: relative;
+  float:left;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+#welcome_relaxed {
+  position:relative;
+  margin-bottom:30px;
+  float:left;
+  width:100%;
+}
+
+#welcome_relaxed div{
+  position: relative;
+  float:left;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#welcome_run {
+  
+  text-align:center;
+  border-style:solid;
+  border-width: 1px;
+  width:192px;
+  height:80px;
+  display: inline-block;
+  margin:30px;
+  background:  url('/static/svg/run_treetime.svg');
+
+}
+
+select {
+
+    padding:3px;
+    margin: 10;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px;
+    -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    background: #f8f8f8;
+    color:#888;
+    border:none;
+    outline:none;
+    display: inline-block;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    cursor:pointer;
+    height: 30px;
+    width:120px;
+
+}
+
+input[type="text"]{
+  height:30px;
+  width: 50px;
+}
+
+.welcome {
+  margin: 0px;
+  padding: 0px;
+  background-color: #C0C0C0;
+
+}
+
+.select {
+  height:100px;
+  background-color: #C0C0C0;
+  border-style:solid;
+  border-width: 1px;
+}
+
+#main_container{
+  float: left;
+  width: 100%;
+}
+
+input[type=file] {
+  display: inline-block;
+  width: 120px;
+  padding: 50px 0 0 0;
+  height: 10px;
+  overflow: hidden;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: url('http://archisnapper.com/cloud.png') center center no-repeat #e4e4e4;
+  border-radius: 5px;
+  background-size: 120px 50px;
+}
+
+#welcome_input_tree{
+  background: url('/static/svg/input_tree_enabled.svg');
+}
+
+
+#welcome_input_tree:disabled{
+  background: url('/static/svg/input_tree_disabled.svg');
+}
+
+#welcome_input_aln{
+  background: url('/static/svg/input_fasta_enabled.svg');
+}
+
+
+#welcome_input_meta{
+  background: url('/static/svg/input_meta_enabled.svg');
+}
+
+
+
+#left_col{
+  float:left;
+  width:30%;
+}
+#right_col{
+  float:left;
+  width:70%;
+}
+
+#treeplot_container{
+    border-style:solid;
+    border-width: 1px;
+    width: 100%;
+    height:400px;
+    
+}
+
+#mu_container{
+    position: relative;
+    border-style:solid;
+    border-width: 1px;
+    width: 100%;
+    height:400px;
+}
+#rootlh_container{
+    position: relative;
+    border-style:solid;
+    border-width: 1px;
+    width: 100%;
+    height:400px;
+}
+
+.d3_lh_axis path,
+.d3_lh_axis line{
+  fill:none;
+  stroke:gray;
+  shape-rendering: crispEdges;
+}
+.d3_lh_line{
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.d3_lh_grid line{
+    stroke:lightgrey;
+    shape-rendering: crispEdges;
+}
+
+
+.d3_mu_axis path,
+.d3_mu_axis line{
+  fill:none;
+  stroke:gray;
+  shape-rendering: crispEdges;
+}
+
+.d3-mu-axis text{
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.d3_mu_grid line{
+    stroke:lightgrey;
+    shape-rendering: crispEdges;
+}
+
+.d3-link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+.node {
+  font: 10px sans-serif;
+}
+.d3-tip {
+  font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1;
+  font-weight: bold;
+  padding: 7px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border-radius: 14px;
+}

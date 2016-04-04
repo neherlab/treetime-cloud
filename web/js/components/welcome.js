@@ -4,7 +4,7 @@ var request = require('superagent');
 var DoBuildTree = React.createClass({
     getInitialState(){
         return ({
-            checked: this.props.settings.settings[this.props.settings.name]
+            checked: false,//this.props.settings.settings[this.props.settings.name]
         }
         );
     },
@@ -13,7 +13,7 @@ var DoBuildTree = React.createClass({
         var build = this.state.checked;
         this.state.checked = !build;
         console.log("Build tree Checkbox state changed to: " + this.state.checked);
-        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
+        //this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
     render(){
@@ -22,7 +22,7 @@ var DoBuildTree = React.createClass({
               <input type= "checkbox"
                 checked={this.state.checked}
                 onChange={this.handleChange}/> 
-            Build tree
+            Build tree with FastTree
             </div>
         );
     } 
@@ -96,8 +96,8 @@ var GTRmodel = React.createClass({
     render(){
 
         return (
-            <div>
-            GTR model<select value= "A">
+            <div class="select">
+            GTR model:    <select value= "A" >
               <option value= "A">Jukes-Cantor</option>
             </select>
             </div>
@@ -144,16 +144,19 @@ var UseBranchPenalty = React.createClass({
 
         return (
             <div>
-              <input type="checkbox" name="penalty_cb"
-                checked={this.state.settings.bool}
-                onChange={this.handleCBChange}
-              > </input>
-              Branch penalty
-              <br/>
-              <input type="text" name="penalty_value"
+              <div style={{floating:'left'}}> 
+                <input type="checkbox" name="penalty_cb"
+                    checked={this.state.settings.bool}
+                    onChange={this.handleCBChange}> </input>
+                Branch penalty = 
+                <input style={{'margin-left':'10px'}} type="text" name="penalty_value"
                     disabled={!this.state.settings.bool} 
                     onChange={this.handleTextChange}/> 
-                Penalty value
+              </div>
+              
+              <div>
+                
+              </div>
             </div>
         );
     }
@@ -203,12 +206,11 @@ var UseSlope = React.createClass({
                 checked={this.state.settings.bool}
                 onChange={this.handleCBChange}
               > </input>
-              Use mutation rate
-              <br/>
-              mu = <input type="text" name="slope_value"
+              Mutation rate (&mu;) = 
+              <input style={{'margin-left':'10px', 'margin-right':'10px'}}  type="text" name="slope_value"
                     disabled={!this.state.settings.bool} 
                     onChange={this.handleTextChange}/> 
-                (#/year)
+              (#/year)
             </div>
         );
     }
@@ -283,17 +285,22 @@ var DoCoalescent = React.createClass({
     render(){
 
         return (
-            <div>
-              <input type="checkbox" name="do_coalescent"
-                checked={this.state.settings.bool}
-                onChange={this.handleCBChange}
-              > </input>
-              Use mutation rate
-              <br/>
-              Tc = <input type="text" name="tc"
-                    disabled={!this.state.settings.bool} 
-                    onChange={this.handleTextChange}/> 
-                (Hamming distance)
+            <div id="welcome_coalescent">
+                <div>
+                    <input type="checkbox" name="do_coalescent"
+                           checked={this.state.settings.bool}
+                           onChange={this.handleCBChange}></input>
+        
+                    Model coalescent process. 
+                </div>
+                <div style={{'margin-left':'10px', 'margin-right':'10px'}}>
+                    Tc = <input style={{'margin-left':'10px', 'margin-right':'10px'}} 
+                          type="text" name="tc"
+                          disabled={!this.state.settings.bool} 
+                          onChange={this.handleTextChange}/> 
+                    (Hamming distance)
+                </div>
+            
             </div>
         );
     }
@@ -349,19 +356,28 @@ var DoRelaxedClock = React.createClass({
     render(){
 
         return (
-            <div>
-              <input type= "checkbox"
+            <div id="welcome_relaxed" >
+              <div style={{'margin-right':'10px'}} >
+                <input type= "checkbox"
                 checked={this.state.settings.bool}
                 onChange={this.handleCBChange}>
                 </input>
-                Estimate autocorrelated mutation rate 
-                <br/>
-                 <input type= "text" 
-                    disabled={!this.state.settings.bool}
-                    onChange={this.handleAChange}/> Alpha
-                 <input type= "text" 
-                    disabled={!this.state.settings.bool}
-                    onChange={this.handleBChange}/> Beta
+                Estimate autocorrelated molecular clock
+              </div>
+              <div style={{'margin-left':'10px', 'margin-right':'10px'}}  >
+                &alpha; = 
+                 
+                 <input style={{'margin-left':'10px', 'margin-right':'10px'}} 
+                        type= "text" 
+                        disabled={!this.state.settings.bool}
+                        onChange={this.handleAChange}/>
+              
+                &beta; = 
+                 <input style={{'margin-left':'10px', 'marginRight':'10px'}} 
+                        type= "text" 
+                        disabled={!this.state.settings.bool}
+                        onChange={this.handleBChange}/> 
+              </div>
             </div>
         );
     }
@@ -392,7 +408,7 @@ var DoRootJoint = React.createClass ({
                 checked={this.state.checked}
                 onChange={this.handleChange}>
                 </input>
-                Coompute Root variance
+                Compute Root variance
             </div>
         );
     }
@@ -508,33 +524,55 @@ var TreeTimeForm = React.createClass({
         console.log(act)
         console.log(this.props.settings)
         return (
-            <div>
-            <form  method='post' action={act} encType='multipart/form-data' >
-            <div id="files">
-                <h2>Upload files</h2>
-                
-                <input  type="file" 
-                        name="treefile"
-                        disabled={this.props.settings.doBuildTree}
-                        onChange={this.uploadTreeFile}></input>
-                
-                <input  type="file" 
-                        name="alnfile"
-                        disabled={this.props.settings.doBuildTree}
-                        onChange={this.uploadAlnFile}></input>
-                
-                <input  type="file" 
-                        name="metafile"
-                        disabled={this.props.settings.doBuildTree}
-                        onChange={this.uploadMetaFile}></input>
-            </div>
+            <div id="welcome_container">
+                <h2>Welcome</h2>
+                <div id='welcome_welcome'>
+                <p>Welcome to the TreeTime server.
+                The description and HOWTO will appear here shortly. Please scroll down in order to 
+                run tree-time on the server.</p>
+                </div>
+                <h2>Run TreeTime on server:</h2>
+            
+                <h3>1. Upload data</h3>
 
-            <div id="params">
-                <DoBuildTree settings={{
-                    name: "doBuildTree",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
+                <div id="welcome_files">
+                    
+                    <div id="welcome_treeupload">
+                    <h4 class="welcome-reeupload-header"> Upload tree file: </h4>
+                    <input id="welcome_input_tree"  
+                        type="file" 
+                        name="treefile"
+                        //disabled={this.props.settings.doBuildTree}
+                        onChange={this.uploadTreeFile}></input>
+
+                    <h4 id='welcome_treeupload_or'> Or: </h4>
+                    <DoBuildTree settings={{
+                        name: "doBuildTree",
+                        settings:this.props.settings,
+                        change_handle: this.on_settings_changed
+                    }}/>
+                    </div> 
+                    
+                    <div class="welcome_treeupload_header" id="welcome_alnupload">
+                    <h4 > Upload alignment file: </h4>
+                    <input  id="welcome_input_aln"  
+                        type="file" 
+                        name="alnfile"
+                        onChange={this.uploadAlnFile}></input>
+                    </div>
+                    
+                    <div id="welcome_metaupload">
+                    <h4 class="welcome-reeupload-header"> Upload metadata: </h4>
+                    <input  id="welcome_input_meta"  
+                        type="file" 
+                        name="metafile"
+                        onChange={this.uploadMetaFile}></input>
+                    </div>
+                </div>
+
+                <h3>2. Configure parameters</h3>
+            
+                <div id="welcome_params">
 
                 <ShouldReuseBranchLength settings={{
                     name: "shouldReuseBranchLen",
@@ -600,10 +638,12 @@ var TreeTimeForm = React.createClass({
                     change_handle: this.on_settings_changed
                 }}/>
 
+                </div>
 
-            </div>
-            <input type='button' value="RUN treetime" onClick={this.handle_run} />
-            </form>
+                <div >
+                    <input type='button' id="welcome_run" onClick={this.handle_run} />
+                </div>
+
             </div>
         );
     }

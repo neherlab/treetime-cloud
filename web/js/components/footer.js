@@ -8,8 +8,8 @@ var Copyright = React.createClass({
             }
         };
         return (
-            <div>
-                Copyright:
+            <div id='copyright'>
+                Copyright &copy;:
             </div>
 
         );
@@ -20,7 +20,7 @@ var Authors = React.createClass({
 
     render(){
         return (
-            <div>
+            <div id="authors">
             Richard Neher and Pavel Sagulenko, 2016
             </div>
 
@@ -33,8 +33,8 @@ var Footer  = React.createClass({
     render (){
         return (
             <div id="footer">
-                <Copyright/>
                 <Authors/>
+                <Copyright/>
             </div>
         );
     }

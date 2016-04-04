@@ -80,7 +80,6 @@ def load_settings(root):
         "Ancestral state reconstruction", 
         anc, 
         {
-            'treetime':tt,
             'reuse_branch': is_true(s, 'shouldReuseBranchLen')
         }))
 
@@ -97,7 +96,7 @@ def load_settings(root):
         name,
         temporal_constraints,
         {
-            'treetime':tt,
+            
             'slope': slope,
             'branch_penalty':bp,
             'do_reroot':do_reroot            
@@ -108,7 +107,7 @@ def load_settings(root):
         "Run TreeTime",
         run_treetime,
         {
-            'treetime':tt
+            
         }))
     # 7. relaxd clock
     if is_true(s, 'doRelaxedClock'):
@@ -116,7 +115,7 @@ def load_settings(root):
             "Calc relaxed molecular clock",
             relaxed_clock,
             {
-                'treetime':tt,
+                
                 alpha: get_value(s, 'doRelaxedClock', 'alpha'),
                 beta: get_value(s, 'doRelaxedClock', 'beta'),
             }))
@@ -125,67 +124,102 @@ def load_settings(root):
 
 
 # steps - unit functions
-def basic_setup(state, root):
+def basic_setup(tt, state, root):
     state['status'] = 'Done'
-    return True
+    return None, True
     pass
 
-def build_tree(state, aln):
+def build_tree(tt, state, aln):
     state['status'] = 'Done'
     print ('aln: ' + aln)
-    return True
+    return None, True
     pass
 
-def init_treetime(state, root): #  read tree, aln, met, return treetime object
-    state['status'] = 'Done'
-    return True
-    pass
+def init_treetime(tt, state, root): #  read tree, aln, met, return treetime object
 
-def anc(state, treetime, reuse_branch=False):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def temporal_constraints(state, treetime, slope=None, branch_penalty=0.0, do_reroot=False):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def run_treetime(state, treetime):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def resolve_poly(state, treetime):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def relaxed_clock(state, treetime, alpha, beta):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def coalescent_models(state, treetime, Tc):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def root_variance(state, treetime):
-    state['status'] = 'Done'
-    return True
-    pass
-
-def do_gtr_calc(state, treetime):
-    state['status'] = 'Done'
-    return True
-    pass
-
-if __name__ == '__main__':
+    nwk  = os.path.join(root, "in_tree.nwk")
+    aln  = os.path.join(root, "in_aln.fasta")
+    meta = os.path.join(root, "in_meta.csv")
+   
+    try:
+        # create gtr model
+        gtr = treetime.GTR.standard()
+        #  set global object for further use 
+        tt = treetime.treetime_from_newick(gtr, nwk)
+        treetime.set_seqs_to_leaves(tt, AlignIO.read(aln, 'fasta'))
+        treetime.read_metadata(tt, meta)
+        state['status'] = 'Done'
+        return (tt, True)
+    
+    except:
+        state['status'] = 'Error'
+        return (None, False)
     
 
-    print("Passed")
-    sys.stdout.flush()
+def anc(tt, state, reuse_branch=False):
+    
+#    try:
+        tt.optimize_seq_and_branch_len(reuse_branch, True)
+        state['status'] = 'Done'
+        return (tt, True)
+#    except:
+        state['status'] = 'Error'
+        return (None, False)
+
+def temporal_constraints(tt, state, slope=None, branch_penalty=0.0, do_reroot=False):
+    try:
+        if branch_penalty != 0.0:
+            treetime.ttconf.BRANCH_LEN_PENALTY = branch_penalty
+
+        if do_reroot: # TODO slope also should be taken into account!
+            tt.reroot_to_best_root()
+        else:
+            if slope == 0.0 : slope = None
+            tt.init_date_constraints(slope=slope)
+
+
+        state['status'] = 'Done'
+        return tt, True
+    except:
+        return None, False
+
+def run_treetime(tt, state):
+    try:
+        tt.ml_t()
+        tt.tree.ladderize()
+        state['status'] = 'Done'
+        return tt, True
+    except:
+        state['status'] = 'Error'
+        return None, False
+
+def resolve_poly(tt, state):
+    try:
+        tt.resolve_polytomies()
+        tt.tree.ladderize()
+        state['status'] = 'Done'
+        return tt, True
+    except:
+        state['status'] = 'Error'
+        return None, False
+
+def relaxed_clock(tt, state, alpha, beta):
+    state['status'] = 'Done'
+    return tt, True
+
+def coalescent_models(tt, state, Tc):
+    state['status'] = 'Done'
+    return tt, True
+
+def root_variance(tt, state):
+    state['status'] = 'Done'
+    return tt, True
+
+def do_gtr_calc(tt, state):
+    state['status'] = 'Done'
+    return tt, True
+
+if __name__ == '__main__':
 
     root = sys.argv[1]
 
@@ -207,138 +241,24 @@ if __name__ == '__main__':
 
     # run the workflow
     idx = 0
+    tt=None
     for step in steps:
         settings = step['settings']
         call = step['callable']
-        res = call(state[idx], **settings)
+        tt, res = call(tt, state[idx], **settings)
         write_json(ostate, state)
         if not res:
             break
         idx += 1
 
-    sys.exit(1)
+    #  save files
+    treetime.treetime_to_json(tt, "out_tree.json")
+    treetime.tips_data_to_json(tt, "out_tips.json")
+    treetime.root_lh_to_json(tt, "out_root_lh.json")
 
-    #  files 
-    session_state = root + "session_state.json"
-    nwk = root + "in_tree.nwk"
-    aln = root + "in_aln.fasta"
-    meta = root + "in_meta.csv"
-    
-    with open(session_state, 'r') as inf:    
-        ss_json = json.load(inf)
+    sys.exit(0)
 
-    #  steps 
-    ss_json['steps'] = {
-        '0':{'status': 'Todo', 'name': 'Basic Setup'},
-        #'1':{'status': 'Todo', 'name': 'Build Tree'},
-        '2':{'status': 'Todo', 'name': 'Initialize TreeTime objects'},
-        '3':{'status': 'Todo', 'name': 'Ancestral reconstruction'},
-        '4':{'status': 'Todo', 'name': 'Set temporal constraints'},
-        '6':{'status': 'Todo', 'name': 'Run TreeTime'}
-    }
 
-    steps = ss_json['steps']
-
-    should_build_tree = ss_json['run']['should_build_tree'] == 'true' or ss_json['run']['should_build_tree'] == True
-    should_use_branch_penalty = ss_json['run']['should_use_branch_penalty'] == 'true' or ss_json['run']['should_use_branch_penalty'] == True
-    do_root_calc = ss_json['run']['do_root_calc'] == 'true' or ss_json['run']['do_root_calc'] == True
-    should_use_slope =  ss_json['run']['should_use_slope'] == True or ss_json['run']['should_use_slope'] == 'true' 
-    # add optional steps to the workflow:
-    if should_build_tree:
-        steps['1'] = {'status': 'Todo', 'name': 'Build Tree'},
-    
-    if do_root_calc:
-        steps['5'] = {'status': 'Todo', 'name' : 'Optimize root position'}
-
-    
-
-    # save json
-    write_json(session_state, ss_json)
-
-    # initialization for the run parameters
-    try:
-        sys.stdout.write ("reading run_params parameters...")
-        run_params = ss_json['run']
-        # todo check all files
-
-    except:
-        steps['0']['status'] = "Failed"
-        write_json(session_state, ss_json)
-        sys.exit(0)
-    
-    # reading run_params parameters
-    steps['0']['status'] = "Done"
-
-    # build tree
-    try:
-        if should_build_tree: 
-            steps['1']['status'] = 'Progress'
-            write_json(session_state, ss_json)
-            # TODO build tree with fast tree
-        
-            steps['1']['status'] ='Done'
-            write_json(session_state, ss_json)
-            
-    
-    except:
-
-        sys.stdout.write ('Basic Setup failed!')
-        steps['1']['status'] = 'Failed'
-        steps['1']['message'] = 'Internal server error'
-        write_json(session_state, ss_json)
-        sys.exit(0)
-
-    # tree file OK, tree has been built
-    #  initialize basi treetime
-    try:
-
-        steps['2']['status'] = 'Progress'
-        write_json(session_state, ss_json)
-        
-        if run_params['gtr'] not in gtrs:
-            steps['2']['status'] = 'Failed'
-            steps['2']['message'] = 'GTR model of type' + run_params['gtr'] + 'is not defined'
-            write_json(session_state, ss_json)
-            sys.exit(0)
-
-        # create gtr model
-        gtr = create_GTR(run_params['gtr'])
-        t = treetime.treetime_from_newick(gtr, nwk)
-        treetime.set_seqs_to_leaves(t, AlignIO.read(aln, 'fasta'))
-        treetime.read_metadata(t, meta)
-
-        steps['2']['status'] = 'Done'
-        write_json(session_state, ss_json)
-
-    except:
-
-        steps['2']['status'] = 'Failed'
-        steps['2']['message'] = 'Internal server error in reading input files'
-        write_json(session_state, ss_json)
-        sys.stdout.write ('Initialization of the  TreeTime parameters failed!')
-        sys.exit(0)
-
-    # initialization went successful - run optimization of the branch lengths
-    try:
-        
-        steps['3']['status'] = 'Progress'
-        write_json(session_state, ss_json)
-        
-        should_use_branch_len = run_params['should_use_branch_len']
-        t.optimize_seq_and_branch_len(should_use_branch_len, True)
-        
-        steps['3']['status'] = 'Done'
-        write_json(session_state, ss_json)
-    
-    except:
-        
-        steps['3']['status'] = 'Failed'
-        steps['3']['message'] = 'TreeTime script error'
-        write_json(session_state, ss_json)
-        sys.stdout.write ('Ancestral reconstruction failed!')
-        sys.exit(0)
-
-   
     #  Init date params, 
     #  if needed, do the following:
     #  correct root node
@@ -393,7 +313,7 @@ if __name__ == '__main__':
         steps['6']['status'] = 'Progress'
         write_json(session_state, ss_json)
 
-        t.ml_t()
+        
 
         steps['6']['status'] =  'Done'
         write_json(session_state, ss_json)

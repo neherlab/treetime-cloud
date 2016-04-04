@@ -3,12 +3,24 @@ var app = express();
 var multer = require("multer");
 var fs = require('fs');
 var bodyParser = require('body-parser')
-
 var upload = multer({ dest: 'uploads/' })
+
+var subp = require('child_process')
 
 app.use(express.static(__dirname ));
 // parse application/json
 app.use(bodyParser.json())
+
+function makeid()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 7; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
 
 var mkdirSync = function (path) {
   try {
@@ -20,13 +32,13 @@ var mkdirSync = function (path) {
 }
 
 app.get('/', function (req, res) {
-  var user_id = "HILWQ89P23OI566UHLUIL";
+  var user_id = makeid(); //"HILWQ89P23OI566UHLUIL";
   res.send(user_id);
 });
 
 app.post('/', function(req, res){
   
-  var user_id = "HILWQ89P23OI566UHLUIL";
+  var user_id = makeid(); //var user_id = "HILWQ89P23OI566UHLUIL";
   console.log('User requests for a new ID, send' + user_id + " back")
   mkdirSync(__dirname + "/sessions/" + user_id);  
   res.send({redirect:user_id});
@@ -37,7 +49,7 @@ app.post('/', function(req, res){
 
 app.get('/:user_id/', function (req, res) {
   
-  res.sendfile( 'index.html');
+  res.sendfile( __dirname + "/static/" + 'index.html');
 
 });
 
@@ -77,11 +89,19 @@ app.post('/:user_id/run',  function(req, res){
 
   console.log(req.params.user_id);
   var user_id = req.params.user_id
+
+
   fs.writeFile(__dirname + "/sessions/" + user_id + "/settings.json", JSON.stringify(req.body.settings), function(err) {
     if(err) {
-      return console.log(err);
+      res.send({status:"Error", message:"Cannot save ssession settings"});
     }
   }); 
+
+  var root = __dirname + "/sessions/" + user_id;
+  subp.exec_sync('python ./static/py/main.py ' + root, function(err, stdout, stderr){
+
+  });
+
 
   res.send({status:"OK"})
 

@@ -4,14 +4,13 @@ import {transitionTo, Router, browserHistory,
 import ReactDOM from 'react-dom'
 var request = require('superagent');
 
-import Login from './components/login.js';
 import Header from './components/header.js'
 import Footer from './components/footer.js'
 import TreeTimeForm from './components/welcome.js'
 import Wait from './components/wait.js'
 import Res from "./components/results.js"
+
 var settings = {
-  
   doBuildTree:true,
   shouldReuseBranchLen:false,
   doReroot:false,
@@ -104,33 +103,36 @@ var Main  = React.createClass( {
   render(){
     return (
         <div>
-        <Header/>
-        {this.props.children && 
-          React.cloneElement(
-            this.props.children, 
-            {
-              UID:this.state.UID,
-              settings:this.state.settings,
-              state:this.state.state,
-              handle_run: this.handle_run,
-              handle_settings_change: this.on_settings_changed,
-              handle_state_changed: this.on_state_changed, 
-              handle_all_done: this.on_all_done
-            }
-          )
-        }
-        <Footer/>
+          <Header/>
+          
+          <Footer/>
         </div>
     );
   }
 });
 
 ReactDOM.render((
-  <Router history={browserHistory} >
-    <Route path="/" component={Main}>
-      <Route path="/:user_id/app/" component={TreeTimeForm} />
-      <Route path="wait/" component={Wait} />
-      <Route path="results/" component={Res} />
-    </Route>
-  </Router>),
+  //<Router history={browserHistory} >
+  //  <Route path="/" component={Main}>
+  //    <Route path="/:user_id/app/" component={TreeTimeForm} />
+  //    <Route path="wait/" component={Wait} />
+  //    <Route path="results/" component={Res} />
+  //  </Route>
+  //</Router>),
+ <Main/>),
 document.getElementById('react'));
+
+// {this.props.children && 
+          //   React.cloneElement(
+          //     this.props.children, 
+          //     {
+          //       UID:this.state.UID,
+          //       settings:this.state.settings,
+          //       state:this.state.state,
+          //       handle_run: this.handle_run,
+          //       handle_settings_change: this.on_settings_changed,
+          //       handle_state_changed: this.on_state_changed, 
+          //       handle_all_done: this.on_all_done
+          //     }
+          //   )
+          // }

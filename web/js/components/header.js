@@ -10,10 +10,7 @@ var Logo = React.createClass({
             }
         };
         return (
-            <div id='logo'>
-                <h1>Logo</h1>
-            </div>
-
+                <img id='logo' src="/static/svg/logo.svg" />
         );
     }
 
@@ -36,7 +33,7 @@ var Header  = React.createClass({
 
     render(){
         return (
-            <div id="header" style={{"width":"100%"}}>
+            <div id="header">
                 <Logo/>
                 <Name/>
             </div>
