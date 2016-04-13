@@ -13,6 +13,7 @@ from Bio import Phylo
 import os,sys
 
 dn = os.path.dirname(os.path.abspath(__file__))
+sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 import main as main
 #
@@ -33,7 +34,7 @@ def index_session(userid):
         return render_template('flask.html', UserId=userid)
     elif request.method == 'POST':
         # save settings
-        root = os.path.join("./sessions", userid)
+        root = os.path.join(sessions_root, userid)
         if not os.path.exists(root):
             os.makedirs(root)
 
@@ -70,7 +71,7 @@ def progress(userid):
 @app.route('/<userid>/session_state', methods=['GET', 'POST'])
 def get_session_state(userid):
     
-    root = os.path.join ('./sessions', userid)
+    root = os.path.join (sessions_root, userid)
     inf = os.path.join(root, "state.json")
     if not os.path.exists(inf):
         abort(404)
@@ -83,7 +84,7 @@ def get_session_state(userid):
 @app.route("/upload/<userid>/file", methods=['GET', 'POST'])
 def upload(userid):
     
-    folder = os.path.join("./sessions", userid)
+    folder = os.path.join(sessions_root, userid)
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -113,7 +114,7 @@ def results(userid):
 
 @app.route('/sessions/<userid>/<filename>', methods=['GET', 'POST'])
 def send_file(userid, filename):
-    uploads = os.path.join(dn, "sessions/" + userid)
+    uploads = os.path.join(sessions_root, userid)
     return send_from_directory(uploads, filename) #with open(os.path.join(uploads, filename), 'r') as inf:
     #    json_data = json.load(inf)
     #print (json_data)
