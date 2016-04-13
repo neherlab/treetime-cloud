@@ -66,15 +66,11 @@
 
 	var _footer2 = _interopRequireDefault(_footer);
 
-	var _welcome = __webpack_require__(218);
-
-	var _welcome2 = _interopRequireDefault(_welcome);
-
-	var _wait = __webpack_require__(225);
+	var _wait = __webpack_require__(218);
 
 	var _wait2 = _interopRequireDefault(_wait);
 
-	var _results = __webpack_require__(226);
+	var _results = __webpack_require__(225);
 
 	var _results2 = _interopRequireDefault(_results);
 
@@ -84,32 +80,32 @@
 
 	var request = __webpack_require__(219);
 
-	var settings = {
-	  doBuildTree: true,
-	  shouldReuseBranchLen: false,
-	  doReroot: false,
-	  gtr: "Jukes-Cantor",
-	  shouldUseBranchLenPenalty: {
-	    bool: true,
-	    value: 0.0
-	  },
-	  shouldUseSlope: {
-	    bool: true,
-	    value: 0.0
-	  },
-	  doResolvePoly: false,
-	  doCoalescent: {
-	    bool: true,
-	    Tc: 0.0
-	  },
-	  doRelaxedClock: {
-	    bool: true,
-	    alpha: 0.0,
-	    beta: 0.0
-	  },
-	  doRootJoint: true,
-	  doCalcGTR: true
-	};
+	// var settings = {
+	//   doBuildTree:true,
+	//   shouldReuseBranchLen:false,
+	//   doReroot:false,
+	//   gtr:"Jukes-Cantor",
+	//   shouldUseBranchLenPenalty:{
+	//       bool:true,
+	//       value:0.0
+	//   },
+	//   shouldUseSlope:{
+	//       bool:true,
+	//       value:0.0
+	//   },
+	//   doResolvePoly: false,
+	//   doCoalescent:{
+	//     bool:true,
+	//     Tc:0.0
+	//   },
+	//   doRelaxedClock:{
+	//     bool:true,
+	//     alpha:0.0,
+	//     beta:0.0
+	//   },
+	//   doRootJoint:true,
+	//   doCalcGTR:true
+	// };
 
 	var Main = _react2.default.createClass({
 	  displayName: 'Main',
@@ -117,7 +113,10 @@
 	    return {
 	      UID: "sdf",
 	      settings: settings,
-	      state: {}
+	      state: {},
+	      tree_file: false,
+	      aln_file: false,
+	      meta_file: false
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
@@ -135,6 +134,20 @@
 	  },
 	  handle_run: function handle_run() {
 	    console.log("APP:: RUN button pressed");
+	    if (!this.state.tree_file & !this.state.settings.doBuildTree || !this.state.aln_file || !this.state.meta_file) {
+	      var msg = "Cannot proceed with TreeTime: one or more file not loaded.\n\n";
+	      if (!this.state.tree_file & !this.state.settings.doBuildTree) {
+	        msg += "Phylogenetic tree file is missing.\n\n";
+	      }
+	      if (!this.state.aln_file) {
+	        msg += "Sequence alignment file is missing.\n\n";
+	      }
+	      if (!this.state.meta_file) {
+	        msg += "Meta data file is missing.\n\n";
+	      }
+	      alert(msg);
+	      return;
+	    }
 	    request.post("/" + this.state.UID + "/run/").set('Content-Type', 'application/json').send({ settings: this.state.settings }).end(this.on_run_status);
 	  },
 	  on_run_status: function on_run_status(err, res) {
@@ -150,42 +163,42 @@
 	    settings[name] = setting;
 
 	    this.setState({ settings: settings });
-	    //this.state.settings = settings;
+	    this.state.settings = settings;
 	  },
 	  on_state_changed: function on_state_changed(name, state) {},
 	  on_all_done: function on_all_done() {
 	    console.log("ALL don, redirecting to RESULTS page");
 	    _reactRouter.browserHistory.push('results/');
 	  },
+
+	  setAppState: function setAppState(partialState) {
+	    this.setState(partialState);
+	  },
+
 	  render: function render() {
-	    return _react2.default.createElement('div', null, _react2.default.createElement(_header2.default, null), _react2.default.createElement(_footer2.default, null));
+	    return _react2.default.createElement('div', null, _react2.default.createElement(_header2.default, null), this.props.children && _react2.default.cloneElement(this.props.children, {
+	      UID: this.state.UID,
+	      appState: this.state,
+	      setAppState: this.setAppState,
+	      settings: this.state.settings,
+	      state: this.state.state,
+	      handle_run: this.handle_run,
+	      handle_settings_change: this.on_settings_changed,
+	      handle_state_changed: this.on_state_changed,
+	      handle_all_done: this.on_all_done
+	    }), _react2.default.createElement(_footer2.default, null));
 	  }
 	});
 
 	_reactDom2.default.render(
 	//<Router history={browserHistory} >
-	//  <Route path="/" component={Main}>
+	//  <Route path="/" component={TreeTimeForm}>
 	//    <Route path="/:user_id/app/" component={TreeTimeForm} />
 	//    <Route path="wait/" component={Wait} />
 	//    <Route path="results/" component={Res} />
 	//  </Route>
 	//</Router>),
-	_react2.default.createElement(Main, null), document.getElementById('react'));
-
-	// {this.props.children &&
-	//   React.cloneElement(
-	//     this.props.children,
-	//     {
-	//       UID:this.state.UID,
-	//       settings:this.state.settings,
-	//       state:this.state.state,
-	//       handle_run: this.handle_run,
-	//       handle_settings_change: this.on_settings_changed,
-	//       handle_state_changed: this.on_state_changed,
-	//       handle_all_done: this.on_all_done
-	//     }
-	//   )
-	// }
+	_react2.default.createElement(Main, { settings: settings }), document.getElementById('react'));
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "app.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
@@ -24975,435 +24988,121 @@
 
 	var request = __webpack_require__(219);
 
-	var DoBuildTree = _react2.default.createClass({
-	    displayName: 'DoBuildTree',
-	    getInitialState: function getInitialState() {
-	        return {
-	            checked: false };
-	    },
-	    //this.props.settings.settings[this.props.settings.name]
-	    handleChange: function handleChange(e) {
-	        var build = this.state.checked;
-	        this.state.checked = !build;
-	        console.log("Build tree Checkbox state changed to: " + this.state.checked);
-	        //this.props.settings.change_handle(this.props.settings.name, this.state.checked);
-	    },
+	var Banner = _react2.default.createClass({
+	    displayName: 'Banner',
 	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.checked,
-	            onChange: this.handleChange }), 'Build tree with FastTree');
+	        return _react2.default.createElement('div', { id: 'waitbanner' }, _react2.default.createElement('div', { style: { "width": "100%" } }, _react2.default.createElement('h3', null, 'TreeTime is running...'), _react2.default.createElement('h4', null, 'This may take a while. You will be redirected to the results page when its done')));
 	    }
 	});
 
-	var ShouldReuseBranchLength = _react2.default.createClass({
-	    displayName: 'ShouldReuseBranchLength',
+	var Status = _react2.default.createClass({
+	    displayName: 'Status',
+	    render: function render() {
+	        return _react2.default.createElement('div', null, _react2.default.createElement('h4', null, this.props.status));
+	    }
+	});
+
+	var StepName = _react2.default.createClass({
+	    displayName: 'StepName',
+	    render: function render() {
+	        return _react2.default.createElement('div', null, _react2.default.createElement('h4', null, this.props.step));
+	    }
+	});
+
+	var Step = _react2.default.createClass({
+	    displayName: 'Step',
+	    render: function render() {
+	        return _react2.default.createElement('div', null, _react2.default.createElement(Status, { status: this.props.status }), _react2.default.createElement(StepName, { step: this.props.step }));
+	    }
+	});
+
+	var Wait = _react2.default.createClass({
+	    displayName: 'Wait',
 	    getInitialState: function getInitialState() {
 	        return {
-	            checked: this.props.settings.settings[this.props.settings.name]
+	            UID: "Undef",
+	            steps: []
 	        };
 	    },
-	    handleChange: function handleChange(e) {
-	        var chk = this.state.checked;
-	        this.state.checked = !chk;
-	        console.log("Reuse Branches Checkbox state changed to: " + this.state.checked);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
+	    componentWillMount: function componentWillMount() {
+	        console.log(this.props.UID);
+	        this.state.user_id = this.props.UID;
+	        console.log("Main: user_id = " + this.state.user_id);
+	        //setInterval(this.get_tree_res, 2000);
 	    },
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.checked,
-	            onChange: this.handleChange }), 'Reuse tree branches');
-	    }
-	});
+	    request_session_state: function request_session_state() {
 
-	var DoReRoot = _react2.default.createClass({
-	    displayName: 'DoReRoot',
-	    getInitialState: function getInitialState() {
-	        return {
-	            checked: this.props.settings.settings[this.props.settings.name]
-	        };
+	        request.post('/' + this.props.UID + '/session_state').send({ UID: this.state.UID }).end(this.on_session_state);
 	    },
-	    handleChange: function handleChange(e) {
-	        var chk = this.state.checked;
-	        this.state.checked = !chk;
-	        console.log("doReRoot Checkbox state changed to: " + this.state.checked);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
+	    on_session_state: function on_session_state(err, res) {
+	        //console.log(JSON.parse(res.text));
+	        ////var sts = JSON.parse(res);
+	        this.setState({ steps: JSON.parse(res.text).steps });
+	        console.log("Steps:");
+	        console.log(this.state.steps);
+	        console.log(JSON.parse(res.text));
+	        if (this.check_all_done()) {
+	            clearInterval(this.interval);
+	            this.props.handle_all_done();
+	        }
 	    },
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.checked,
-	            onChange: this.handleChange }), 'Optimize tree root position');
-	    }
-	});
 
-	var GTRmodel = _react2.default.createClass({
-	    displayName: 'GTRmodel',
-	    render: function render() {
-
-	        return _react2.default.createElement('div', { 'class': 'select' }, 'GTR model:    ', _react2.default.createElement('select', { value: 'A' }, _react2.default.createElement('option', { value: 'A' }, 'Jukes-Cantor')));
-	    }
-	});
-
-	var UseBranchPenalty = _react2.default.createClass({
-	    displayName: 'UseBranchPenalty',
-	    getInitialState: function getInitialState() {
-	        return {
-	            settings: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    validate: function validate(text) {
+	    // /    post_callback:(err, res, body) ->
+	    // /      
+	    // /        console.log(res);
+	    // /        if err
+	    // /            console.log ("Run request failed: " + err);
+	    // /        else
+	    // /            data = JSON.parse(body);
+	    // /            this.setState({steps: data.steps});
+	    // /          
+	    // /            arr = Object.keys(this.state.steps).map(this.check_done)
+	    // /            if not false in arr
+	    // /                console.log("ALL done!")
+	    // /                clearInterval(this.interval);
+	    // /
+	    check_all_done: function check_all_done() {
+	        var arrayLength = this.state.steps.length;
+	        for (var i = 0; i < arrayLength; i++) {
+	            var step = this.state.steps[i];
+	            console.log(step);
+	            if (step.status != "Done") {
+	                return false;
+	            }
+	        }
 	        return true;
 	    },
-	    handleCBChange: function handleCBChange() {
-	        var bool = this.state.settings.bool;
-	        var settings = this.state.settings;
-	        settings.bool = !bool;
-	        this.state.settings = settings;
-	        console.log("Use Branch len penalty changed to: " + settings.bool);
-	        console.log(this.state.settings);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    handleTextChange: function handleTextChange(e) {
-	        console.log(e.target.value);
-	        var text = e.target.value;
-	        this.validate(text);
-	        var settings = this.state.settings;
-	        settings.value = text;
-	        settings.bool = true;
-	        this.state.settings = settings;
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    render: function render() {
-
-	        return _react2.default.createElement('div', null, _react2.default.createElement('div', { style: { floating: 'left' } }, _react2.default.createElement('input', { type: 'checkbox', name: 'penalty_cb',
-	            checked: this.state.settings.bool,
-	            onChange: this.handleCBChange }, ' '), 'Branch penalty =', _react2.default.createElement('input', { style: { 'margin-left': '10px' }, type: 'text', name: 'penalty_value',
-	            disabled: !this.state.settings.bool,
-	            onChange: this.handleTextChange })), _react2.default.createElement('div', null));
-	    }
-	});
-
-	var UseSlope = _react2.default.createClass({
-	    displayName: 'UseSlope',
-	    getInitialState: function getInitialState() {
-	        return {
-	            settings: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    validate: function validate(text) {
-	        return true;
-	    },
-	    handleCBChange: function handleCBChange() {
-	        var bool = this.state.settings.bool;
-	        var settings = this.state.settings; // copy
-	        settings.bool = !bool;
-	        this.state.settings = settings;
-	        console.log("Use Slpe changed to: " + settings.bool);
-	        console.log(this.state.settings);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    handleTextChange: function handleTextChange(e) {
-	        console.log(e.target.value);
-	        var text = e.target.value;
-	        this.validate(text);
-	        var settings = this.state.settings;
-	        settings.value = text;
-	        settings.bool = true;
-	        this.state.settings = settings;
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    render: function render() {
-
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox', name: 'use_slope',
-	            checked: this.state.settings.bool,
-	            onChange: this.handleCBChange
-	        }, ' '), 'Mutation rate (μ) =', _react2.default.createElement('input', { style: { 'margin-left': '10px', 'margin-right': '10px' }, type: 'text', name: 'slope_value',
-	            disabled: !this.state.settings.bool,
-	            onChange: this.handleTextChange }), '(#/year)');
-	    }
-	});
-
-	var DoResolvePoly = _react2.default.createClass({
-	    displayName: 'DoResolvePoly',
-	    getInitialState: function getInitialState() {
-	        return {
-	            checked: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    handleChange: function handleChange(e) {
-	        var chk = this.state.checked;
-	        this.state.checked = !chk;
-	        console.log("DoResolvePoly Checkbox state changed to: " + this.state.checked);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
-	    },
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.checked,
-	            onChange: this.handleChange }), 'Resolve polytomies');
-	    }
-	});
-
-	var DoCoalescent = _react2.default.createClass({
-	    displayName: 'DoCoalescent',
-	    getInitialState: function getInitialState() {
-	        return {
-	            settings: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    validate: function validate(text) {
-	        return true;
-	    },
-	    handleCBChange: function handleCBChange() {
-	        var bool = this.state.settings.bool;
-	        var settings = this.state.settings; // copy
-	        settings.bool = !bool;
-	        this.state.settings = settings;
-	        console.log("Do coalescent changed to: " + settings.bool);
-	        console.log(this.state.settings);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    handleTextChange: function handleTextChange(e) {
-	        console.log(e.target.value);
-	        var text = e.target.value;
-	        this.validate(text);
-	        var settings = this.state.settings;
-	        settings.Tc = text;
-	        settings.bool = true;
-	        this.state.settings = settings;
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    render: function render() {
-
-	        return _react2.default.createElement('div', { id: 'welcome_coalescent' }, _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox', name: 'do_coalescent',
-	            checked: this.state.settings.bool,
-	            onChange: this.handleCBChange }), 'Model coalescent process.'), _react2.default.createElement('div', { style: { 'margin-left': '10px', 'margin-right': '10px' } }, 'Tc = ', _react2.default.createElement('input', { style: { 'margin-left': '10px', 'margin-right': '10px' },
-	            type: 'text', name: 'tc',
-	            disabled: !this.state.settings.bool,
-	            onChange: this.handleTextChange }), '(Hamming distance)'));
-	    }
-	});
-
-	var DoRelaxedClock = _react2.default.createClass({
-	    displayName: 'DoRelaxedClock',
-	    getInitialState: function getInitialState() {
-	        return {
-	            settings: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    validate: function validate(text) {
-	        return true;
-	    },
-	    handleCBChange: function handleCBChange() {
-	        var bool = this.state.settings.bool;
-	        var settings = this.state.settings; // copy
-	        settings.bool = !bool;
-	        this.state.settings = settings;
-	        console.log("Do coalescent changed to: " + settings.bool);
-	        console.log(this.state.settings);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    handleAChange: function handleAChange(e) {
-	        console.log(e.target.value);
-	        var text = e.target.value;
-	        this.validate(text);
-	        var settings = this.state.settings;
-	        settings.alpha = text;
-	        settings.bool = true;
-	        this.state.settings = settings;
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    handleBChange: function handleBChange(e) {
-	        console.log(e.target.value);
-	        var text = e.target.value;
-	        this.validate(text);
-	        var settings = this.state.settings;
-	        settings.beta = text;
-	        settings.bool = true;
-	        this.state.settings = settings;
-	        this.props.settings.change_handle(this.props.settings.name, this.state.settings);
-	    },
-	    render: function render() {
-
-	        return _react2.default.createElement('div', { id: 'welcome_relaxed' }, _react2.default.createElement('div', { style: { 'margin-right': '10px' } }, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.settings.bool,
-	            onChange: this.handleCBChange }), 'Estimate autocorrelated molecular clock'), _react2.default.createElement('div', { style: { 'margin-left': '10px', 'margin-right': '10px' } }, 'α =', _react2.default.createElement('input', { style: { 'margin-left': '10px', 'margin-right': '10px' },
-	            type: 'text',
-	            disabled: !this.state.settings.bool,
-	            onChange: this.handleAChange }), 'β =', _react2.default.createElement('input', { style: { 'margin-left': '10px', 'marginRight': '10px' },
-	            type: 'text',
-	            disabled: !this.state.settings.bool,
-	            onChange: this.handleBChange })));
-	    }
-	});
-
-	var DoRootJoint = _react2.default.createClass({
-	    displayName: 'DoRootJoint',
-	    getInitialState: function getInitialState() {
-	        return {
-	            checked: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    handleChange: function handleChange(e) {
-	        var chk = this.state.checked;
-	        this.state.checked = !chk;
-	        console.log("doRootJoint Checkbox state changed to: " + this.state.checked);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
-	    },
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.checked,
-	            onChange: this.handleChange }), 'Compute Root variance');
-	    }
-	});
-
-	var DoCalcGTR = _react2.default.createClass({
-	    displayName: 'DoCalcGTR',
-	    getInitialState: function getInitialState() {
-	        return {
-	            checked: this.props.settings.settings[this.props.settings.name]
-	        };
-	    },
-	    handleChange: function handleChange(e) {
-	        var chk = this.state.checked;
-	        this.state.checked = !chk;
-	        console.log("doCalcGTR Checkbox state changed to: " + this.state.checked);
-	        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
-	    },
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'checkbox',
-	            checked: this.state.checked,
-	            onChange: this.handleChange }), 'Calc GTR from tree');
-	    }
-	});
-
-	//#TODO other properties (define them!)
-
-	var TreeTimeForm = _react2.default.createClass({
-	    displayName: 'TreeTimeForm',
 	    componentDidMount: function componentDidMount() {
-	        console.log(this.props);
+	        this.request_session_state();
+	        this.interval = setInterval(this.request_session_state, 2000);
 	    },
-	    handle_run: function handle_run() {
-
-	        console.log("Welcome:: RunButton pressed");
-	        this.validate_form();
-	        this.props.handle_run();
+	    componentWillUnmount: function componentWillUnmount() {
+	        clearInterval(this.interval);
 	    },
-	    validate_form: function validate_form() {
-	        console.log("Validating the form...");
-	        return null;
-	    },
-	    on_settings_changed: function on_settings_changed(name, settings) {
-	        console.log("Welcome:: Setings changed: " + name + ".  new value: " + settings);
-	        this.props.handle_settings_change(name, settings);
-	    },
-	    uploadTreeFile: function uploadTreeFile(evt) {
+	    render_step: function render_step(step) {
+	        console.log("rendering" + step.name);
+	        console.log(step);
 
-	        console.log("Uploading tree file...");
-	        var formData = new FormData();
-	        formData.append('treefile', evt.target.files[0]);
-	        //for (var key in evt.target.files) {
-	        //    formData.append(key, files[key]);
-	        //}
-
-	        request.post('/' + this.props.UID + '/tree_file').send(formData).end(function (err, res) {
-	            console.log("Got upload response!");
-	        });
-	    },
-	    uploadAlnFile: function uploadAlnFile(evt) {
-
-	        console.log("Uploading alignment file...");
-	        var formData = new FormData();
-	        formData.append('alnfile', evt.target.files[0]);
-	        //for (var key in evt.target.files) {
-	        //    formData.append(key, files[key]);
-	        //}
-
-	        request.post('/' + this.props.UID + '/aln_file').send(formData).end(function (err, res) {
-	            console.log("Got upload response!");
-	        });
-	    },
-	    uploadMetaFile: function uploadMetaFile(evt) {
-
-	        console.log("Uploading metadata file...");
-	        var formData = new FormData();
-	        formData.append('metafile', evt.target.files[0]);
-	        //for (var key in evt.target.files) {
-	        //    formData.append(key, files[key]);
-	        //}
-
-	        request.post('/' + this.props.UID + '/meta_file').send(formData).end(function (err, res) {
-	            console.log("Got upload response!");
-	        });
+	        var s = step.status;
+	        var n = step.name;
+	        var key = step.name;
+	        console.log("status = " + s);
+	        if (status != 'Error') {
+	            return _react2.default.createElement(Step, { key: key, status: s, step: n });
+	        } else {
+	            // TODO show error banner
+	            clearInterval(this.interval);
+	        }
 	    },
 	    render: function render() {
-	        var act = "/" + this.props.UID + "/run";
-	        console.log(act);
-	        console.log(this.props.settings);
-	        return _react2.default.createElement('div', { id: 'welcome_container' }, _react2.default.createElement('h2', null, 'Welcome'), _react2.default.createElement('div', { id: 'welcome_welcome' }, _react2.default.createElement('p', null, 'Welcome to the TreeTime server. The description and HOWTO will appear here shortly. Please scroll down in order to run tree-time on the server.')), _react2.default.createElement('h2', null, 'Run TreeTime on server:'), _react2.default.createElement('h3', null, '1. Upload data'), _react2.default.createElement('div', { id: 'welcome_files' }, _react2.default.createElement('div', { id: 'welcome_treeupload' }, _react2.default.createElement('h4', { 'class': 'welcome-reeupload-header' }, ' Upload tree file: '), _react2.default.createElement('input', { id: 'welcome_input_tree',
-	            type: 'file',
-	            name: 'treefile'
-	            //disabled={this.props.settings.doBuildTree}
-	            , onChange: this.uploadTreeFile }), _react2.default.createElement('h4', { id: 'welcome_treeupload_or' }, ' Or: '), _react2.default.createElement(DoBuildTree, { settings: {
-	                name: "doBuildTree",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } })), _react2.default.createElement('div', { 'class': 'welcome_treeupload_header', id: 'welcome_alnupload' }, _react2.default.createElement('h4', null, ' Upload alignment file: '), _react2.default.createElement('input', { id: 'welcome_input_aln',
-	            type: 'file',
-	            name: 'alnfile',
-	            onChange: this.uploadAlnFile })), _react2.default.createElement('div', { id: 'welcome_metaupload' }, _react2.default.createElement('h4', { 'class': 'welcome-reeupload-header' }, ' Upload metadata: '), _react2.default.createElement('input', { id: 'welcome_input_meta',
-	            type: 'file',
-	            name: 'metafile',
-	            onChange: this.uploadMetaFile }))), _react2.default.createElement('h3', null, '2. Configure parameters'), _react2.default.createElement('div', { id: 'welcome_params' }, _react2.default.createElement(ShouldReuseBranchLength, { settings: {
-	                name: "shouldReuseBranchLen",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
 
-	            } }), _react2.default.createElement(DoReRoot, { settings: {
-	                name: "doReroot",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-
-	            } }), _react2.default.createElement(GTRmodel, { settings: {
-	                name: "GTRmodel",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-
-	            } }), _react2.default.createElement(UseBranchPenalty, { settings: {
-	                name: "shouldUseBranchLenPenalty",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-
-	            } }), _react2.default.createElement(UseSlope, { settings: {
-	                name: "shouldUseSlope",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } }), _react2.default.createElement(DoResolvePoly, { settings: {
-	                name: "doResolvePoly",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } }), _react2.default.createElement(DoCoalescent, { settings: {
-	                name: "doCoalescent",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } }), _react2.default.createElement(DoRelaxedClock, { settings: {
-	                name: "doRelaxedClock",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } }), _react2.default.createElement(DoRootJoint, { settings: {
-	                name: "doRootJoint",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } }), _react2.default.createElement(DoCalcGTR, { settings: {
-	                name: "doCalcGTR",
-	                settings: this.props.settings,
-	                change_handle: this.on_settings_changed
-	            } })), _react2.default.createElement('div', null, _react2.default.createElement('input', { type: 'button', id: 'welcome_run', onClick: this.handle_run })));
+	        return _react2.default.createElement('div', null, _react2.default.createElement(Banner, null), this.state.steps.map(this.render_step));
 	    }
 	});
 
-	exports.default = TreeTimeForm;
+	exports.default = Wait;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "welcome.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "wait.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 219 */
@@ -26929,155 +26628,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	function _interopRequireDefault(obj) {
-	    return obj && obj.__esModule ? obj : { default: obj };
-	}
-
-	var request = __webpack_require__(219);
-
-	var Banner = _react2.default.createClass({
-	    displayName: 'Banner',
-	    render: function render() {
-	        return _react2.default.createElement('div', { id: 'waitbanner' }, _react2.default.createElement('div', { style: { "width": "100%" } }, _react2.default.createElement('h3', null, 'TreeTime is running...'), _react2.default.createElement('h4', null, 'This may take a while. You will be redirected to the results page when its done')));
-	    }
-	});
-
-	var Status = _react2.default.createClass({
-	    displayName: 'Status',
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('h4', null, this.props.status));
-	    }
-	});
-
-	var StepName = _react2.default.createClass({
-	    displayName: 'StepName',
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement('h4', null, this.props.step));
-	    }
-	});
-
-	var Step = _react2.default.createClass({
-	    displayName: 'Step',
-	    render: function render() {
-	        return _react2.default.createElement('div', null, _react2.default.createElement(Status, { status: this.props.status }), _react2.default.createElement(StepName, { step: this.props.step }));
-	    }
-	});
-
-	var Wait = _react2.default.createClass({
-	    displayName: 'Wait',
-	    getInitialState: function getInitialState() {
-	        return {
-	            UID: "Undef",
-	            steps: []
-	        };
-	    },
-	    componentWillMount: function componentWillMount() {
-	        console.log(this.props.UID);
-	        this.state.user_id = this.props.UID;
-	        console.log("Main: user_id = " + this.state.user_id);
-	        //setInterval(this.get_tree_res, 2000);
-	    },
-	    request_session_state: function request_session_state() {
-
-	        request.post('/' + this.props.UID + '/session_state').send({ UID: this.state.UID }).end(this.on_session_state);
-	    },
-	    on_session_state: function on_session_state(err, res) {
-	        console.log(JSON.parse(res.text));
-	        //var sts = JSON.parse(res);
-	        this.setState({ steps: JSON.parse(res.text) });
-	        console.log(this.state.steps);
-	        if (this.check_all_done()) {
-	            clearInterval(this.interval);
-	            this.props.handle_all_done();
-	        }
-	    },
-
-	    // /    post_callback:(err, res, body) ->
-	    // /      
-	    // /        console.log(res);
-	    // /        if err
-	    // /            console.log ("Run request failed: " + err);
-	    // /        else
-	    // /            data = JSON.parse(body);
-	    // /            this.setState({steps: data.steps});
-	    // /          
-	    // /            arr = Object.keys(this.state.steps).map(this.check_done)
-	    // /            if not false in arr
-	    // /                console.log("ALL done!")
-	    // /                clearInterval(this.interval);
-	    // /
-	    check_all_done: function check_all_done() {
-	        var arrayLength = this.state.steps.length;
-	        for (var i = 0; i < arrayLength; i++) {
-	            var step = this.state.steps[i];
-	            console.log(step);
-	            if (step.status != "Done") {
-	                return false;
-	            }
-	        }
-	        return true;
-	    },
-	    componentDidMount: function componentDidMount() {
-	        this.request_session_state();
-	        this.interval = setInterval(this.request_session_state, 2000);
-	    },
-	    componentWillUnmount: function componentWillUnmount() {
-	        clearInterval(this.interval);
-	    },
-	    render_step: function render_step(step) {
-	        console.log("rendering" + step.name);
-	        console.log(step);
-
-	        var s = step.status;
-	        var n = step.name;
-	        var key = step.name;
-	        console.log("status = " + s);
-	        if (status != 'Error') {
-	            return _react2.default.createElement(Step, { key: key, status: s, step: n });
-	        } else {
-	            // TODO show error banner
-	            clearInterval(this.interval);
-	        }
-	    },
-	    render: function render() {
-
-	        return _react2.default.createElement('div', null, _react2.default.createElement(Banner, null), this.state.steps.map(this.render_step));
-	    }
-	});
-
-	exports.default = Wait;
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "wait.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ },
-/* 226 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _phylo_tree = __webpack_require__(227);
+	var _phylo_tree = __webpack_require__(226);
 
 	var _phylo_tree2 = _interopRequireDefault(_phylo_tree);
 
-	var _tree_legend = __webpack_require__(231);
+	var _tree_legend = __webpack_require__(230);
 
 	var _tree_legend2 = _interopRequireDefault(_tree_legend);
 
-	var _mu_plot = __webpack_require__(232);
+	var _mu_plot = __webpack_require__(231);
 
 	var _mu_plot2 = _interopRequireDefault(_mu_plot);
 
-	var _root_lh = __webpack_require__(233);
+	var _root_lh = __webpack_require__(232);
 
 	var _root_lh2 = _interopRequireDefault(_root_lh);
 
@@ -27087,7 +26650,7 @@
 
 	var request = __webpack_require__(219);
 
-	var Globals = __webpack_require__(230);
+	var Globals = __webpack_require__(229);
 	var colors = Globals.colors;
 
 	var CScale = function CScale(cUnit) {
@@ -27396,7 +26959,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "results.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 227 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -27406,10 +26969,10 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	var EventEmitter = __webpack_require__(228).EventEmitter;
-	var d3 = __webpack_require__(229);
+	var EventEmitter = __webpack_require__(227).EventEmitter;
+	var d3 = __webpack_require__(228);
 
-	var Globals = __webpack_require__(230);
+	var Globals = __webpack_require__(229);
 	var colors = Globals.colors;
 	var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 
@@ -27669,7 +27232,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "phylo_tree.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 228 */
+/* 227 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -27973,7 +27536,7 @@
 
 
 /***/ },
-/* 229 */
+/* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;!function() {
@@ -37532,7 +37095,7 @@
 	}();
 
 /***/ },
-/* 230 */
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -37548,7 +37111,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "globals.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 231 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -37558,10 +37121,10 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	var EventEmitter = __webpack_require__(228).EventEmitter;
-	var d3 = __webpack_require__(229);
+	var EventEmitter = __webpack_require__(227).EventEmitter;
+	var d3 = __webpack_require__(228);
 
-	var Globals = __webpack_require__(230);
+	var Globals = __webpack_require__(229);
 	var colors = Globals.colors;
 	var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 
@@ -37675,7 +37238,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "tree_legend.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 232 */
+/* 231 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -37685,9 +37248,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	var EventEmitter = __webpack_require__(228).EventEmitter;
-	var d3 = __webpack_require__(229);
-	var Globals = __webpack_require__(230);
+	var EventEmitter = __webpack_require__(227).EventEmitter;
+	var d3 = __webpack_require__(228);
+	var Globals = __webpack_require__(229);
 	var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 
 	var MuPlot = {};
@@ -37823,7 +37386,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "mu_plot.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 233 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -37833,9 +37396,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	var EventEmitter = __webpack_require__(228).EventEmitter;
-	var d3 = __webpack_require__(229);
-	var Globals = __webpack_require__(230);
+	var EventEmitter = __webpack_require__(227).EventEmitter;
+	var d3 = __webpack_require__(228);
+	var Globals = __webpack_require__(229);
 	var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 
 	var RootLhPlot = {};

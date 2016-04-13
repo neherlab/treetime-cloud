@@ -22,7 +22,7 @@ var Name = React.createClass({
         return (
             <div id='name'>
             <h1>TimeTree </h1>
-            <h2>Phylogeny with dating</h2>
+            <h2>Phylogeny with absolute time resolution</h2>
             </div>
 
         );

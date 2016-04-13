@@ -1,10 +1,43 @@
 import React from  'react'
+import ReactDOM from 'react-dom'
 var request = require('superagent');
+
+import Header from './header.js'
+import Footer from './footer.js'
+import { Router, Route, Link, browserHistory } from 'react-router'
+
+var settings = {
+  doBuildTree:false,
+  shouldReuseBranchLen:false,
+  doReroot:true,
+  gtr:"Jukes-Cantor",
+  shouldUseBranchLenPenalty:{
+      bool:false,
+      value:0.0
+  },
+  shouldUseSlope:{
+      bool:false,
+      value:0.0
+  },
+  doResolvePoly: false,
+  doCoalescent:{
+    bool:false,
+    Tc:0.0
+  },
+  doRelaxedClock:{
+    bool:false,
+    alpha:0.0,
+    beta:0.0
+  },
+  doRootJoint:false,
+  doCalcGTR:false
+};
+
 
 var DoBuildTree = React.createClass({
     getInitialState(){
         return ({
-            checked: false,//this.props.settings.settings[this.props.settings.name]
+            checked: this.props.settings.settings[this.props.settings.name]
         }
         );
     },
@@ -13,7 +46,7 @@ var DoBuildTree = React.createClass({
         var build = this.state.checked;
         this.state.checked = !build;
         console.log("Build tree Checkbox state changed to: " + this.state.checked);
-        //this.props.settings.change_handle(this.props.settings.name, this.state.checked);
+        this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
     render(){
@@ -448,30 +481,78 @@ var DoCalcGTR = React.createClass ({
 //#TODO other properties (define them!)
 
 var TreeTimeForm = React.createClass({
+    mixins: [Router.Navigation],
+
+    setAppState : function(partialState){
+        this.setState(partialState);
+    },
     
-    componentDidMount(){
-        console.log(this.props);
+    getInitialState : function() {
+      return {
+        UID: "JHG", 
+        settings:settings,
+        tree_file:false,
+        aln_file:false,
+        meta_file:false
+      };
     },
 
-    handle_run(){
+    handle_run: function(){
+        console.log("APP:: RUN button pressed");
+        if ((!this.state.tree_file & !this.state.settings.doBuildTree) || ! this.state.aln_file || !this.state.meta_file){
+          var msg = "Cannot proceed with TreeTime: one or more file not loaded.\n\n"
+          if ((!this.state.tree_file & !this.state.settings.doBuildTree)){
+            msg += "Phylogenetic tree file is missing.\n\n";
+          }
+          if (!this.state.aln_file){
+            msg += "Sequence alignment file is missing.\n\n";
+          }
+          if (!this.state.meta_file){
+            msg += "Meta data file is missing.\n\n";
+          }
+          alert(msg);
+          return;
+        }
+        request.post("/" + this.state.UID)
+          .set('Content-Type', 'application/json')
+          .send({settings: this.state.settings})
+          .end(this.on_run_status);
+    },
+
+    on_run_status : function(err, res){
+    
+        console.log("RUN RESPONSE");
+        console.log(res)
+        window.location.replace("/" + this.state.UID + "/progress");
+
+    },
+
+    on_settings_changed : function(name, setting){
+      console.log("APP:: settings changed. " + name + " new value = " + setting);
+      var settings = this.state.settings
+      settings[name] = setting;
+
+      this.setState({settings: settings})
+      this.state.settings = settings;
+    },
+
+
+    componentDidMount: function(){
+        console.log("Welcome has been mounted");
+        var parentNode = this.getDOMNode().parentNode;
+        var UID = (parentNode.attributes.userid.value);
+        console.log("UID: " + UID)
+        this.state.UID = UID;
+        console.log(this.state);
         
-        console.log("Welcome:: RunButton pressed");
-        this.validate_form();
-        this.props.handle_run();
-    
     },
 
-    validate_form(){
+    validate_form : function(){
         console.log("Validating the form...");
         return null;
     },
     
-    on_settings_changed(name, settings){
-        console.log("Welcome:: Setings changed: " + name + ".  new value: " + settings);
-        this.props.handle_settings_change(name, settings);
-    },
-
-    uploadTreeFile (evt){
+    uploadTreeFile :function(evt){
     
         console.log("Uploading tree file...");
         var formData = new FormData();
@@ -480,14 +561,20 @@ var TreeTimeForm = React.createClass({
         //    formData.append(key, files[key]);
         //}
 
-        request.post('/' + this.props.UID + '/tree_file')
+        this.setAppState({tree_file:true});
+        request.post('/upload/' + this.state.UID + '/file')
             .send(formData)
-            .end(function(err, res){
-                console.log("Got upload response!");
-            });
+            .end(this.on_upload_tree);
     },
 
-    uploadAlnFile (evt){
+    on_upload_tree: function(err, res){
+        if (err){
+            this.setAppState({tree_file:false});
+            alert("Tree file upload error. Please, try once more.")
+        }
+    },
+
+    uploadAlnFile :function(evt){
     
         console.log("Uploading alignment file...");
         var formData = new FormData();
@@ -495,15 +582,19 @@ var TreeTimeForm = React.createClass({
         //for (var key in evt.target.files) {
         //    formData.append(key, files[key]);
         //}
-
-        request.post('/' + this.props.UID + '/aln_file')
+        this.setAppState({aln_file:true});
+        request.post('/upload/' + this.state.UID + '/file')
             .send(formData)
-            .end(function(err, res){
-                console.log("Got upload response!");
-            });
+            .end(this.on_upload_aln);
+    },
+    on_upload_aln: function(err, res){
+        if (err){
+            this.setAppState({aln_file:false});
+            alert("Alignment file upload error. Please, try once more.")
+        }
     },
 
-    uploadMetaFile (evt){
+    uploadMetaFile :function(evt){
 
         console.log("Uploading metadata file...");
         var formData = new FormData();
@@ -512,141 +603,157 @@ var TreeTimeForm = React.createClass({
         //    formData.append(key, files[key]);
         //}
 
-        request.post('/' + this.props.UID + '/meta_file')
+        this.setAppState({meta_file:true});
+        request.post('/upload/' + this.state.UID + '/file')
             .send(formData)
-            .end(function(err, res){
-                console.log("Got upload response!");
-            });
+            .end(this.on_upload_meta);
+    },
+    on_upload_meta: function(err, res){
+        if (err){
+            this.setAppState({meta_file:false});
+            alert("Meta data file upload error. Please, try once more.")
+        }
     },
 
-    render(){
-        var act = "/" + this.props.UID + "/run";
-        console.log(act)
-        console.log(this.props.settings)
+    render:function(){
+        console.log(this.state.settings)
         return (
-            <div id="welcome_container">
-                <h2>Welcome</h2>
-                <div id='welcome_welcome'>
-                <p>Welcome to the TreeTime server.
-                The description and HOWTO will appear here shortly. Please scroll down in order to 
-                run tree-time on the server.</p>
-                </div>
-                <h2>Run TreeTime on server:</h2>
-            
-                <h3>1. Upload data</h3>
-
-                <div id="welcome_files">
+            <div>
+                <Header/>
+                <div id="welcome_container">
+    
+                    <h2>Welcome</h2>
+                    <div id='welcome_welcome'>
+                    <p>Welcome to the TreeTime server.
+                    The description and HOWTO will appear here shortly. Please scroll down in order to 
+                    run tree-time on the server.</p>
+                    </div>
+                    <h2>Run TreeTime on server:</h2>
+                
+                    <h3>1. Upload data</h3>
+    
+                    <div id="welcome_files">
+                        
+                        <div id="welcome_treeupload">
+                        <h4 class="welcome-reeupload-header"> Upload tree file: </h4>
+                        <input id="welcome_input_tree"  
+                            type="file" 
+                            name="treefile"
+                            disabled={this.state.settings.doBuildTree}
+                            onChange={this.uploadTreeFile}></input>
+    
+                        <h4 id='welcome_treeupload_or'> Or: </h4>
+                        <DoBuildTree settings={{
+                            name: "doBuildTree",
+                            settings:this.props.settings,
+                            change_handle: this.on_settings_changed
+                        }}/>
+                        </div> 
+                        
+                        <div class="welcome_treeupload_header" id="welcome_alnupload">
+                        <h4 > Upload alignment file: </h4>
+                        <input  id="welcome_input_aln"  
+                            type="file" 
+                            name="alnfile"
+                            onChange={this.uploadAlnFile}></input>
+                        </div>
+                        
+                        <div id="welcome_metaupload">
+                        <h4 class="welcome-reeupload-header"> Upload metadata: </h4>
+                        <input  id="welcome_input_meta"  
+                            type="file" 
+                            name="metafile"
+                            onChange={this.uploadMetaFile}></input>
+                        </div>
+                    </div>
+    
+                    <h3>2. Configure parameters</h3>
+                
+                    <div id="welcome_params">
+    
+                    <ShouldReuseBranchLength settings={{
+                        name: "shouldReuseBranchLen",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
                     
-                    <div id="welcome_treeupload">
-                    <h4 class="welcome-reeupload-header"> Upload tree file: </h4>
-                    <input id="welcome_input_tree"  
-                        type="file" 
-                        name="treefile"
-                        //disabled={this.props.settings.doBuildTree}
-                        onChange={this.uploadTreeFile}></input>
-
-                    <h4 id='welcome_treeupload_or'> Or: </h4>
-                    <DoBuildTree settings={{
-                        name: "doBuildTree",
-                        settings:this.props.settings,
+                    }}/>
+                    
+                    <DoReRoot settings={{
+                        name: "doReroot",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    
+                    }}/>
+    
+                    <GTRmodel settings={{
+                        name: "GTRmodel",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    
+                    }}/>
+    
+                    <UseBranchPenalty settings={{
+                        name: "shouldUseBranchLenPenalty",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    
+                    }}/>
+    
+                    <UseSlope settings={{
+                        name: "shouldUseSlope",
+                        settings:this.state.settings,
                         change_handle: this.on_settings_changed
                     }}/>
-                    </div> 
+    
+                    <DoResolvePoly settings={{
+                        name: "doResolvePoly",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    }}/>
+    
+                    <DoCoalescent settings={{
+                        name: "doCoalescent",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    }}/>
                     
-                    <div class="welcome_treeupload_header" id="welcome_alnupload">
-                    <h4 > Upload alignment file: </h4>
-                    <input  id="welcome_input_aln"  
-                        type="file" 
-                        name="alnfile"
-                        onChange={this.uploadAlnFile}></input>
-                    </div>
+                    <DoRelaxedClock settings={{
+                        name: "doRelaxedClock",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    }}/>
                     
-                    <div id="welcome_metaupload">
-                    <h4 class="welcome-reeupload-header"> Upload metadata: </h4>
-                    <input  id="welcome_input_meta"  
-                        type="file" 
-                        name="metafile"
-                        onChange={this.uploadMetaFile}></input>
+                    <DoRootJoint settings={{
+                        name: "doRootJoint",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    }}/>
+    
+                    <DoCalcGTR settings={{
+                        name: "doCalcGTR",
+                        settings:this.state.settings,
+                        change_handle: this.on_settings_changed
+                    }}/>
+    
+                    </div>
+    
+                    <div >
+                        <input type='button' id="welcome_run" onClick={this.handle_run} />
                     </div>
                 </div>
-
-                <h3>2. Configure parameters</h3>
-            
-                <div id="welcome_params">
-
-                <ShouldReuseBranchLength settings={{
-                    name: "shouldReuseBranchLen",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                
-                }}/>
-                
-                <DoReRoot settings={{
-                    name: "doReroot",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                
-                }}/>
-
-                <GTRmodel settings={{
-                    name: "GTRmodel",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                
-                }}/>
-
-                <UseBranchPenalty settings={{
-                    name: "shouldUseBranchLenPenalty",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                
-                }}/>
-
-                <UseSlope settings={{
-                    name: "shouldUseSlope",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
-
-                <DoResolvePoly settings={{
-                    name: "doResolvePoly",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
-
-                <DoCoalescent settings={{
-                    name: "doCoalescent",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
-                
-                <DoRelaxedClock settings={{
-                    name: "doRelaxedClock",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
-                
-                <DoRootJoint settings={{
-                    name: "doRootJoint",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
-
-                <DoCalcGTR settings={{
-                    name: "doCalcGTR",
-                    settings:this.props.settings,
-                    change_handle: this.on_settings_changed
-                }}/>
-
-                </div>
-
-                <div >
-                    <input type='button' id="welcome_run" onClick={this.handle_run} />
-                </div>
-
+                <Footer/>
             </div>
         );
     }
 });
+
+
+
+/////////////// rendering
+
+ReactDOM.render((
+    <TreeTimeForm settings={settings} />),
+    document.getElementById('react'));
+
 
 export default TreeTimeForm;

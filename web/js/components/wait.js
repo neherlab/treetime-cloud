@@ -29,7 +29,6 @@ var StepName = React.createClass({
         return (
 
             <div>
-            
             <h4>{this.props.step}</h4>
             </div>
         );
@@ -37,7 +36,6 @@ var StepName = React.createClass({
 });
 
 var Step = React.createClass({
-    
     render() {
         return(
             <div>
@@ -73,10 +71,12 @@ var Wait  = React.createClass({
     },
 
     on_session_state(err, res){
-        console.log(JSON.parse(res.text));
-        //var sts = JSON.parse(res);
-        this.setState({steps:JSON.parse(res.text)});
+        //console.log(JSON.parse(res.text));
+        ////var sts = JSON.parse(res);
+        this.setState({steps:JSON.parse(res.text).steps});
+        console.log("Steps:")
         console.log(this.state.steps)
+        console.log(JSON.parse(res.text))
         if (this.check_all_done()){
             clearInterval(this.interval);
             this.props.handle_all_done();

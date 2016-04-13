@@ -57,6 +57,9 @@ def load_settings(root):
     with open(os.path.join(root, 'settings.json')) as ff:
         s = json.load(ff)
     
+    print (s)
+    ##import ipdb; ipdb.set_trace()
+
     steps = []
     
     # 1. basic setup
@@ -96,7 +99,6 @@ def load_settings(root):
         name,
         temporal_constraints,
         {
-            
             'slope': slope,
             'branch_penalty':bp,
             'do_reroot':do_reroot            
@@ -119,6 +121,26 @@ def load_settings(root):
                 alpha: get_value(s, 'doRelaxedClock', 'alpha'),
                 beta: get_value(s, 'doRelaxedClock', 'beta'),
             }))
+    # 8. resolve polytomies
+    if is_true(s, 'doResolvePoly'):
+        steps.append(create_step(
+            "Resolve multiple mergers",
+            resolve_poly,
+            {
+
+            }
+            ))
+
+    #import ipdb; ipdb.set_trace()
+
+    # last step - save results:
+    steps.append(create_step(
+        "Save results",
+        save_results,
+        {
+        'root':root
+        }
+        ))
 
     return steps
 
@@ -158,18 +180,19 @@ def init_treetime(tt, state, root): #  read tree, aln, met, return treetime obje
 
 def anc(tt, state, reuse_branch=False):
     
-#    try:
+    try:
         tt.optimize_seq_and_branch_len(reuse_branch, True)
         state['status'] = 'Done'
         return (tt, True)
-#    except:
+    except:
+        print ("Exception in ancestral reconstruction!")
         state['status'] = 'Error'
         return (None, False)
 
 def temporal_constraints(tt, state, slope=None, branch_penalty=0.0, do_reroot=False):
-    try:
-        if branch_penalty != 0.0:
-            treetime.ttconf.BRANCH_LEN_PENALTY = branch_penalty
+    #try:
+        if branch_penalty is not None and branch_penalty != 0.0:
+            treetime.treetime.config.BRANCH_LEN_PENALTY = branch_penalty
 
         if do_reroot: # TODO slope also should be taken into account!
             tt.reroot_to_best_root()
@@ -180,7 +203,8 @@ def temporal_constraints(tt, state, slope=None, branch_penalty=0.0, do_reroot=Fa
 
         state['status'] = 'Done'
         return tt, True
-    except:
+    #except:
+        print ("Exception is setting constraints!")
         return None, False
 
 def run_treetime(tt, state):
@@ -219,13 +243,21 @@ def do_gtr_calc(tt, state):
     state['status'] = 'Done'
     return tt, True
 
-if __name__ == '__main__':
+def save_results(tt, state, root):
+    print (root)
+    if tt is not None:
+        #  save files
+        treetime.treetime_to_json(tt,  os.path.join(root, "out_tree.json"))
+        treetime.tips_data_to_json(tt, os.path.join(root, "out_tips.json"))
+        treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
+        state['status'] = 'Done'
+        return tt, True
+    else: 
+        state['status'] = 'Error'
+        return tt, False
+    
 
-    root = sys.argv[1]
-
-    steps = load_settings(root)
-    ostate = os.path.join(root, 'state.json')
-
+def write_initial_state(root, steps, ostate):
     # write initial state 
     state = []
     for step in steps:
@@ -237,102 +269,47 @@ if __name__ == '__main__':
             'message':"" # in case of warn, error - message is important
         })
     write_json(ostate, state)
+    return state
 
-
-    # run the workflow
+def process(root, steps, state, ostate):
+    
     idx = 0
     tt=None
     for step in steps:
+        print ("\n\n----------------- TreeTime is doing step: " + step["name"])
         settings = step['settings']
         call = step['callable']
+        state[idx]['status'] = 'Progress'
+        write_json(ostate, state)
+        
         tt, res = call(tt, state[idx], **settings)
         write_json(ostate, state)
+        print (tt)
         if not res:
             break
         idx += 1
-
-    #  save files
-    treetime.treetime_to_json(tt, "out_tree.json")
-    treetime.tips_data_to_json(tt, "out_tips.json")
-    treetime.root_lh_to_json(tt, "out_root_lh.json")
-
-    sys.exit(0)
-
-
-    #  Init date params, 
-    #  if needed, do the following:
-    #  correct root node
-    #  use the slope value given 
-    #  set branch length penalty 
-    try:
-
-        steps['4']['status']  = 'Progress'
-        write_json(session_state, ss_json)
-
-        if should_use_branch_penalty:
-            treetime.treetime_conf.BRANCH_LEN_PENALTY = float(run_params['branch_penalty'])
-        
-        if not do_root_calc:
-            if should_use_slope:
-                slope = float(run_params['slope_value'])
-            else:
-                slope = None
-            t.init_date_constraints(slope=slope)
-        
-        else: #  do root calc
-            
-            steps['5']['status'] =  'Progress'
-            write_json(session_state, ss_json)
-            
-            if should_use_slope:
-                slope = float(run_params['slope_value'])
-            else:
-                slope = None
-            
-            # infer better root
-            t.reroot_to_best_root()
-            #  TODO slope constraints
-
-            steps['5']['status'] =  'Done'
-            write_json(session_state, ss_json)
-            
-
-        steps['4']['status'] = 'Done'
-        write_json(session_state, ss_json)
     
-    except:
-        
-        steps['4']['status'] = 'Failed'
-        steps['4']['message'] = 'TreeTime script error. Parameters are inconsistent.'
-        write_json(session_state, ss_json)
-        sys.stdout.write ('Init date params failed!')
-        sys.exit(0)
+    #if tt is not None:
+    #    #  save files
+    #    treetime.treetime_to_json(tt,  os.path.join(root, "out_tree.json"))
+    #    treetime.tips_data_to_json(tt, os.path.join(root, "out_tips.json"))
+    #    treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
 
-    #  MAIN method
-    try:
-        steps['6']['status'] = 'Progress'
-        write_json(session_state, ss_json)
-
-        
-
-        steps['6']['status'] =  'Done'
-        write_json(session_state, ss_json)
-
-    except:
-
-        steps['6']['status'] = 'Failed'
-        steps['6']['message'] =  'TreeTime script error. Parameters are inconsistent.'
-        write_json(session_state, ss_json)
-        sys.stdout.write ('TreeTime main failed!')
-        sys.exit(0)
-
-    #  TODO autocorr molecular clock
-    #  TODO coalescence model
-    #  TODO resolve poly
-
-
-    print ("TreeTime python script Done!")
+def pipeline(root, ostate):
     
+    #ostate = os.path.join(root, 'state.json')
+    
+    steps = load_settings(root)
+    state = write_initial_state(root, steps, ostate)
+    process(root, steps, state, ostate) 
+
+if __name__ == '__main__':
+
+    pass
+
+    
+    
+
 
     
 

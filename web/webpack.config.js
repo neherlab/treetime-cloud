@@ -1,11 +1,16 @@
 var webpack = require('webpack');  
 
 module.exports = {  
-    entry: "./js/app.js",
+    entry: {
+        welcome: "./js/components/welcome.js",
+        progress: "./js/components/progress.js", 
+        results: "./js/components/results.js", 
+
+    },
 
     output: {
         path: __dirname + '/static/js',
-        filename: "bundle.js"
+        filename: "[name].js"
     },
     
     module: {

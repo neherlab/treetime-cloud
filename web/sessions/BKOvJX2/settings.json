@@ -1,1 +1,0 @@
-{"doBuildTree":false,"shouldReuseBranchLen":false,"doReroot":false,"gtr":"Jukes-Cantor","shouldUseBranchLenPenalty":{"bool":false,"value":0},"shouldUseSlope":{"bool":false,"value":0},"doResolvePoly":false,"doCoalescent":{"bool":false,"Tc":0},"doRelaxedClock":{"bool":false,"alpha":0,"beta":0},"doRootJoint":false,"doCalcGTR":false}

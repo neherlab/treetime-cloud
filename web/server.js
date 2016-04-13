@@ -33,7 +33,8 @@ var mkdirSync = function (path) {
 
 app.get('/', function (req, res) {
   var user_id = makeid(); //"HILWQ89P23OI566UHLUIL";
-  res.send(user_id);
+    res.sendfile( __dirname + "/static/html/" + 'index.html');
+    //res.send(user_id);
 });
 
 app.post('/', function(req, res){
@@ -42,14 +43,13 @@ app.post('/', function(req, res){
   console.log('User requests for a new ID, send' + user_id + " back")
   mkdirSync(__dirname + "/sessions/" + user_id);  
   res.send({redirect:user_id});
-  
 
 });
 
 
 app.get('/:user_id/', function (req, res) {
   
-  res.sendfile( __dirname + "/static/" + 'index.html');
+  res.sendfile( __dirname + "/static/html/" + 'index.html');
 
 });
 
@@ -98,8 +98,12 @@ app.post('/:user_id/run',  function(req, res){
   }); 
 
   var root = __dirname + "/sessions/" + user_id;
-  subp.exec_sync('python ./static/py/main.py ' + root, function(err, stdout, stderr){
-
+  subp.exec('python ./static/py/main.py ' + root, function(err, stdout, stderr){
+    console.log('stdout: ' + stdout);
+    console.log('stderr: ' + stderr);
+    if (error !== null) {
+        console.log('exec error: ' + error);
+    }
   });
 
 
@@ -112,8 +116,11 @@ app.post('/:user_id/session_state', function(req, res){
   console.log(user_id)
   var fname = __dirname + "/sessions/" + user_id + "/state.json"
   fs.readFile(fname, "utf8", function(err, data) {
-        if (err) throw err;
-        res.send(data);
+        if (err){
+          res.send({steps:[]});
+        }else{
+          res.send({steps:data});
+        } 
     });
 });
  
@@ -122,8 +129,11 @@ app.post('/:user_id/results', function(req, res){
   console.log(user_id)
   var fname = __dirname + "/sessions/" + user_id + "/tree.json"
   fs.readFile(fname, "utf8", function(err, data) {
-        if (err) throw err;
-        res.send({tree:JSON.parse(data)});
+        if (err) {
+          res.send({})
+        }else{
+          res.send({tree:JSON.parse(data)});
+        }
     });
 });
  
