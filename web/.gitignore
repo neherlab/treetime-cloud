@@ -24,6 +24,7 @@ coverage
 build/Release
 build
 sessions/
+static/js/
 
 # Dependency directories
 node_modules
