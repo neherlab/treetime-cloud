@@ -60,11 +60,11 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _header = __webpack_require__(172);
+	var _header = __webpack_require__(159);
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _footer = __webpack_require__(173);
+	var _footer = __webpack_require__(160);
 
 	var _footer2 = _interopRequireDefault(_footer);
 
@@ -72,7 +72,7 @@
 	    return obj && obj.__esModule ? obj : { default: obj };
 	}
 
-	var request = __webpack_require__(159);
+	var request = __webpack_require__(161);
 
 	var Banner = _react2.default.createClass({
 	    displayName: 'Banner',
@@ -8149,6 +8149,10 @@
 	  }
 	};
 
+	function registerNullComponentID() {
+	  ReactEmptyComponentRegistry.registerNullComponentID(this._rootNodeID);
+	}
+
 	var ReactEmptyComponent = function (instantiate) {
 	  this._currentElement = null;
 	  this._rootNodeID = null;
@@ -8157,7 +8161,7 @@
 	assign(ReactEmptyComponent.prototype, {
 	  construct: function (element) {},
 	  mountComponent: function (rootID, transaction, context) {
-	    ReactEmptyComponentRegistry.registerNullComponentID(rootID);
+	    transaction.getReactMountReady().enqueue(registerNullComponentID, this);
 	    this._rootNodeID = rootID;
 	    return ReactReconciler.mountComponent(this._renderedComponent, rootID, transaction, context);
 	  },
@@ -18880,7 +18884,7 @@
 
 	'use strict';
 
-	module.exports = '0.14.7';
+	module.exports = '0.14.8';
 
 /***/ },
 /* 147 */
@@ -19855,14 +19859,114 @@
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) {
+	    return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	var Logo = _react2.default.createClass({
+	    displayName: 'Logo',
+	    render: function render() {
+	        var scope = {
+	            splitterStyle: {
+	                width: 100
+	            }
+	        };
+	        return _react2.default.createElement('img', { id: 'logo', src: '/static/svg/logo.svg' });
+	    }
+	});
+
+	var Name = _react2.default.createClass({
+	    displayName: 'Name',
+	    render: function render() {
+	        return _react2.default.createElement('div', { id: 'name' }, _react2.default.createElement('h1', null, 'TimeTree '), _react2.default.createElement('h2', null, 'Phylogeny with absolute time resolution'));
+	    }
+	});
+
+	var Header = _react2.default.createClass({
+	    displayName: 'Header',
+	    render: function render() {
+	        return _react2.default.createElement('div', { id: 'header' }, _react2.default.createElement(Logo, null), _react2.default.createElement(Name, null));
+	    }
+	});
+
+	exports.default = Header;
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "header.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 160 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) {
+	    return obj && obj.__esModule ? obj : { default: obj };
+	}
+
+	var Copyright = _react2.default.createClass({
+	    displayName: 'Copyright',
+	    render: function render() {
+	        var scope = {
+	            splitterStyle: {
+	                width: 100
+	            }
+	        };
+	        return _react2.default.createElement('div', { id: 'copyright' }, 'Copyright ©:');
+	    }
+	});
+
+	var Authors = _react2.default.createClass({
+	    displayName: 'Authors',
+	    render: function render() {
+	        return _react2.default.createElement('div', { id: 'authors' }, 'Richard Neher and Pavel Sagulenko, 2016');
+	    }
+	});
+
+	var Footer = _react2.default.createClass({
+	    displayName: 'Footer',
+	    render: function render() {
+	        return _react2.default.createElement('div', { id: 'footer' }, _react2.default.createElement(Authors, null), _react2.default.createElement(Copyright, null));
+	    }
+	});
+
+	exports.default = Footer;
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "footer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/**
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(160);
-	var reduce = __webpack_require__(161);
-	var requestBase = __webpack_require__(162);
-	var isObject = __webpack_require__(163);
+	var Emitter = __webpack_require__(162);
+	var reduce = __webpack_require__(163);
+	var requestBase = __webpack_require__(164);
+	var isObject = __webpack_require__(165);
 
 	/**
 	 * Root reference for iframes.
@@ -19911,7 +20015,7 @@
 	 * Expose `request`.
 	 */
 
-	var request = module.exports = __webpack_require__(164).bind(null, Request);
+	var request = module.exports = __webpack_require__(166).bind(null, Request);
 
 	/**
 	 * Determine XHR.
@@ -20935,7 +21039,7 @@
 
 
 /***/ },
-/* 160 */
+/* 162 */
 /***/ function(module, exports) {
 
 	
@@ -21102,7 +21206,7 @@
 
 
 /***/ },
-/* 161 */
+/* 163 */
 /***/ function(module, exports) {
 
 	
@@ -21131,13 +21235,13 @@
 	};
 
 /***/ },
-/* 162 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module of mixed-in functions shared between node and client code
 	 */
-	var isObject = __webpack_require__(163);
+	var isObject = __webpack_require__(165);
 
 	/**
 	 * Clear previous timeout.
@@ -21303,7 +21407,7 @@
 
 
 /***/ },
-/* 163 */
+/* 165 */
 /***/ function(module, exports) {
 
 	/**
@@ -21322,7 +21426,7 @@
 
 
 /***/ },
-/* 164 */
+/* 166 */
 /***/ function(module, exports) {
 
 	// The node and browser modules expose versions of this with the
@@ -21358,113 +21462,6 @@
 
 	module.exports = request;
 
-
-/***/ },
-/* 165 */,
-/* 166 */,
-/* 167 */,
-/* 168 */,
-/* 169 */,
-/* 170 */,
-/* 171 */,
-/* 172 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) {
-	    return obj && obj.__esModule ? obj : { default: obj };
-	}
-
-	var Logo = _react2.default.createClass({
-	    displayName: 'Logo',
-	    render: function render() {
-	        var scope = {
-	            splitterStyle: {
-	                width: 100
-	            }
-	        };
-	        return _react2.default.createElement('img', { id: 'logo', src: '/static/svg/logo.svg' });
-	    }
-	});
-
-	var Name = _react2.default.createClass({
-	    displayName: 'Name',
-	    render: function render() {
-	        return _react2.default.createElement('div', { id: 'name' }, _react2.default.createElement('h1', null, 'TimeTree '), _react2.default.createElement('h2', null, 'Phylogeny with absolute time resolution'));
-	    }
-	});
-
-	var Header = _react2.default.createClass({
-	    displayName: 'Header',
-	    render: function render() {
-	        return _react2.default.createElement('div', { id: 'header' }, _react2.default.createElement(Logo, null), _react2.default.createElement(Name, null));
-	    }
-	});
-
-	exports.default = Header;
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "header.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ },
-/* 173 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) {
-	    return obj && obj.__esModule ? obj : { default: obj };
-	}
-
-	var Copyright = _react2.default.createClass({
-	    displayName: 'Copyright',
-	    render: function render() {
-	        var scope = {
-	            splitterStyle: {
-	                width: 100
-	            }
-	        };
-	        return _react2.default.createElement('div', { id: 'copyright' }, 'Copyright ©:');
-	    }
-	});
-
-	var Authors = _react2.default.createClass({
-	    displayName: 'Authors',
-	    render: function render() {
-	        return _react2.default.createElement('div', { id: 'authors' }, 'Richard Neher and Pavel Sagulenko, 2016');
-	    }
-	});
-
-	var Footer = _react2.default.createClass({
-	    displayName: 'Footer',
-	    render: function render() {
-	        return _react2.default.createElement('div', { id: 'footer' }, _react2.default.createElement(Authors, null), _react2.default.createElement(Copyright, null));
-	    }
-	});
-
-	exports.default = Footer;
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/pavel/Documents/treetime_web/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "footer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }
 /******/ ]);
