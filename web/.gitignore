@@ -30,6 +30,7 @@ build/Release
 build
 sessions/
 static/js/
+*.pyc
 
 # Dependency directories
 node_modules
