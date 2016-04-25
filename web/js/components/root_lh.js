@@ -19,13 +19,13 @@ RootLhPlot.padding_left = 120;
 
 RootLhPlot.create = function(el, props, state){
     
-    console.log("CREATING lh PLOT")
+    //console.log("CREATING lh PLOT")
     var svg = d3.select(el).append('svg')
       .attr('class', 'd3_lh')
       .attr('width', el.offsetWidth)
       .attr('height', el.offsetHeight);
     
-    //console.log(svg)
+    ////console.log(svg)
     svg.append('svg')
       .attr('class', 'd3_lh_axis')
 
@@ -44,7 +44,7 @@ RootLhPlot._update_points = function(){
 
 RootLhPlot.update = function(el, lh, state, dispatcher){
     
-    console.log("UPDATING lh");
+    //console.log("UPDATING lh");
 
     if (this.points != lh){
       
@@ -156,8 +156,8 @@ RootLhPlot._draw_axis = function(el, scales){
         .style("text-anchor", "middle")
         .text("Normalized likelihood");
 
-        //console.log("LH el: ")
-//    //console.log(el)
+        ////console.log("LH el: ")
+//    ////console.log(el)
 //    var width = el.offsetWidth;
 //    var height = el.offsetHeight;
 //
@@ -193,8 +193,8 @@ RootLhPlot._draw_axis = function(el, scales){
 //    svg.append('g')
 //        .attr("transform", "translate(0," + (height - this.padding) + ")")
 //        .call(xAxis)
-//    //console.log("SVG = ")
-//    //console.log(svg)
+//    ////console.log("SVG = ")
+//    ////console.log(svg)
 //
 //
 //    svg.append("g")
@@ -220,7 +220,7 @@ RootLhPlot._draw_axis = function(el, scales){
 
 RootLhPlot._draw_points = function(el, scales, dispatcher){
 
-    console.log("DRAW POINTS")
+    //console.log("DRAW POINTS")
     var g = d3.select(el).selectAll('.d3_lh_points');
     var tip = g.selectAll('.d3_lh-point')
           .data(this.points);

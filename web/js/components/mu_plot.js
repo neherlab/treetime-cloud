@@ -31,7 +31,7 @@ MuPlot.padding_left = 120;
 MuPlot.regression = {};
 
 MuPlot.create = function(el, props, state){
-    console.log("CREATING MU PLOT")
+    //console.log("CREATING MU PLOT")
     var width = el.offsetWidth
     var height = el.offsetHeight
 
@@ -54,7 +54,7 @@ MuPlot.create = function(el, props, state){
 
 MuPlot._set_points_from_root = function(dispatcher){
 
-  console.log("ROOT updates LH...");
+  //console.log("ROOT updates LH...");
   if (!this.tree) {return ;}
   var tip_lhs = [];
   getLeafNodes(tip_lhs, this.tree);
@@ -79,7 +79,7 @@ MuPlot._set_points_from_root = function(dispatcher){
 
 MuPlot._update_lin_regression = function(dispatcher){
     
-    console.log("Updateting linear regression for MU plot...");
+    //console.log("Updateting linear regression for MU plot...");
     
     var n = this.points.length;
     
@@ -103,7 +103,7 @@ MuPlot._update_lin_regression = function(dispatcher){
       'intercept' :  intercept,
       'r2' :  r2
     };
-    console.log("Molecular clock plot linear regression changed, emitting signal.")
+    //console.log("Molecular clock plot linear regression changed, emitting signal.")
     dispatcher.emit('mol_clock:regression_changed', this.regression);
 
 };
@@ -112,7 +112,7 @@ MuPlot._draw_regression = function(el, scales) {
 
   if (!this.regression) return;
   if (!this.points ) return;
-  console.log("MuPlot updating the molecular clock linear regression...")
+  //console.log("MuPlot updating the molecular clock linear regression...")
   var max_x = d3.max(this.points.map(function(d){return d.x}));
   var min_x = d3.min(this.points.map(function(d){return d.x}));
 
@@ -128,17 +128,17 @@ MuPlot._draw_regression = function(el, scales) {
     .style("stroke", "#4D92BF")
     .style("stroke-width", '2px')
 
-  console.log(svg);
+  //console.log(svg);
 
 };
 
 MuPlot.update = function(el, root, state, dispatcher){
     
-    console.log("UPDATING MU");
+    //console.log("UPDATING MU");
 
     if (this.tree != root){
       // update all points 
-      console.log("MuPlot detected Tree changes, recreating the plot...")
+      //console.log("MuPlot detected Tree changes, recreating the plot...")
       this.tree = root;
       this._set_points_from_root(dispatcher);
       this._update_lin_regression(dispatcher);
@@ -150,7 +150,7 @@ MuPlot.update = function(el, root, state, dispatcher){
     }
 
     if(this.old_state.selected_tip != state.selected_tip){
-        console.log("MU: tip selection changed.")
+        //console.log("MU: tip selection changed.")
         var selected_tip = state.selected_tip
             this.points.map(function(d){
           if (selected_tip && d.name == selected_tip){
@@ -273,7 +273,7 @@ MuPlot._draw_axis = function(el, scales){
 
 MuPlot._draw_points = function(el, scales, dispatcher){
 
-    console.log("MU DRAW POINTS...")
+    //console.log("MU DRAW POINTS...")
     var g = d3.select(el).selectAll('.d3_mu_points');
 
     

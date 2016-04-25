@@ -12,30 +12,23 @@ var colors = Globals.colors;
 import Header from './header.js'
 import Footer from './footer.js'
 
-var CScale = function(cUnit){
+var CScale = function(){
 
     this.colors = ["#4D92BF", "#5AA5A8", "#6BB18D", "#80B974", "#98BD5E", "#B1BD4E",
           "#C8B944", "#DAAC3D", "#E59738", "#E67732", "#E14F2A", "#DB2522"];
     
-    this.cUnit = cUnit;
-    
+    this.create = function (all_values){
+        this.color = d3.scale.quantile()
+            .domain([d3.min(all_values), d3.max(all_values)])
+            .range(colors);
+    };
+
     this.get_color = function(x){
         if (!this.color){
-            return colors[5];
+            return "#808080";
         }else{
             return this.color(x);
         }
-    };
-    
-    this.update = function (cUnit, root){
-        if (!root) return;
-        this.cUnit = cUnit;
-        var layout = d3.layout.tree();
-        var all_nodes = layout.nodes(root);
-        var tval = all_nodes.map(function(d) {return +d[cUnit];});
-        this.color = d3.scale.quantile()
-            .domain([d3.min(tval), d3.max(tval)])
-            .range(colors);
     };
     
     this.get_cmap = function(){
@@ -45,6 +38,70 @@ var CScale = function(cUnit){
             return ({color: c, value: d3.round(d3.mean(cc.invertExtent(c)), 2)});
         });
         return m;
+    };
+
+};
+
+var NucScale = function(){
+    
+    this.colors = ["#4D92BF", "#98BD5E", "#E59738", "#DB2522"];
+    this.nucs = ["A", "C", "G", "T"]
+    
+    this.get_color = function(val){
+
+        //var val = color_val_getter(d);
+        //console.log("NucScale generating color for value: " + val)
+        var idx = this.nucs.indexOf(val)
+        //console.log(idx)
+        if (idx == -1){return "#808080";}
+        else{ 
+            //console.log(this.colors[idx])
+            return this.colors[idx];
+        }
+    };
+
+    this.get_cmap = function(){
+
+        var m = [{color:this.colors[0], value: this.nucs[0]},
+                 {color:this.colors[1], value: this.nucs[1]},
+                 {color:this.colors[2], value: this.nucs[2]},
+                 {color:this.colors[3], value: this.nucs[3]}]
+        return m;
+    
+    };
+
+};
+
+var CategorialScale = function(){
+    
+    this.domain = [];
+    this.cScale = null;
+
+    this.create = function(domain){
+        if (domain.length < 11){
+            this.cScale = new d3.scale.category10()
+            .domain(domain)
+        }else{
+            this.cScale = new d3.scale.category20b()
+            .domain(domain)
+        }
+        this.domain = domain;
+    }
+
+    this.get_color = function(x){
+        if (!this.cScale || this.domain.length == 0){
+            return "#808080";
+        }else{
+            console.log(this.cScale)
+            return this.cScale(x);
+        }
+    };
+    
+    this.get_cmap = function(){
+        var get_color = this.cScale;
+        return this.domain.map(function (c){
+            return ({color: get_color(c), value: c});
+        });
     };
 
 };
@@ -75,6 +132,7 @@ var styleRightPane = {
   //height:styleMain.height,
   'border-style':'solid',
   'border-width': '1px',
+  'position':'relative',
   //background: "#bbff66",
 };
 
@@ -98,6 +156,13 @@ var TreeContainer = React.createClass({
 
 var TreeLeftPane = React.createClass({
     
+    getInitialState : function(){
+        return ({
+            pos_disabled : false,
+            pos_selected: 1,
+        });
+    }, 
+
     render: function(){
         return (
             <div style={styleLeftPane}>
@@ -106,6 +171,19 @@ var TreeLeftPane = React.createClass({
                     root={this.props.root}
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
+                <h3>Color by: </h3>
+                
+                <select onChange={this.scaleChanged}>
+                    <option value="N">Nucleotide</option>
+                    <option value="T">Sampling date</option>
+                    <option value="C">Country</option>
+                    <option value="R">Region</option>
+                </select>
+
+                <input type="number" style={{"margin-left":"30px"}}
+                    onChange={this.posChanged}
+                    disabled={this.state.pos_disabled}> Pos</input>
+
                 <h3>Color codes:</h3>
                 <LegendComponent 
                     root={this.props.root}
@@ -113,8 +191,108 @@ var TreeLeftPane = React.createClass({
                     setAppState={this.props.setAppState}/>
             </div>
             );
+    }, 
 
-    }
+    scaleChanged : function(value){
+        var value = (value.target.value);
+        switch(value){
+        case ("T"):
+            this.setState({pos_disabled : true});
+            var cValFunc = function(d){return d.tvalue};
+            var cScale = new CScale();
+            
+            var root = this.props.root
+            if (typeof(root) == 'undefined') {
+            
+                // do nothing
+            
+            }else{
+            
+                var layout = d3.layout.tree();
+                var all_nodes = layout.nodes(root);
+                var tval = all_nodes.map(function(d) {return +cValFunc(d);});
+                cScale.create(tval);
+            
+            }
+
+            this.props.setAppState({
+                    cvalue : cValFunc,
+                    cscale: cScale
+                })
+
+            break;
+        case ("N"):
+            this.setState({pos_disabled : false});
+            var cValFunc = function(d){return d.strseq[1]};
+            //var cScale = new NucScale();
+            var cScale = new CategorialScale();
+            var values = ["A", "C", "G", "T"]
+            values = values.filter(function(d, index){return values.indexOf(d) == index})
+            cScale.create(values);
+            this.props.setAppState({
+                    cvalue : cValFunc,
+                    cscale: cScale
+                })
+
+            break;
+        case ("C"):
+            this.setState({pos_disabled : true});
+            var cValFunc = function(d){return d.country};
+            var cScale = new CategorialScale();
+
+            // create scale from all defined values 
+            var root = this.props.root
+            if (typeof(root) == 'undefined') {
+                // do nothing
+            }else{
+                var layout = d3.layout.tree();
+                var all_nodes = layout.nodes(root);
+                var values = all_nodes.map(function(d) {return +cValFunc(d);});
+                values = values.filter(function(d, index){return values.indexOf(d) == index})
+                cScale.create(values);
+            }
+
+            this.props.setAppState({
+                    cvalue : cValFunc,
+                    cscale: cScale
+                })
+            break;
+        case ("R"):
+             this.setState({pos_disabled : true});
+            var cValFunc = function(d){return d.region};
+            var cScale = new CategorialScale();
+
+            // create scale from all defined values 
+            var root = this.props.root
+            if (typeof(root) == 'undefined') {
+                // do nothing
+            }else{
+                var layout = d3.layout.tree();
+                var all_nodes = layout.nodes(root);
+                var values = all_nodes.map(function(d) {return +cValFunc(d);});
+                values = values.filter(function(d, index){return values.indexOf(d) == index})
+                cScale.create(values);
+            }
+
+            this.props.setAppState({
+                    cvalue : cValFunc,
+                    cscale: cScale
+                })
+            break;
+        default:
+            this.setState({pos_disabled : true});
+            break;
+        }
+    },
+
+    posChanged: function(e){
+        var pos_value = e.target.value;
+        this.props.setAppState({
+            cvalue : function(d){
+                if (typeof(d) == 'undefined'){return;}
+                return d.strseq[parseInt(pos_value, 10)];}
+        });
+    },
 
 });
 
@@ -144,8 +322,8 @@ var LegendComponent = React.createClass({
     },
     
     componentWillUpdate : function(){
-        console.log("createing legend...");
-        console.log(this.props.root);
+        //console.log("createing legend...");
+        //console.log(this.props.root);
         if (!this.props.root) return false;
         var el = React.findDOMNode(this);
         
@@ -164,7 +342,7 @@ var LegendComponent = React.createClass({
 var TreeTime = React.createClass({
 
     handleCheck : function(){
-        console.log("Treetime CB changed");
+        //console.log("Treetime CB changed");
         var tt = this.props.appState.treetime
         var xUnit = (!tt) ? "numdate" : "xvalue"
         this.props.setAppState({xUnit:xUnit, treetime:!tt});
@@ -206,7 +384,7 @@ var TreeRightPane = React.createClass({
 
     componentDidUpdate : function(){
 
-        console.log("Will update Tree view");
+        //console.log("Will update Tree view");
         if (!this.props.root) return false;
         
         var el = this.refs.tree_svg.getDOMNode();
@@ -229,8 +407,7 @@ var TreeRightPane = React.createClass({
     },
 
     select_tip : function(d){
-        console.log("TIP selected")
-        console.log(d);
+
         this.props.setAppState({selected_tip : d.name});
     }, 
 
@@ -409,36 +586,39 @@ var Results = React.createClass({
     root:{},
     mu:null,
     lh:null, 
+    
     getInitialState : function (){
         return ({
             treetime:false, 
-            cscale: new CScale('numdate'),
+            cvalue : function(d){
+                return d.strseq[57];
+            },
+            cscale: new NucScale(),
             xUnit:'xvalue',
             selected_tip:null,
             root_lh_initialized :false,
+            color_nuc_pos: 1,
         });
     },
 
     on_root : function (err, root){
-        console.log("ROOT node came")
+        //console.log("ROOT node came")
           if (err){console.warn("Can not get root node for the tree"); return;}
         this.root = root;
         this._update_lh_from_root();
-        this.state.cscale.update(this.state.cscale.cUnit, this.root);
         this.forceUpdate()
     },
 
     on_root_lh : function (err, lh){
         if (err){console.warn("Can not get root node for the tree"); return;}
         this.lh = lh;
-        console.log("LH has been read from the server file...")
+        //console.log("LH has been read from the server file...")
         this.forceUpdate()
     },
 
     _update_lh_from_root : function() {
         
     },
-
     
     on_mu : function(err, mu){
         this.mu=mu;
@@ -446,25 +626,22 @@ var Results = React.createClass({
     },
 
     select_tip : function(d){
-        console.log("Tip selected: " + d.strain);
+        //console.log("Tip selected: " + d.strain);
     },
     
     unselect_tip : function(d){
-        console.log("Tip unselected: " + d.strain);
+        //console.log("Tip unselected: " + d.strain);
     },
 
     setAppState :function (partialState, callback){
-        console.log(partialState);
-        return this.setState(partialState, callback);
+        this.setState(partialState, callback);
+        this.forceUpdate();
     },
+
     componentDidMount: function(){
-        console.log("Welcome has been mounted");
         var parentNode = this.getDOMNode().parentNode;
         var UID = (parentNode.attributes.userid.value);
-        console.log("UID: " + UID)
         this.state.UID = UID;
-        console.log(this.state);
-        console.log("Will get the tree file now. ");
         d3.json("/sessions/" + this.state.UID + "/out_tree.json", this.on_root);
         d3.json("/sessions/" + this.state.UID + "/out_tips.json", this.on_mu);
         d3.json("/sessions/" + this.state.UID + "/out_root_lh.json", this.on_root_lh);
@@ -500,9 +677,7 @@ var Results = React.createClass({
     }, 
     on_treetime_changed : function(){
         var checked = this.state.treetime;
-        console.log(checked)
         this.setState({treetime : !checked})
-        console.log("Treetime Cb changed to " + this.state.treetime)
         this.setState({xUnit: this.state.treetime ? "tvalue" : "xvalue"});
     }
 });

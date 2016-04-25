@@ -45,7 +45,7 @@ var DoBuildTree = React.createClass({
     handleChange(e){
         var build = this.state.checked;
         this.state.checked = !build;
-        console.log("Build tree Checkbox state changed to: " + this.state.checked);
+        //console.log("Build tree Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
@@ -74,7 +74,7 @@ var ShouldReuseBranchLength = React.createClass({
     handleChange(e){
         var chk = this.state.checked;
         this.state.checked = !chk;
-        console.log("Reuse Branches Checkbox state changed to: " + this.state.checked);
+        //console.log("Reuse Branches Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
@@ -106,7 +106,7 @@ var DoReRoot = React.createClass({
     handleChange(e){
         var chk = this.state.checked;
         this.state.checked = !chk;
-        console.log("doReRoot Checkbox state changed to: " + this.state.checked);
+        //console.log("doReRoot Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
@@ -157,13 +157,13 @@ var UseBranchPenalty = React.createClass({
         var settings = this.state.settings;
         settings.bool = !bool;
         this.state.settings = settings;
-        console.log("Use Branch len penalty changed to: " + settings.bool);
-        console.log(this.state.settings);
+        //console.log("Use Branch len penalty changed to: " + settings.bool);
+        //console.log(this.state.settings);
         this.props.settings.change_handle(this.props.settings.name, this.state.settings);
     },
 
     handleTextChange(e){
-        console.log(e.target.value);
+        //console.log(e.target.value);
         var text = e.target.value;
         this.validate(text);
         var settings = this.state.settings;
@@ -215,13 +215,13 @@ var UseSlope = React.createClass({
         var settings = this.state.settings; // copy 
         settings.bool = !bool;
         this.state.settings = settings;
-        console.log("Use Slpe changed to: " + settings.bool);
-        console.log(this.state.settings);
+        //console.log("Use Slpe changed to: " + settings.bool);
+        //console.log(this.state.settings);
         this.props.settings.change_handle(this.props.settings.name, this.state.settings);
     },
 
     handleTextChange(e){
-        console.log(e.target.value);
+        //console.log(e.target.value);
         var text = e.target.value;
         this.validate(text);
         var settings = this.state.settings;
@@ -262,7 +262,7 @@ var DoResolvePoly = React.createClass({
     handleChange(e){
         var chk = this.state.checked;
         this.state.checked = !chk;
-        console.log("DoResolvePoly Checkbox state changed to: " + this.state.checked);
+        //console.log("DoResolvePoly Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
@@ -299,13 +299,13 @@ var DoCoalescent = React.createClass({
         var settings = this.state.settings; // copy 
         settings.bool = !bool;
         this.state.settings = settings;
-        console.log("Do coalescent changed to: " + settings.bool);
-        console.log(this.state.settings);
+        //console.log("Do coalescent changed to: " + settings.bool);
+        //console.log(this.state.settings);
         this.props.settings.change_handle(this.props.settings.name, this.state.settings);
     },
 
     handleTextChange(e){
-        console.log(e.target.value);
+        //console.log(e.target.value);
         var text = e.target.value;
         this.validate(text);
         var settings = this.state.settings;
@@ -359,13 +359,13 @@ var DoRelaxedClock = React.createClass({
         var settings = this.state.settings; // copy 
         settings.bool = !bool;
         this.state.settings = settings;
-        console.log("Do coalescent changed to: " + settings.bool);
-        console.log(this.state.settings);
+        //console.log("Do coalescent changed to: " + settings.bool);
+        //console.log(this.state.settings);
         this.props.settings.change_handle(this.props.settings.name, this.state.settings);
     },
 
     handleAChange(e){
-        console.log(e.target.value);
+        //console.log(e.target.value);
         var text = e.target.value;
         this.validate(text);
         var settings = this.state.settings;
@@ -376,7 +376,7 @@ var DoRelaxedClock = React.createClass({
     },
 
     handleBChange(e){
-        console.log(e.target.value);
+        //console.log(e.target.value);
         var text = e.target.value;
         this.validate(text);
         var settings = this.state.settings;
@@ -429,7 +429,7 @@ var DoRootJoint = React.createClass ({
     handleChange(e){
         var chk = this.state.checked;
         this.state.checked = !chk;
-        console.log("doRootJoint Checkbox state changed to: " + this.state.checked);
+        //console.log("doRootJoint Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
@@ -460,7 +460,7 @@ var DoCalcGTR = React.createClass ({
     handleChange(e){
         var chk = this.state.checked;
         this.state.checked = !chk;
-        console.log("doCalcGTR Checkbox state changed to: " + this.state.checked);
+        //console.log("doCalcGTR Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
     
@@ -498,7 +498,7 @@ var TreeTimeForm = React.createClass({
     },
 
     handle_run: function(){
-        console.log("APP:: RUN button pressed");
+        //console.log("APP:: RUN button pressed");
         if ((!this.state.tree_file & !this.state.settings.doBuildTree) || ! this.state.aln_file || !this.state.meta_file){
           var msg = "Cannot proceed with TreeTime: one or more file not loaded.\n\n"
           if ((!this.state.tree_file & !this.state.settings.doBuildTree)){
@@ -521,14 +521,14 @@ var TreeTimeForm = React.createClass({
 
     on_run_status : function(err, res){
     
-        console.log("RUN RESPONSE");
-        console.log(res)
+        //console.log("RUN RESPONSE");
+        //console.log(res)
         window.location.replace("/" + this.state.UID + "/progress");
 
     },
 
     on_settings_changed : function(name, setting){
-      console.log("APP:: settings changed. " + name + " new value = " + setting);
+      //console.log("APP:: settings changed. " + name + " new value = " + setting);
       var settings = this.state.settings
       settings[name] = setting;
 
@@ -538,23 +538,23 @@ var TreeTimeForm = React.createClass({
 
 
     componentDidMount: function(){
-        console.log("Welcome has been mounted");
+        //console.log("Welcome has been mounted");
         var parentNode = this.getDOMNode().parentNode;
         var UID = (parentNode.attributes.userid.value);
-        console.log("UID: " + UID)
+        //console.log("UID: " + UID)
         this.state.UID = UID;
-        console.log(this.state);
+        //console.log(this.state);
         
     },
 
     validate_form : function(){
-        console.log("Validating the form...");
+        //console.log("Validating the form...");
         return null;
     },
     
     uploadTreeFile :function(evt){
     
-        console.log("Uploading tree file...");
+        //console.log("Uploading tree file...");
         var formData = new FormData();
         formData.append('treefile', evt.target.files[0]);
         //for (var key in evt.target.files) {
@@ -576,7 +576,7 @@ var TreeTimeForm = React.createClass({
 
     uploadAlnFile :function(evt){
     
-        console.log("Uploading alignment file...");
+        //console.log("Uploading alignment file...");
         var formData = new FormData();
         formData.append('alnfile', evt.target.files[0]);
         //for (var key in evt.target.files) {
@@ -596,7 +596,7 @@ var TreeTimeForm = React.createClass({
 
     uploadMetaFile :function(evt){
 
-        console.log("Uploading metadata file...");
+        //console.log("Uploading metadata file...");
         var formData = new FormData();
         formData.append('metafile', evt.target.files[0]);
         //for (var key in evt.target.files) {
@@ -616,7 +616,7 @@ var TreeTimeForm = React.createClass({
     },
 
     render:function(){
-        console.log(this.state.settings)
+        //console.log(this.state.settings)
         return (
             <div>
                 <Header/>

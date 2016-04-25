@@ -57,9 +57,9 @@ var Wait  = React.createClass({
     },
 
     componentWillMount(){
-        console.log(this.props.UID)
+        //console.log(this.props.UID)
         this.state.user_id = this.props.UID
-        console.log("Main: user_id = " + this.state.user_id)
+        //console.log("Main: user_id = " + this.state.user_id)
         //setInterval(this.get_tree_res, 2000);
     },
 
@@ -71,12 +71,12 @@ var Wait  = React.createClass({
     },
 
     on_session_state(err, res){
-        //console.log(JSON.parse(res.text));
+        ////console.log(JSON.parse(res.text));
         ////var sts = JSON.parse(res);
         this.setState({steps:JSON.parse(res.text).steps});
-        console.log("Steps:")
-        console.log(this.state.steps)
-        console.log(JSON.parse(res.text))
+        //console.log("Steps:")
+        //console.log(this.state.steps)
+        //console.log(JSON.parse(res.text))
         if (this.check_all_done()){
             clearInterval(this.interval);
             this.props.handle_all_done();
@@ -85,23 +85,23 @@ var Wait  = React.createClass({
 
 // /    post_callback:(err, res, body) ->
 // /        
-// /        console.log(res);
+// /        //console.log(res);
 // /        if err
-// /            console.log ("Run request failed: " + err);
+// /            //console.log ("Run request failed: " + err);
 // /        else
 // /            data = JSON.parse(body);
 // /            this.setState({steps: data.steps});
 // /            
 // /            arr = Object.keys(this.state.steps).map(this.check_done)
 // /            if not false in arr
-// /                console.log("ALL done!")
+// /                //console.log("ALL done!")
 // /                clearInterval(this.interval);
 // /
     check_all_done(){
         var arrayLength = this.state.steps.length;
         for (var i = 0; i < arrayLength; i++) {
             var step =  this.state.steps[i];
-            console.log(step);
+            //console.log(step);
             if (step.status != "Done"){
                 return false;
             }
@@ -121,13 +121,13 @@ var Wait  = React.createClass({
     },
     
     render_step (step){
-        console.log("rendering" + step.name)
-        console.log(step)
+        //console.log("rendering" + step.name)
+        //console.log(step)
         
         var s = step.status
         var n = step.name
         var key = step.name
-        console.log("status = "+ s)
+        //console.log("status = "+ s)
         if (status != 'Error'){
             return <Step key={key} status={s} step={n} />
         }

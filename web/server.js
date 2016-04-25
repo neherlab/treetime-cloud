@@ -25,7 +25,7 @@ function makeid()
 var mkdirSync = function (path) {
   try {
     fs.mkdirSync(path);
-    console.log("Session directory created!")
+    //console.log("Session directory created!")
   } catch(e) {
     if ( e.code != 'EEXIST' ) throw e;
   }
@@ -40,7 +40,7 @@ app.get('/', function (req, res) {
 app.post('/', function(req, res){
   
   var user_id = makeid(); //var user_id = "HILWQ89P23OI566UHLUIL";
-  console.log('User requests for a new ID, send' + user_id + " back")
+  //console.log('User requests for a new ID, send' + user_id + " back")
   mkdirSync(__dirname + "/sessions/" + user_id);  
   res.send({redirect:user_id});
 
@@ -56,38 +56,38 @@ app.get('/:user_id/', function (req, res) {
 
 app.post('/:user_id/tree_file', upload.single('treefile'), function(req, res){
   var user_id = req.params.user_id;
-  console.log("USER_ID: " + user_id);
+  //console.log("USER_ID: " + user_id);
   fs.rename(__dirname + "/" + req.file.path, __dirname + "/sessions/" + user_id + "/in_tree.nwk", function (err) {
-  console.log('ERR: ');
-  console.log(err);
+  //console.log('ERR: ');
+  //console.log(err);
 });
-  console.log(req.file)
+ // //console.log(req.file)
 });
 
 app.post('/:user_id/aln_file', upload.single('alnfile'), function(req, res){
   var user_id = req.params.user_id;
-  console.log("USER_ID: " + user_id);
+  //console.log("USER_ID: " + user_id);
   fs.rename(__dirname + "/" + req.file.path, __dirname + "/sessions/" + user_id + "/in_aln.fasta", function (err) {
-  console.log('ERR: ');
-  console.log(err);
+  //console.log('ERR: ');
+  //console.log(err);
 });
-  console.log(req.file)
+  //console.log(req.file)
 });
 
 app.post('/:user_id/meta_file', upload.single('metafile'), function(req, res){
   var user_id = req.params.user_id;
-  console.log("USER_ID: " + user_id);
+  //console.log("USER_ID: " + user_id);
   fs.rename(__dirname + "/" + req.file.path, __dirname + "/sessions/" + user_id + "/in_meta.csv", function (err) {
-  console.log('ERR: ');
-  console.log(err);
+  //console.log('ERR: ');
+  //console.log(err);
 });
-  console.log(req.file)
+  //console.log(req.file)
 });
 
 
 app.post('/:user_id/run',  function(req, res){
 
-  console.log(req.params.user_id);
+  //console.log(req.params.user_id);
   var user_id = req.params.user_id
 
 
@@ -99,10 +99,10 @@ app.post('/:user_id/run',  function(req, res){
 
   var root = __dirname + "/sessions/" + user_id;
   subp.exec('python ./static/py/main.py ' + root, function(err, stdout, stderr){
-    console.log('stdout: ' + stdout);
-    console.log('stderr: ' + stderr);
+    //console.log('stdout: ' + stdout);
+    //console.log('stderr: ' + stderr);
     if (error !== null) {
-        console.log('exec error: ' + error);
+        //console.log('exec error: ' + error);
     }
   });
 
@@ -113,7 +113,7 @@ app.post('/:user_id/run',  function(req, res){
 
 app.post('/:user_id/session_state', function(req, res){
   var user_id = req.params.user_id
-  console.log(user_id)
+  //console.log(user_id)
   var fname = __dirname + "/sessions/" + user_id + "/state.json"
   fs.readFile(fname, "utf8", function(err, data) {
         if (err){
@@ -126,7 +126,7 @@ app.post('/:user_id/session_state', function(req, res){
  
 app.post('/:user_id/results', function(req, res){
   var user_id = req.params.user_id
-  console.log(user_id)
+  //console.log(user_id)
   var fname = __dirname + "/sessions/" + user_id + "/tree.json"
   fs.readFile(fname, "utf8", function(err, data) {
         if (err) {
@@ -139,5 +139,5 @@ app.post('/:user_id/results', function(req, res){
  
 
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+  //console.log('Example app listening on port 3000!');
 });

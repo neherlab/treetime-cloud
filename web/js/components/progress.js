@@ -94,20 +94,20 @@ var Progress  = React.createClass({
 
     on_session_state : function (err, res){
         if (err){
-            console.log(err);
-            console.log(err.status)
+            //console.log(err);
+            //console.log(err.status)
             if (err.status == 404){
                 window.location.replace("404")
             }
             return;
         }
-        console.log(res.body)
-        //console.log(JSON.parse(res.text));
+        //console.log(res.body)
+        ////console.log(JSON.parse(res.text));
         ////var sts = JSON.parse(res);
         this.setState({steps:JSON.parse(res.text).steps});
-        console.log("Steps:")
-        console.log(this.state.steps)
-        console.log(JSON.parse(res.text))
+        //console.log("Steps:")
+        //console.log(this.state.steps)
+        //console.log(JSON.parse(res.text))
         if (this.check_all_done()){
             clearInterval(this.interval);
             window.location.replace('/' + this.state.UID + '/results')
@@ -118,9 +118,9 @@ var Progress  = React.createClass({
     componentDidMount: function(){
         
         var parentNode = this.getDOMNode().parentNode;
-        console.log(parentNode)
+        //console.log(parentNode)
         var UID = (parentNode.attributes.userid.value);
-        console.log("UID: " + UID)
+        //console.log("UID: " + UID)
         this.state.UID = UID;
         this.request_session_state();
         this.interval = setInterval(this.request_session_state, 10000);
@@ -140,7 +140,7 @@ var Progress  = React.createClass({
         var arrayLength = this.state.steps.length;
         for (var i = 0; i < arrayLength; i++) {
             var step =  this.state.steps[i];
-            console.log(step);
+            //console.log(step);
             if (step.status != "Done"){
                 return false;
             }
@@ -183,13 +183,13 @@ var Body = React.createClass({
     }, 
     
     render_step : function (step){
-        console.log("rendering" + step.name)
-        console.log(step)
+        //console.log("rendering" + step.name)
+        //console.log(step)
         
         var s = step.status
         var n = step.name
         var key = step.name
-        console.log("status = "+ s)
+        //console.log("status = "+ s)
         if (status != 'Error'){
             return <Step key={key} status={s} step={n} />
         }

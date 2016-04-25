@@ -10,25 +10,21 @@ var TreeLegend = {};
 
 TreeLegend.create = function(el, props, state){
     
-    console.log("CREATING legend");
+    //console.log("CREATING legend");
     var width = el.offsetWidth;
     var height = el.offsetHeight;
 
     var svg = d3.select(el).append('svg')
-      .attr('class', 'd3-legend')
+      .attr('class', 'd3-tree_legend')
       .attr('width',  width)
       .attr('height', height);
-    console.log(svg);
-
-    
-    svg.append('g')
-        .attr('class', 'd3-legend-grid')
+    //console.log(svg);
 
     var dispatcher = new EventEmitter();
-    
-//    this.update(el, state);
+
     this.update(el, state, dispatcher);
     return dispatcher;
+
 };
 
 TreeLegend._style={};
@@ -42,11 +38,12 @@ TreeLegend.update = function (el, state, dispatcher){
         this.state.cscale = state.cscale;
         this._draw_legend(el, dispatcher);        
     }    
+
 };
 
 TreeLegend._draw_legend = function(el, dispatcher){
     
-    console.log ("Redraw legend...")
+    //console.log ("Redraw legend...")
     var width = el.offsetWidth;
     var height = el.offsetHeight;
     var cScale = this.state.cscale;
@@ -63,6 +60,7 @@ TreeLegend._draw_legend = function(el, dispatcher){
         var x = i >= nRows ? d3.min([150, width/2]) : 0;
         var y = i >= nRows ? rowHeight*(i - nRows) : rowHeight * (i);
         
+       
         return ({
             color: d.color,
             value: d.value,
@@ -74,7 +72,10 @@ TreeLegend._draw_legend = function(el, dispatcher){
    
     });
 
-    var g = d3.select(el).select('.d3-legend').selectAll('.d3-legend-grid');
+    d3.select(el).select(".d3-tree_legend").selectAll('*').remove();
+
+    var g = d3.select(el).select('.d3-tree_legend').append('g')
+        .attr('class', '.d3-legend-grid');
 
     var legend = g.selectAll('.d3-legend-entry')
         .data(grid_data)

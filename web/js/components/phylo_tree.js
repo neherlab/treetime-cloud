@@ -1,9 +1,71 @@
 var EventEmitter = require('events').EventEmitter;
 var d3 = require('d3');
+var d3tip = require('d3-tip');
 
 var Globals = require('./globals.js')
 var colors = Globals.colors;
 var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
+
+
+var virusTooltip = d3tip()
+  .direction(function(d){if (d.x > 500) {return 'w';} else{return 'e';};})
+  .attr('class', 'd3-tip')
+  .offset(function(d){if (d.x > 500) {return [0, -12]} else{return [0,12]};})
+  .html(function(d){
+    var string = "";
+    string += "<h4>" + d.strain +"</h4>"
+    "<div class=\"smallspacer\"></div>";
+    string += "<div class=\"smallnote\">";
+
+    string += "Numdate: " + d.numdate + " <br/>";
+    string += "Time since Tmrca: " + d.tvalue + "<br/>";
+    string += "Country: " + d.country + "<br/>" ;
+    string += "Region: " + d.region + "<br/>" ;
+    string += "</div>";
+
+    return (string)});
+
+var linkTooltip = d3tip()
+  .direction(function(d){if (d.target.x > 500) {return 'w';} else{return 'e';};})
+  .attr('class', 'd3-tip')
+  .offset(function(d){if (d.source.x > 500) {return [0, -3]} else{return [0,3]};})
+  .html(function(d) {
+    //console.log(d)
+    
+    var string = ""
+    if (typeof d.frequency != "undefined") {
+      string += "Frequency: " + (100 * d.frequency).toFixed(1) + "%"
+    }
+    
+    string += "<div class=\"smallspacer\"></div>";
+    string += "<div class=\"smallnote\">";
+    
+    if (false) {//((typeof d.aa_muts !="undefined")&&(mutType=='aa')){
+      var ncount = 0;
+      for (tmp_gene in d.aa_muts) {ncount+=d.aa_muts[tmp_gene].length;}
+      if (ncount) {string += "<b>Mutations:</b><ul>";}
+      for (tmp_gene in d.aa_muts){
+        if (d.aa_muts[tmp_gene].length){
+          string+="<li>"+tmp_gene+":</b> "+d.aa_muts[tmp_gene].replace(/,/g, ', ') + "</li>";
+        }
+      }
+    }
+    
+    else if (true){ //((typeof d.muts !="undefined")&&(mutType=='nuc')&&(d.muts.length)){
+      var tmp_muts = d.target.muts.split(',');
+      var nmuts = tmp_muts.length;
+      tmp_muts = tmp_muts.slice(0,Math.min(10, nmuts))
+      string += "<li>"+tmp_muts.join(', ');
+      if (nmuts>10) {string+=' + '+ (nmuts-10) + ' more';}
+      string += "</li>";
+    }
+    string += "</ul>";
+    string += "click to zoom into clade"
+    string += "</div>";
+    return string;
+  
+  });
+
 
 var PhyloTree = {};
 
@@ -17,14 +79,14 @@ PhyloTree.padding_left = 20;
 
 PhyloTree.create = function(el, props, state){
 
-  console.log("CREATING tree");
+  //console.log("CREATING tree");
   var w  = el.offsetWidth;
   var h = el.offsetHeight;
   var svg = d3.select(el).append('svg')
-    .attr('class', 'd3-phylotree')
-    .attr('width', w)
-    .attr('height', h);
-  console.log(w, h)
+      .attr('class', 'd3-phylotree')
+      .attr('width', w)
+      .attr('height', h)
+
   
   svg.append('g')
       .attr('class', 'd3-tree_axis')
@@ -32,18 +94,20 @@ PhyloTree.create = function(el, props, state){
       .attr('class', 'd3-links');
   svg.append('g')
       .attr('class', 'd3-tips');
+
+  svg.call(virusTooltip);
+  svg.call(linkTooltip);
+
   var dispatcher = new EventEmitter();
   this._create_data(props);
-  
-//  this._update_node_colors(state);
-//  this.update(el, state, dispatcher);
   return dispatcher;
 
 };
 
+
 PhyloTree._create_data = function(props){
     
-    //console.log(props.root)
+    ////console.log(props.root)
     this.root = props.root;
     this.layout = d3.layout.tree();
     this.all_nodes = this.layout.nodes(this.root);
@@ -82,10 +146,7 @@ PhyloTree.gatherTips = function (node, tips) {
 
 PhyloTree.update = function(el, state, dispatcher) {
   
-  console.log("UPDATING tree");
-
-  if (this.state.cscale != state.cscale){
-    console.log("TreeTime updateing tips colors...")
+  if (this.state.cscale != state.cscale || this.state.cvalue != state.cvalue){
     this._update_node_colors(state);
   }
 
@@ -93,7 +154,6 @@ PhyloTree.update = function(el, state, dispatcher) {
       this._update_selected(el, state);
   }  
   
-  console.log(state)
   if (this.state.xUnit != state.xUnit){
     this._update_scales(el, state, dispatcher);
   }
@@ -154,8 +214,19 @@ PhyloTree._scales = function(el, state) {
 PhyloTree._update_node_colors = function(state){
     
     this.all_nodes.forEach(function (d) {
-        d.color = state.cscale.get_color(d[state.cscale.cUnit]);
+        if (typeof(d) =='undefined') {return;}
+        var cval = state.cvalue(d);
+        d.color = state.cscale.get_color(cval);
     });
+
+    var  _drawVirusToolTip = this._drawVirusToolTip
+    var _hideVirusToolTip = this._hideVirusToolTip
+
+    var g = d3.selectAll('.d3-tips');
+    var tip = g.selectAll('.d3-tip')
+    tip
+      .style("fill", this._tipFillColor)
+      .style("stroke", this._tipStrokeColor)
 
 };
 
@@ -194,11 +265,12 @@ PhyloTree._tipRadius = function(d) {return d.selected ? 16.0 : 10.0;}
 
 PhyloTree._drawTips = function(el, scales, dispatcher) {
     
-    var g = d3.select(el).selectAll('.d3-tips');
+    var  _drawVirusToolTip = this._drawVirusToolTip
+    var _hideVirusToolTip = this._hideVirusToolTip
 
+    var g = d3.select(el).selectAll('.d3-tips');
     var tip = g.selectAll('.d3-tip')
         .data(this.all_tips);
-
     tip.enter()
       .append("circle")
       .attr("class", "d3-tip")
@@ -209,27 +281,28 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
             }
             return d.x; 
         })
-
     tip
       .attr("r", this._tipRadius)
       .attr("cy", function(d) {return d.y;})
       .style("fill", this._tipFillColor)
       .style("stroke", this._tipStrokeColor)
       .on('mouseover', function(d) {
-          //console.log("Mouseover" + d.y);
+          virusTooltip.show(d);
           dispatcher.emit('point:tip_mouseover', d);
       })
       .on('mouseout', function(d) {
+          //_hideVirusToolTip();
+          virusTooltip.hide();
           dispatcher.emit('point:tip_mouseout', d);
       })
       .transition()
       .duration(ANIMATION_DURATION)
-      .attr('cx', function(d) { return d.x; })
+      .attr('cx', function(d) {return d.x; })
       .attr('cy', function(d){return d.y; });
 
-      //.style("stroke", this._tipStrokeColor);
 
 };
+
 
 PhyloTree._drawLinks = function(el, scales, dispatcher){
         
@@ -245,7 +318,13 @@ PhyloTree._drawLinks = function(el, scales, dispatcher){
             .style("stroke-width", 3)
             .style("stroke", "gray")
             .style("stroke-linejoin", "round")
-            .style("cursor", "pointer");
+            .style("cursor", "pointer")
+            .on("mouseover", function(d){
+                linkTooltip.show(d)
+            })
+            .on("mouseout", function(d){
+                linkTooltip.hide()
+            });
             
         link.transition()
                 .attr("points", this._branchPoints)
@@ -278,7 +357,6 @@ PhyloTree._branchPoints_old = function(d) {
 
 PhyloTree._update_axis = function(el, state, scales, dispatcher){
 
-    console.log("TreeTime state: " + state.xUnit)
     if (state.xUnit == "numdate"){
         this._draw_axis(el, state, scales, dispatcher);
     }else{
@@ -289,7 +367,6 @@ PhyloTree._update_axis = function(el, state, scales, dispatcher){
 
 PhyloTree._draw_axis = function(el, state, scales, dispatcher){
     
-    console.log("Drawing treeTime axis...")
     var width = el.offsetWidth;
     var height = el.offsetHeight;
 
@@ -307,8 +384,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
     }
 
     var svg = d3.select(el).select('.d3-tree_axis')
-    console.log(svg)
-    
+
     svg.append("g")
         .attr("class", "d3_tree_x_axis")
         .attr("transform", "translate(0," + (height -  this.padding_bottom) + ")")
@@ -329,14 +405,11 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
             .tickFormat("")
             )
 
-
-
     // var bnd = scales.x.domain()
     // var yticks_xs = d3.range(bnd[0], bnd[1], 1);
     // var y_bnds = scales.y.range()
     // var glines = yticks_xs.map(function(d){return ({x1:d, y1:y_bnds[0], x2:d, y2:y_bnds[1]});})
 
-    // //console.log(glines)
     // var gridLine = g.selectAll('.d3-tree-axis-line')
     //     .data(glines);
 
@@ -354,7 +427,6 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
 
 PhyloTree._hide_axis = function (el, state, scales, dispatcher){
     
-    console.log("Hiding treeTime axis...")
     var g = d3.select(el).select('.d3-tree_axis').selectAll("*");
     g.remove();
 
