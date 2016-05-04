@@ -5,7 +5,8 @@ import treetime
 import numpy as np
 import datetime
 import os,sys,copy,json
-from Bio import Phylo, AlignIO
+from Bio import Phylo, AlignIO, Seq, SeqRecord, Align
+from Bio.Alphabet import generic_dna
 import matplotlib.pyplot as plt
 plt.ion()
 plt.show()
@@ -250,13 +251,23 @@ def save_results(tt, state, root):
         treetime.treetime_to_json(tt,  os.path.join(root, "out_tree.json"))
         treetime.tips_data_to_json(tt, os.path.join(root, "out_tips.json"))
         treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
+
+        # save full alignment 
+        aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence))) for n in tt.tree.find_clades ()])
+        AlignIO.write(aln, os.path.join(root, "out_aln.fasta"), "fasta")
+        
+        # save newick tree
+        Phylo.write(tt.tree, os.path.join(root, "out_newick_tree.nwk"), "newick")
+
+        #save metadata as csv file
+        treetime.save_all_nodes_metadata(tt, os.path.join(root, "out_metadata.csv"))
+
         state['status'] = 'Done'
         return tt, True
     else: 
         state['status'] = 'Error'
         return tt, False
     
-
 def write_initial_state(root, steps, ostate):
     # write initial state 
     state = []
@@ -294,6 +305,7 @@ def process(root, steps, state, ostate):
     #    treetime.treetime_to_json(tt,  os.path.join(root, "out_tree.json"))
     #    treetime.tips_data_to_json(tt, os.path.join(root, "out_tips.json"))
     #    treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
+    return tt;
 
 def pipeline(root, ostate):
     

@@ -6,11 +6,40 @@ var Globals = require('./globals.js')
 var colors = Globals.colors;
 var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 
+var minimumAttribute = function (node, attr, min) {
+
+  if (typeof node.children != "undefined") {
+    for (var i=0, c=node.children.length; i<c; i++) {
+      min = minimumAttribute(node.children[i], attr, min);
+    }
+  }
+  else {
+    if (attr(node) < min) {
+      min = attr(node);
+    }
+  }
+  return min;
+
+};
+
+var maximumAttribute = function (node, attr, max) {
+  if (typeof node.children != "undefined") {
+    for (var i=0, c=node.children.length; i<c; i++) {
+      max = maximumAttribute(node.children[i], attr, max);
+    }
+  }
+  else {
+    if (attr(node) > max) {
+      max = attr(node);
+    }
+  }
+  return max;
+};
 
 var virusTooltip = d3tip()
-  .direction(function(d){if (d.x > 500) {return 'w';} else{return 'e';};})
+  .direction('w')
   .attr('class', 'd3-tip')
-  .offset(function(d){if (d.x > 500) {return [0, -12]} else{return [0,12]};})
+  .offset([0, -12])
   .html(function(d){
     var string = "";
     string += "<h4>" + d.strain +"</h4>"
@@ -26,7 +55,7 @@ var virusTooltip = d3tip()
     return (string)});
 
 var linkTooltip = d3tip()
-  .direction(function(d){if (d.target.x > 500) {return 'w';} else{return 'e';};})
+  .direction(function(d){if (d.target.x > 500) {return 's';} else{return 's';};})
   .attr('class', 'd3-tip')
   .offset(function(d){if (d.source.x > 500) {return [0, -3]} else{return [0,3]};})
   .html(function(d) {
@@ -51,7 +80,7 @@ var linkTooltip = d3tip()
       }
     }
     
-    else if (true){ //((typeof d.muts !="undefined")&&(mutType=='nuc')&&(d.muts.length)){
+    else if ((typeof d.target.muts !="undefined")&&(d.target.muts.length)){
       var tmp_muts = d.target.muts.split(',');
       var nmuts = tmp_muts.length;
       tmp_muts = tmp_muts.slice(0,Math.min(10, nmuts))
@@ -100,22 +129,37 @@ PhyloTree.create = function(el, props, state){
 
   var dispatcher = new EventEmitter();
   this._create_data(props);
+  this.state = state;
+
+  this._update_node_colors(this.state);
+  var scales = this._scales(el, state);
+  this._drawTips(el,scales, dispatcher);
+  this._drawLinks(el,scales,dispatcher);
   return dispatcher;
-
 };
-
 
 PhyloTree._create_data = function(props){
     
     ////console.log(props.root)
     this.root = props.root;
     this.layout = d3.layout.tree();
-    this.all_nodes = this.layout.nodes(this.root);
-    this.all_links = this.layout.links(this.all_nodes);
-    this.all_links.push({"source":this.root, "target":this.root});
-    this.all_tips = this.gatherTips(this.root, []);
-    this.all_tips.map(function(d){d.selected=false;});
+    this.vis_nodes = this.layout.nodes(this.root);
+    this.vis_links = this.layout.links(this.vis_nodes);
+    this.vis_links.push({"source":this.root, "target":this.root});
+    this.vis_tips = this.gatherTips(this.root, []);
+    this.vis_tips.map(function(d){d.selected=false;});
 
+    this._update_vis(this.root);
+};
+
+PhyloTree._update_vis = function(vis_root){
+
+  this.vis_root = vis_root;
+  //this.vis_nodes = this.layout.nodes(this.vis_root);
+  //this.vis_links = this.layout.links(this.vis_nodes);
+  //this.vis_links.push({"source":this.vis_root, "target":this.vis_root});
+  //this.vis_tips = this.gatherTips(this.vis_root, []);
+  //this.vis_tips.map(function(d){d.selected=false;});
 };
 
 PhyloTree.save_svg = function(el){
@@ -127,8 +171,11 @@ PhyloTree.save_svg = function(el){
         .node().parentNode.innerHTML;
 
   return html;
+};
 
-}
+PhyloTree.resetLayout = function(el, dispatcher){
+  this._zoom(this.root, el, dispatcher)
+};
 
 PhyloTree.gatherTips = function (node, tips) {
     
@@ -141,7 +188,6 @@ PhyloTree.gatherTips = function (node, tips) {
         tips.push(node);
     }
     return tips;
-
 };
 
 PhyloTree.update = function(el, state, dispatcher) {
@@ -155,18 +201,23 @@ PhyloTree.update = function(el, state, dispatcher) {
   }  
   
   if (this.state.xUnit != state.xUnit){
+    
+    this._x_pos = function(d){
+      return d[state.xUnit];
+    };
+  
     this._update_scales(el, state, dispatcher);
+  
   }
 
   // update the tree state
   this.state = state;
-
 };
 
 
 PhyloTree._update_selected = function(el,state){
     
-    this.all_tips.map(function(d){
+    this.vis_tips.map(function(d){
           if (state.selected_tip && d.strain == state.selected_tip){
               d.selected = true;
           }else{
@@ -177,43 +228,60 @@ PhyloTree._update_selected = function(el,state){
     var g = d3.select(el).selectAll('.d3-tips');
     var tip = g.selectAll('.d3-tip')
     tip.attr("r", this._tipRadius)
-
 };
 
 PhyloTree._update_scales = function(el, state, dispatcher){
 
     var scales = this._scales(el, state);
+    //this._drawLinks(el, scales, dispatcher);
+    this._moveLinks(el, scales, dispatcher);
+    //this._drawTips(el, scales, dispatcher); 
+    this._moveTips(el,scales, dispatcher);
     this._update_axis (el, state, scales, dispatcher);
-    this._set_node_coordinates(scales, state);
-    this._drawLinks(el, scales, dispatcher);
-    this._drawTips(el, scales, dispatcher); 
-
 };
 
 PhyloTree._scales = function(el, state) {
 
   var width = el.offsetWidth;
   var height = el.offsetHeight;
-  
-  var xUnit = state.xUnit  
-  var xValues = this.all_nodes.map(function(d) {return +d[xUnit];});
-  var yValues = this.all_nodes.map(function(d) {return +d.yvalue;});
+  var xpos = this._x_pos;
+  var ypos = this._y_pos;
 
+  var xMin = minimumAttribute(this.vis_root, xpos, xpos(this.vis_root));
+  var xMax = maximumAttribute(this.vis_root, xpos, xpos(this.vis_root));
+
+  console.log(xMin, xMax)
+  var yMin = minimumAttribute(this.vis_root, ypos, ypos(this.vis_root));
+  var yMax = maximumAttribute(this.vis_root, ypos, ypos(this.vis_root));
+  
   var x = d3.scale.linear()
-      .domain([d3.min(xValues), d3.max(xValues)])
+      .domain([xMin, xMax])
       .range([this.padding_left, width-this.padding_right]);
   
   var y = d3.scale.linear()
-      .domain([d3.min(yValues), d3.max(yValues)])
+      .domain([yMin, yMax])
       .range([this.padding_top,height-this.padding_bottom])
 
   return {x: x, y: y};
+};
 
+/*
+Get x position for the tree node 
+*/
+PhyloTree._x_pos = function (d){
+  return d["xvalue"];
+};
+
+/*
+Get y position for the tree node 
+*/
+PhyloTree._y_pos = function(d){
+  return d["yvalue"];
 };
 
 PhyloTree._update_node_colors = function(state){
     
-    this.all_nodes.forEach(function (d) {
+    this.vis_tips.forEach(function (d) {
         if (typeof(d) =='undefined') {return;}
         var cval = state.cvalue(d);
         d.color = state.cscale.get_color(cval);
@@ -227,18 +295,16 @@ PhyloTree._update_node_colors = function(state){
     tip
       .style("fill", this._tipFillColor)
       .style("stroke", this._tipStrokeColor)
-
 };
 
 PhyloTree.get_color_scale = function(){
-
 };
 
 PhyloTree._tipFillColor = function(d) {
     
     var c =  d3.rgb(d.color).brighter([0.65]);
     return c;
-}
+};
 
 PhyloTree._tipStrokeColor = function(d)  {return d.color;}
 
@@ -248,42 +314,35 @@ PhyloTree._tipVisibility = function (d) { return d.current?"visible":"hidden";}
 
 PhyloTree._branchStrokeWidth = function(d) {return 3;}
 
-PhyloTree._set_node_coordinates = function(scales, state){
-
-    var xUnit = state.xUnit
-    this.all_nodes.forEach(function (d) {
-            d.old_x = d.x; // need this to make smooth transitions 
-            d.old_y = d.y;
-            
-            d.x = scales.x(d[xUnit]);
-            d.y = scales.y(d.yvalue);
-    });
-
-};
-
 PhyloTree._tipRadius = function(d) {return d.selected ? 16.0 : 10.0;}
 
 PhyloTree._drawTips = function(el, scales, dispatcher) {
     
     var  _drawVirusToolTip = this._drawVirusToolTip
     var _hideVirusToolTip = this._hideVirusToolTip
+    var xpos = this._x_pos;
+    var ypos = this._y_pos;
 
     var g = d3.select(el).selectAll('.d3-tips');
     var tip = g.selectAll('.d3-tip')
-        .data(this.all_tips);
+        .data(this.vis_tips);
     tip.enter()
       .append("circle")
       .attr("class", "d3-tip")
       .attr("id", function(d) { return (d.strain).replace(/\//g, ""); })
       .attr("cx", function(d) { 
-            if (d.old_x){
-                return d.old_x;    
-            }
-            return d.x; 
+            
+            return scales.x(xpos(d))
+            //if (d.old_x){
+            //    return d.old_x;    
+            //}
+            //return d.x; 
         })
     tip
       .attr("r", this._tipRadius)
-      .attr("cy", function(d) {return d.y;})
+      .attr("cy", function(d) {
+        return scales.y(ypos(d))
+      })
       .style("fill", this._tipFillColor)
       .style("stroke", this._tipStrokeColor)
       .on('mouseover', function(d) {
@@ -294,56 +353,106 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
           //_hideVirusToolTip();
           virusTooltip.hide();
           dispatcher.emit('point:tip_mouseout', d);
-      })
-      .transition()
-      .duration(ANIMATION_DURATION)
-      .attr('cx', function(d) {return d.x; })
-      .attr('cy', function(d){return d.y; });
-
-
+      });
 };
 
+PhyloTree._moveTips = function(el, scales, dispatcher) {
+    
+    var xpos = this._x_pos;
+    var ypos = this._y_pos;
+
+    var g = d3.select(el).selectAll('.d3-tips');
+    var tip = g.selectAll('.d3-tip')
+    tip.transition()
+      .duration(ANIMATION_DURATION)
+      .attr('cx', function(d) {
+        return scales.x(xpos(d))
+      })
+      .attr('cy', function(d){
+        return scales.y(ypos(d)) 
+      });
+};
 
 PhyloTree._drawLinks = function(el, scales, dispatcher){
         
-        var g = d3.select(el).selectAll('.d3-links');
+    var bpoints = this._branchPoints;
 
-        var link = g.selectAll('.d3-link')
-            .data(this.all_links);
+    var g = d3.select(el).selectAll('.d3-links');
+    var link = g.selectAll('.d3-link')
+        .data(this.vis_links);
 
-        link.enter()
-            .append("polyline")
-            .attr("class", "d3-link")
-            .attr("points", this._branchPoints_old)
-            .style("stroke-width", 3)
-            .style("stroke", "gray")
-            .style("stroke-linejoin", "round")
-            .style("cursor", "pointer")
-            .on("mouseover", function(d){
-                linkTooltip.show(d)
-            })
-            .on("mouseout", function(d){
-                linkTooltip.hide()
-            });
-            
-        link.transition()
-                .attr("points", this._branchPoints)
-                .duration(ANIMATION_DURATION)
-            
+    
+    
+    var zoom = this._zoom;
+    
+    link.enter()
+        .append("polyline")
+        .attr("class", "d3-link")
+        .attr("points", function(d){return bpoints(d, scales);})
+        .style("stroke-width", 3)
+        .style("stroke", "gray")
+        .style("stroke-linejoin", "round")
+        .style("cursor", "pointer")
+        .on("mouseover", function(d){
+            linkTooltip.show(d)
+        })
+        .on("mouseout", function(d){
+            linkTooltip.hide()
+        })
+        .on("click", function(d){
+          console.log("MOUSECLICK")
+          zoom(d.target, el, dispatcher);
+        });
+        
+    // /link.transition()
+    // /        .attr("points", this._branchPoints)
+    // /        .duration(ANIMATION_DURATION)
 };
 
-PhyloTree._branchPoints = function(d) {
-    var tmp =   d.source.x.toString() + "," + d.target.y.toString() + " "
-              + d.target.x.toString() + "," + d.target.y.toString();
+PhyloTree._moveLinks = function(el, scales, dispatcher){
+        
+    var bpoints = this._branchPoints;
+
+    var g = d3.select(el).selectAll('.d3-links');
+    var link = g.selectAll('.d3-link')
+
+    link.transition()
+            .attr("points",function(d){return bpoints(d, scales);})
+            .duration(ANIMATION_DURATION)
+};
+
+PhyloTree._zoom = function (d, el, dispatcher){
+  
+  PhyloTree._hide_axis(el, PhyloTree.state, dispatcher);
+  PhyloTree._update_vis(d);
+  PhyloTree._update_scales(el, PhyloTree.state, dispatcher);
+
+};
+
+PhyloTree._branchPoints = function(d, scales) {
+    
+    
+    var xpos = PhyloTree._x_pos;
+    var ypos = PhyloTree._y_pos;
+
+    var tmp =   scales.x(xpos(d.source)).toString() + "," + scales.y(ypos(d.target)).toString() + " "
+              + scales.x(xpos(d.target)).toString() + "," + scales.y(ypos(d.target)).toString();
+    
     if (typeof d.target.children != "undefined"){
-        var child_ys = d.target.children.map(function (x){return x.y;});
-        tmp+= " "+ d.target.x.toString()+","+d3.min(child_ys).toString() + " "
-                 + d.target.x.toString()+","+d3.max(child_ys).toString();
+        
+        var child_ys = d.target.children.map(function (x){
+          return scales.y(ypos(x));
+        });
+        
+        tmp+= " "+ scales.x(xpos(d.target)).toString()+","+d3.min(child_ys).toString() + " "
+                 + scales.x(xpos(d.target)).toString()+","+d3.max(child_ys).toString();
+    
     }
     return tmp;
 },
 
 PhyloTree._branchPoints_old = function(d) {
+    
     var tmp =   d.source.old_x.toString() + "," + d.target.old_y.toString() + " "
               + d.target.old_x.toString() + "," + d.target.old_y.toString();
     if (typeof d.target.children != "undefined"){
@@ -354,19 +463,17 @@ PhyloTree._branchPoints_old = function(d) {
     return tmp;
 },
 
-
 PhyloTree._update_axis = function(el, state, scales, dispatcher){
 
     if (state.xUnit == "numdate"){
         this._draw_axis(el, state, scales, dispatcher);
     }else{
-        this._hide_axis(el, state, scales, dispatcher);
+        this._hide_axis(el, state, dispatcher);
     }
-
 };
 
 PhyloTree._draw_axis = function(el, state, scales, dispatcher){
-    
+    console.log("DRAW axis called")
     var width = el.offsetWidth;
     var height = el.offsetHeight;
 
@@ -375,7 +482,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
         .orient("bottom")
         .ticks(10)
     
-    // function for the y grid lines
+    // function for the x grid lines
     function make_x_axis() {
     return d3.svg.axis()
       .scale(scales.x)
@@ -422,18 +529,16 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
     //     .attr("y2", function(d){return d.y2;})
     //     .style("stroke-width", 1)
     //     .style("stroke", "#DDDDDD");
-
 };
 
-PhyloTree._hide_axis = function (el, state, scales, dispatcher){
+PhyloTree._hide_axis = function (el, state, dispatcher){
     
+    console.log("HIDE axis called")
     var g = d3.select(el).select('.d3-tree_axis').selectAll("*");
     g.remove();
-
 };
 
 PhyloTree.destroy = function(el) {
-
 };
 
 export default PhyloTree;

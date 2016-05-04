@@ -144,14 +144,22 @@ var TreeContainer = React.createClass({
                 <TreeLeftPane 
                     root={this.props.root}
                     appState={this.props.appState}
-                    setAppState={this.props.setAppState}/>
+                    setAppState={this.props.setAppState}
+                    resetLayout={this.resetLayout}/>
                 <TreeRightPane 
+                    ref="TreeRightPane"
                     root={this.props.root}
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
             </div>
         );
-    }
+    },
+    resetLayout:function(){
+        console.log("RessetLayout")
+        var trp = this.refs.TreeRightPane
+        trp.resetLayout()
+    },
+
 });
 
 var TreeLeftPane = React.createClass({
@@ -160,6 +168,7 @@ var TreeLeftPane = React.createClass({
         return ({
             pos_disabled : false,
             pos_selected: 1,
+
         });
     }, 
 
@@ -171,13 +180,16 @@ var TreeLeftPane = React.createClass({
                     root={this.props.root}
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
+                <input type="button" value="Reset layout" onClick={this.props.resetLayout}/>
                 <h3>Color by: </h3>
                 
                 <select onChange={this.scaleChanged}>
                     <option value="N">Nucleotide</option>
-                    <option value="T">Sampling date</option>
-                    <option value="C">Country</option>
-                    <option value="R">Region</option>
+                    {
+                        this.props.appState.terminal_colorby.map(function(d) {
+                            return <option key={d} value={d}>{d}</option>;
+                        })
+                    }
                 </select>
 
                 <input type="number" style={{"margin-left":"30px"}}
@@ -196,31 +208,31 @@ var TreeLeftPane = React.createClass({
     scaleChanged : function(value){
         var value = (value.target.value);
         switch(value){
-        case ("T"):
-            this.setState({pos_disabled : true});
-            var cValFunc = function(d){return d.tvalue};
-            var cScale = new CScale();
+        // case ("T"):
+        //     this.setState({pos_disabled : true});
+        //     var cValFunc = function(d){return d.tvalue}; // d[fieldName]
+        //     var cScale = new CScale();
             
-            var root = this.props.root
-            if (typeof(root) == 'undefined') {
+        //     var root = this.props.root
+        //     if (typeof(root) == 'undefined') {
             
-                // do nothing
+        //         // do nothing
             
-            }else{
+        //     }else{
             
-                var layout = d3.layout.tree();
-                var all_nodes = layout.nodes(root);
-                var tval = all_nodes.map(function(d) {return +cValFunc(d);});
-                cScale.create(tval);
+        //         var layout = d3.layout.tree();
+        //         var all_nodes = layout.nodes(root);
+        //         var tval = all_nodes.map(function(d) {return +cValFunc(d);});
+        //         cScale.create(tval);
             
-            }
+        //     }
 
-            this.props.setAppState({
-                    cvalue : cValFunc,
-                    cscale: cScale
-                })
+        //     this.props.setAppState({
+        //             cvalue : cValFunc,
+        //             cscale: cScale
+        //         })
 
-            break;
+        //     break;
         case ("N"):
             this.setState({pos_disabled : false});
             var cValFunc = function(d){return d.strseq[1]};
@@ -235,51 +247,40 @@ var TreeLeftPane = React.createClass({
                 })
 
             break;
-        case ("C"):
-            this.setState({pos_disabled : true});
-            var cValFunc = function(d){return d.country};
-            var cScale = new CategorialScale();
 
-            // create scale from all defined values 
-            var root = this.props.root
-            if (typeof(root) == 'undefined') {
-                // do nothing
-            }else{
-                var layout = d3.layout.tree();
-                var all_nodes = layout.nodes(root);
-                var values = all_nodes.map(function(d) {return +cValFunc(d);});
-                values = values.filter(function(d, index){return values.indexOf(d) == index})
-                cScale.create(values);
-            }
-
-            this.props.setAppState({
-                    cvalue : cValFunc,
-                    cscale: cScale
-                })
-            break;
-        case ("R"):
-             this.setState({pos_disabled : true});
-            var cValFunc = function(d){return d.region};
-            var cScale = new CategorialScale();
-
-            // create scale from all defined values 
-            var root = this.props.root
-            if (typeof(root) == 'undefined') {
-                // do nothing
-            }else{
-                var layout = d3.layout.tree();
-                var all_nodes = layout.nodes(root);
-                var values = all_nodes.map(function(d) {return +cValFunc(d);});
-                values = values.filter(function(d, index){return values.indexOf(d) == index})
-                cScale.create(values);
-            }
-
-            this.props.setAppState({
-                    cvalue : cValFunc,
-                    cscale: cScale
-                })
-            break;
         default:
+
+            console.log(value)
+            
+            var cValFunc = function(d){
+                var md = d.terminal_metadata.filter(function(d){return d.name==value})
+                if (md.length == 0) return null;
+                return md[0].value;
+            }
+            var tips = []
+            PhyloTree.gatherTips(this.props.root, tips)
+            var all_values = tips.map(cValFunc)
+
+            // get all types of the metadata entries 
+            all_values = all_values.filter(function(d, index){return all_values.indexOf(d) == index})
+            var all_types = all_values.map(function(d){return typeof(d)})
+            all_types = all_types.filter(function(d, index){return all_types.indexOf(d) == index;})
+
+            var cScale;
+            if (all_types.length == 1 && all_types[0] == "number"){ // all numbers - continuous scale
+                cScale = new CScale();         
+                
+            }else{ // strings or messed types - unique color for ever value 
+                cScale = new CategorialScale();
+
+            }
+
+            cScale.create(all_values);
+            this.props.setAppState({
+                    cvalue : cValFunc,
+                    cscale: cScale
+                })
+
             this.setState({pos_disabled : true});
             break;
         }
@@ -325,7 +326,7 @@ var LegendComponent = React.createClass({
         //console.log("createing legend...");
         //console.log(this.props.root);
         if (!this.props.root) return false;
-        var el = React.findDOMNode(this);
+        var el = this.getDOMNode();
         
         if (this.state.legend_created){
             TreeLegend.update(el, this.props.appState);
@@ -370,11 +371,15 @@ var TreeRightPane = React.createClass({
         });
     },
 
+    resetLayout : function(){
+        if (!this.state.tree_initialized){return;}
+        var el = this.getDOMNode();
+        PhyloTree.resetLayout(el, this.dispatcher);
+    },
+
     render: function() {
         return (
-            <div>
                 <div ref="tree_svg" class="treeplot-container" id="treeplot_container" style={styleRightPane}/>
-            </div>
         );
     },
 
@@ -387,10 +392,13 @@ var TreeRightPane = React.createClass({
         //console.log("Will update Tree view");
         if (!this.props.root) return false;
         
-        var el = this.refs.tree_svg.getDOMNode();
+        var el = this.getDOMNode();
         if (this.state.tree_initialized){
             PhyloTree.update(el, this.props.appState, this.dispatcher);
         }else{
+            
+            this.setState({tree_initialized:true});
+            
             var width =  el.offsetWidth;
             var height = el.offsetHeight;
 
@@ -401,7 +409,6 @@ var TreeRightPane = React.createClass({
             this.dispatcher = dispatcher;
             dispatcher.on('point:tip_mouseover', this.select_tip);
             dispatcher.on('point:tip_mouseout', this.unselect_tip);
-            this.setState({tree_initialized:true});
         }
         return false;
     },
@@ -598,19 +605,44 @@ var Results = React.createClass({
             selected_tip:null,
             root_lh_initialized :false,
             color_nuc_pos: 1,
+            terminal_colorby: [],
+            internal_metadata: [],
         });
     },
 
     on_root : function (err, root){
+    
         //console.log("ROOT node came")
-          if (err){console.warn("Can not get root node for the tree"); return;}
+        console.log(root)
+        if (err){
+            console.warn("Can not get root node for the tree"); 
+            console.warn(err);
+            return;
+        }
         this.root = root;
         this._update_lh_from_root();
         this.forceUpdate()
+        
+        // load data to color terminal nodes and branches
+        var tips = []
+        PhyloTree.gatherTips(root, tips)
+        var all_metas = tips.map(function(t){
+            return t.terminal_metadata.map(function (m){return m.name})
+        })
+        console.log(all_metas)
+        var merged = [].concat.apply([], all_metas);
+        merged = merged.filter(function(d, index){return merged.indexOf(d) == index});
+        console.log(merged)
+        this.setState({terminal_colorby:merged})
+    
     },
 
     on_root_lh : function (err, lh){
-        if (err){console.warn("Can not get root node for the tree"); return;}
+        if (err){
+            console.warn("Can not get root node for the tree"); 
+            console.warn(err);
+            return;
+        }
         this.lh = lh;
         //console.log("LH has been read from the server file...")
         this.forceUpdate()
@@ -641,6 +673,12 @@ var Results = React.createClass({
     componentDidMount: function(){
         var parentNode = this.getDOMNode().parentNode;
         var UID = (parentNode.attributes.userid.value);
+        var metadata_disp = [
+            {   
+                name :"Region",
+                field: "region"
+            }
+            ]
         this.state.UID = UID;
         d3.json("/sessions/" + this.state.UID + "/out_tree.json", this.on_root);
         d3.json("/sessions/" + this.state.UID + "/out_tips.json", this.on_mu);
