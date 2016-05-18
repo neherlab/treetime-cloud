@@ -21,10 +21,9 @@ var Name = React.createClass({
     render(){
         return (
             <div id='name'>
-            <h1>TimeTree </h1>
-            <h2>Phylogeny with absolute time resolution</h2>
+            <h1>TreeTime </h1>
+            <h2>Molecular Clock Phylogeny</h2>
             </div>
-
         );
     }
 });

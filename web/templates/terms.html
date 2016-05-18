@@ -1,16 +1,15 @@
 <!doctype html>
 <header>
-<title>TreeTime</title>
-<link rel="stylesheet" href="/static/css/style.css">
+    <title>TreeTime</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
-<script>cfg={{ Config|tojson }}</script>
 
 
 </header>
 <body>
-<div id='react' userid={{ UserId }}>
+<div id='react' userid={{ UserId }} >
 <section id="react_"  ></section>
-<script src="{{ url_for('static', filename='js/welcome.js') }}"></script>
+<script src="{{ url_for('static', filename='js/terms.js') }}"></script>
 </div>
 </body>

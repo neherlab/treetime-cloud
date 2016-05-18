@@ -1,20 +1,29 @@
-#react{
+{
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 20px;
-
+  font-size: 16px;
+  text-align: center;
 }
 
-#react h1{
+h1{
   font-size: 48px;
   color:#565656;
   text-align: center;
 }
 
-#react h2{
+h2{
   font-size: 32px;
   color:#565656;
 }
 
+h3{
+  font-size: 24px;
+  color:#565656;
+}
+
+/*
+* Header definition
+* Header is present on the top of all pages of the application
+*/
 #header{
 
   float:left;
@@ -23,8 +32,9 @@
   margin-bottom: 40px;
   padding-bottom: 50px;
   border-bottom: solid 1px lightgrey;
-}
 
+}
+/** Logo - top left rectangle of the webpage */
 #logo{
   position: relative; 
   float:left;
@@ -32,133 +42,547 @@
   height:150px;
   border-right: solid 1px lightgrey;
 }
-
+/** Name of the web page (separated with gray line )*/
 #name{
-  position: absolute; 
+  position: relative; 
   float:left;
   text-align: center;
   
-  width:100%;
+  width:70%;
   min-width: 400px;
   height:150px; 
 }
 
-#footer{
-  text-align: right;
-  float:left;
-  width: 100%;
+/*
+*
+Footer definition (bottom for all pages of the application) **/
+
+/** Container for the footer elements (Copyright, authors, impressum)*/
+#footer_wrapper{
+  position:relative;
+  display:inline-block;
+  width:100%;
   color:grey;
   font-style: italic;
   padding: 20px;
   margin-top: 50px;
-  border-top: solid 2px grey
+  border-top: solid 2px grey;
+
 }
 
+/** Container for copyright + authors */
+#footer{
+  text-align: right;
+  float:left;
+  width: 79%;
+}
+
+
+/* Copyright text */
 #copyright{
+
 }
 
+/** Authors text */
 #authors{
   margin-right: 20px;
   margin-left:10px;
   float:right;
 }
 
-#welcome_container{
-  margin: 0 auto;
-  width:80%;
-  position: relative;
-  text-align: center;
+
+#impressum{
+  float:left;
+  width:20%;
 }
 
-#welcome_welcome{
+
+/** 
+*
+*
+*
+*  General definitions 
+*
+*
+*
+**/
+
+/** General container for the web pages (except the results page)**/
+.page_container{
+  width:100%;
+  float:center;
+  
+}
+
+/** All panels**/
+.panel-treetime{
+  position: relative;  
+}
+
+/** Grid, extends bootstrap grid**/
+.grid-treetime{
+
+}
+
+/**Grid: rows, extend bootstrap row**/
+.grid-treetime-row{
+  
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+}
+
+/**Grid: columns **/
+.grid-treetime-col{
+
+}
+
+/** Columns by position **/
+/** Max three columns**/
+.grid-treetime-col-left{
+
+}
+
+.grid-treetime-col-center{
+
+}
+
+.grid-treetime-col-right{
   text-align: left;
 }
 
-#welcome_files{
-  text-align:center;
-  border-style:solid;
-  border-width: 1px;
-  width:100%;
-  display: inline-block;
-  padding: 20px;
+/**********Buttons***********/
+/**Buttons extend the default bootstrap btn-primary class **/
+.btn-file {
+    position: relative;
+    overflow: hidden;
 }
 
-#welcome_params {
-  padding: 20px;
-  margin: 0px;
-  text-align:left;
-  border-style:solid;
-  border-width: 1px;
-  width:100%;
-  display: inline-block;
+.btn-file input[type=file] {
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: left;
+    /*filter: alpha(opacity=0);*/
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
 
 }
+.btn-file input[type=file] {
 
-#welcome_params div{
-  margin-top: 30px;
-  height:15;
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: left;
+    /*filter: alpha(opacity=0);*/
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+
 }
-
-#welcome_treeupload{
-  float:left;
-  width:33%;
-  display: inline-block;
-}
-#welcome_alnupload{
-  float:left;
-  width:33%;
-}
-
-#welcome_metaupload{
-  float:left;
-  widowsidth:33%;
-}
-
-#welcome_treeupload_or{
-  margin: 0px;
-  padding: 0px;
-}
-
-#welcome_coalescent {
-  position:relative;
-  float:left;
-  width:100%;
-}
-
-#welcome_coalescent div{
-  position: relative;
-  float:left;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-
-#welcome_relaxed {
-  position:relative;
-  margin-bottom:30px;
-  float:left;
-  width:100%;
-}
-
-#welcome_relaxed div{
-  position: relative;
-  float:left;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#welcome_run {
+.btn-file-treetime{
+  width:100px;
+  margin-right:15px;
   
-  text-align:center;
-  border-style:solid;
-  border-width: 1px;
-  width:192px;
-  height:80px;
-  display: inline-block;
-  margin:30px;
-  background:  url('/static/svg/run_treetime.svg');
+}
+
+.btn-treetime{/*if we want to specialize buttons*/
+    
+}
+
+
+.btn-file-treetime[disabled=disabled], btn-file-treetime:disabled{
 
 }
+
+/** Make some buttons look like links**/
+.link_button{
+     background:none!important;
+     border:none; 
+     padding:0!important;
+     font: inherit;
+     /*border is optional*/
+     border-bottom:1px solid #0000FF; 
+     cursor: pointer;
+     color: #0000FF;
+}
+
+/************** Selections, checkboxes, imputs, etc *************/
+.select-treetime{
+
+}
+
+.cbox-treetime{
+display:block;
+float:left;
+position:relative;
+margin-right: 0px;
+margin-bottom: 10px;
+bottom: 3px;
+}
+
+.treetime-input-text{
+
+}
+
+.treetime-span-input{
+  line-height: 34px; 
+  float:left;
+  display:block; 
+}
+
+.treetime-input-number{
+  float:left;
+  display:block;
+  margin-right: 10px;
+  margin-left: 10px;
+  width:100px;
+}
+
+input[type="text"]{
+  height:30px;
+  width: 50px;
+}
+
+input[type="number"]{
+  height:30px;
+  width: 100px;
+}
+.div-block{
+  float:left;
+  display:block;
+  margin-left: 10px;
+}
+
+
+/**
+* 
+* 
+* Special definitions for welcome page 
+* 
+* 
+**/
+
+#welcome_panel_files{
+  margin-left:20%;
+
+}
+
+#welcome_col_upload_tree{
+  float:left;
+  width: 100%;
+}
+
+#cbox-treetime-build_tree{
+  float:left;
+
+}
+
+#welcome_upload_grid{
+}
+
+#welcome_panel_examples{
+}
+
+#welcome_panel_config{
+
+  text-align: left;
+  float:left;
+  width:100%;
+  clear:both;
+  margin-bottom: 50px;
+}
+
+.config-entry{
+  width:100%;
+  float:left;
+  display:inline-block;    
+  position:relative;
+  vertical-align:middle; 
+  margin-top: 10px;
+}
+
+
+#cbox-treetime-reuse_branches{
+clear:both;
+}
+
+#welcome-panel_config-cbox_reroot{
+
+}
+
+#welcome-panel_config-div_GTR{
+width:100%;
+}
+
+#welcome-panel_config-span_GTR{
+  width:100px;
+
+  float:left;
+}
+
+#welcome-panel_config-select_GTR{
+  width:150px;
+}
+
+#welcome-panel_config-cbox_penalty{
+
+}
+
+#welcome-panel_config-input_penalty{
+float:left;
+}
+
+
+#welcome_panel_config-cbox_slope{
+
+}
+
+#welcome_panel_config-div_coalescent{
+
+}
+
+#welcome_panel_config-cbox_coalescent{
+
+}
+
+#welcome_panel_config-coalescence_spanTc{
+
+}
+
+#welcome_panel_config-coalescence_spanHammDist{
+
+}
+
+
+#welcome_panel_config-div_relaxed{
+width:100%;
+
+}
+
+#welcome_panel_config-cbox_relaxed{
+
+}
+
+#welcome_panel_config-alpha_relaxed{
+
+}
+#welcome_panel_config-aval_relaxed{
+
+}
+#welcome_panel_config-beta_relaxed{
+
+}
+#welcome_panel_config-bval_relaxed{
+
+}
+
+#welcome_panel_config_variance{
+
+}
+
+
+#welcome_description{
+  padding-top:40px;
+  text-align:justify;
+}
+
+/**
+*  
+*  
+*  Special definitions for progress page
+*  
+*  
+**/
+
+
+/**
+*   
+*   
+*   
+*   Definitions for the results page
+*   
+*   
+**/
+
+.results-section{
+  float:left;
+  padding: 5px;
+  margin: 5px;
+  width:100%;
+}
+
+#results-section_tree{
+
+}
+
+.results-section-left_pane{
+  float:left;
+  width:29.5%;
+  padding-bottom:20px;
+  text-align: left;
+}
+
+
+.results-section-right_pane = {
+  height:100px;
+  display:block;
+  float:none;
+  width:60%;
+  border-style:solid;
+  border-width: 1px;
+}
+
+#results-section_tree-right_pane{
+  height:700px;
+  float:left;
+  width:70%;
+  position:relative;
+  border-style:solid;
+  border-color: gray;
+  border-width: 1px;
+
+ 
+}
+
+#results-section_tree-left_pane-select_colorscheme{
+  float:left;
+  width:100%;
+  margin-bottom: 20px;
+}
+
+#results-section_tree-left_pane-select_colorval{
+  width:100px;
+  display:block;
+  float:left;
+  margin-right: 20px;
+}
+
+#results-section_tree-left_pane-div_pos{
+  float:left;
+  display: block;
+}
+
+#results-section_tree-left_pane-select_pos{
+  width:75px;
+  height:34px;
+  float:left;
+  display:block;
+  margin-left:10px;
+  margin-right:0px;
+}
+
+#results-section_tree-left_pane-pos{
+  
+  float:left;
+  line-height: 34px;
+
+}
+
+
+#results-section_mu-right_pane{
+ height:700px;
+   float:left;
+  width:70%;
+  position:relative;
+  border-style:solid;
+  border-color: gray;
+  border-width: 1px;
+
+ 
+}
+
+
+#results-section_tmrca-right_pane{
+ height:700px;
+ float:left;
+ width:70%;
+ position:relative;
+ border-style:solid;
+ border-color: gray;
+ border-width: 1px;
+
+}
+
+#results-section_download-left_pane{
+  
+}
+
+#results-section_download-btn_download{
+  line-height: 24px;
+}
+
+#results-section_download-right_pane{
+  
+  width:70%;
+  margin-left: 29.5%;
+}
+
+#results-panel_download_files{
+
+}
+
+.progress_error{
+
+}
+
+#error_header{
+  color:red;
+}
+.terms{
+  text-align:center;
+}
+
+.row{
+  float: left;
+  width:100%;
+}
+
+.img_row{
+  float: left;
+  padding-left: 100px;
+
+}
+
+
+.page_container{
+  margin: 0 auto;
+  width:75%;
+  text-align: center;
+  position: relative;
+}
+
+.paragraph{
+  text-align: left;
+  width: 100%;
+}
+
+.box{
+  
+  text-align:left;
+  float:left;
+  border-color: grey;
+  border-style: solid;
+  border-width: 1px;
+  padding: 10px;
+  margin-left: 50px;
+
+}
+
+
 
 select {
 
@@ -184,15 +608,7 @@ select {
 
 }
 
-input[type="text"]{
-  height:30px;
-  width: 50px;
-}
 
-input[type="number"]{
-  height:30px;
-  width: 50px;
-}
 
 .welcome {
   margin: 0px;
@@ -213,38 +629,9 @@ input[type="number"]{
   width: 100%;
 }
 
-input[type=file] {
-  display: inline-block;
-  width: 120px;
-  padding: 50px 0 0 0;
-  height: 10px;
-  overflow: hidden;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  background: url('http://archisnapper.com/cloud.png') center center no-repeat #e4e4e4;
-  border-radius: 5px;
-  background-size: 120px 50px;
-}
-
-#welcome_input_tree{
-  background: url('/static/svg/input_tree_enabled.svg');
-}
 
 
-#welcome_input_tree:disabled{
-  background: url('/static/svg/input_tree_disabled.svg');
-}
-
-#welcome_input_aln{
-  background: url('/static/svg/input_fasta_enabled.svg');
-}
-
-
-#welcome_input_meta{
-  background: url('/static/svg/input_meta_enabled.svg');
-}
-
+/** D3 - elements of the results page **/
 .d3-tree_axis path,
 .d3-tree_axis line{
   fill:none;
@@ -263,29 +650,24 @@ input[type=file] {
   stroke: steelblue;
   stroke-width: 1.5px;
 }
-
 .d3_lh_grid line{
     stroke:lightgrey;
     shape-rendering: crispEdges;
 }
-
 .d3_mu_axis path,
 .d3_mu_axis line{
   fill:none;
   stroke:gray;
   shape-rendering: crispEdges;
 }
-
 .d3-mu-axis text{
   font-family: sans-serif;
   font-size: 11px;
 }
-
 .d3_mu_grid line{
     stroke:lightgrey;
     shape-rendering: crispEdges;
 }
-
 .d3-link {
   fill: none;
   stroke: #ccc;
@@ -308,4 +690,3 @@ input[type=file] {
   color: #fff;
   border-radius: 14px;
 }
-

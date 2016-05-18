@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import Header from './header.js'
 import Footer from './footer.js'
 
+import { Glyphicon, Panel, Button, Grid, Row, Col, FormControl} from "react-bootstrap";
+
 var request = require('superagent');
 
 var Banner = React.createClass({
@@ -20,35 +22,22 @@ var Banner = React.createClass({
 
 var Status = React.createClass({
 
-    statusStyle : {
-        'float': 'left',
-        'width':'10%',
-        //'border-style' : 'solid',
-        //'border-width' : '1px'
-    },
-
     render(){
         return (
-            <div style={this.statusStyle}>
+            <div>
                 <h4>{this.props.status}</h4>
             </div>
         );
     }
+
 });
 
 var StepName = React.createClass({
     
-    style : {
-        'float': 'left',
-        'width':'80%',
-        //'border-style' : 'solid',
-        //'border-width' : '1px'
-    },
-
     render(){
         return (
 
-            <div style={this.style}>
+            <div>
             <h4>{this.props.step}</h4>
             </div>
         );
@@ -80,7 +69,13 @@ var Progress  = React.createClass({
         return (
         {
             UID : "Undef",
-            steps: []
+            steps:[],
+            todos : [],
+            progress : "",
+            done : [],
+            state : "None",
+            error : "",
+            warns : []
         }
         );
     },
@@ -101,18 +96,28 @@ var Progress  = React.createClass({
             }
             return;
         }
-        //console.log(res.body)
-        ////console.log(JSON.parse(res.text));
-        ////var sts = JSON.parse(res);
-        this.setState({steps:JSON.parse(res.text).steps});
-        //console.log("Steps:")
-        //console.log(this.state.steps)
-        //console.log(JSON.parse(res.text))
-        if (this.check_all_done()){
-            clearInterval(this.interval);
-            window.location.replace('/' + this.state.UID + '/results')
-            // TODO redirect
-        }
+        console.log(JSON.parse(res.text).steps)
+        var state = JSON.parse(res.text).steps
+        this.setState({
+            done:state.done,
+            error: state.error,
+            progress: state.progress,
+            state:state.state,
+            todos:state.todo,
+            warns:state.warn
+        });
+        console.log(this.state)
+        //////console.log(JSON.parse(res.text));
+        //////var sts = JSON.parse(res);
+        //this.setState({steps:JSON.parse(res.text).steps});
+        ////console.log("Steps:")
+        ////console.log(this.state.steps)
+        ////console.log(JSON.parse(res.text))
+        //if (this.check_all_done()){
+        //    clearInterval(this.interval);
+        //    window.location.replace('/' + this.state.UID + '/results')
+        //    // TODO redirect
+        //}
     },
 
     componentDidMount: function(){
@@ -148,19 +153,11 @@ var Progress  = React.createClass({
         return true;
     },
 
-    progressStyle : {
-        'float':'left',
-        'position':'relative',
-        'text-align':'center',
-        'width':'100%',
-        //'border-style':'solid',
-        //'border-width': '1px',
-    },
 
     render: function(){
         
         return (
-            <div style={this.progressStyle}>
+            <div>
                 <Header />
                 <Body 
                     appState={this.state}
@@ -172,26 +169,42 @@ var Progress  = React.createClass({
 });
 
 var Body = React.createClass({
-   
-   bodyStyle : {
-    'width':'70%',
-    //'float':'left',
-    'display': 'inline-block',
-    'position':'relative',
-    //'border-style':'solid',
-    //'border-width': '1px'
-    }, 
     
-    render_step : function (step){
-        //console.log("rendering" + step.name)
-        //console.log(step)
+    render_step : function (type, step){
         
-        var s = step.status
-        var n = step.name
-        var key = step.name
+        // pick a glyphicon from bootstrap
+        var glyph_type = "";
+        switch(type){
+            
+            case ("todo"):
+            glyph_type = "option-horizontal";
+            break;
+            
+            case ("progress"):
+            glyph_type = "arrow-right";
+            break;
+            
+            case ("done"):
+            glyph_type = "ok";
+            break;
+        }
+
+        
+        
         //console.log("status = "+ s)
         if (status != 'Error'){
-            return <Step key={key} status={s} step={n} />
+            return (
+            <Row className="grid-treetime-row">
+                <Col xs={1} md={1} id="results_col_step" className="grid-treetime-col-left">
+                    <Glyphicon glyph={glyph_type}/>
+                </Col>
+                
+                <Col xs={11} md={11} id="results_col_step" className="grid-treetime-col-right">
+                    <span>{step}</span>
+                </Col>
+            
+            </Row>
+            );
         }
         else {
             // TODO show error banner 
@@ -199,13 +212,85 @@ var Body = React.createClass({
         }
     },
 
-    render: function(){
+    render_error: function(error){
+        var glyph_type = "ban-circle"
+        var mail = "mailto:pavel.sagulenko@tuebingen.mpg.de?Subject=TreeTime%20error. Session:" + this.props.appState.UID
         return (
-            <div style={this.bodyStyle}>
-                <Banner/>
-                {(this.props.appState.steps).map(this.render_step)}
+            <div className="progress_error">
+            <h4 id="error_header"> Ooops... An error occured</h4>
+            <Panel collapsible defaultExpanded header="">
+            <Row className="grid-treetime-row">
+                <Glyphicon id="error_header" glyph={glyph_type}/>
+            </Row>
+            <Row className="grid-treetime-row">
+                <span id="error_header" style={{"font-weight": "bold"}}>Server says: {error}</span>
+            </Row>
+            <Row className="grid-treetime-row">
+                <p style={{"text-align":"justify"}}>
+                The reason migjht be that either the input parameters cause some numerical problems or out of range of computation, or there is some internal bug in the program. 
+                Please, send us an <a href={mail} target="_top">e-mail</a>, so that we can diagnose the problem and improve the functionality and performance of the package. 
+                We kindly ask you to indicate the session name (copy the address string fromthe browser) in order for us to identify the runnning parameters. 
+
+                </p>
+            </Row>
+            
+            <Row className="grid-treetime-row">
+                <p style={{"text-align":"justify"}}>
+                We are sorry for the incovenience and will try to fix the problem as soon as possible. 
+                </p>
+            </Row>
+
+            </Panel>
             </div>
-        );
+        )
+    },
+
+    render: function(){
+        var render_step = this.render_step
+        if (this.props.appState.error != ""){
+            return (
+            <div className="page_container">
+                <Banner/>
+                
+                <Panel header="Progress...">
+                {(this.props.appState.done).map(function(d){
+                    return render_step("done", d)
+                })}
+
+                {render_step("progress", this.props.appState.progress)}
+                
+                
+                {this.render_error(this.props.appState.error)}
+                
+                {(this.props.appState.todos).map(function(d){
+                    return render_step("todo", d)
+                })}
+                </Panel>
+            
+            </div>
+            );
+        }else{
+            return (
+            <div className="page_container">
+                <Banner/>
+                
+                <Panel header="Progress...">
+                {(this.props.appState.done).map(function(d){
+                    return render_step("done", d)
+                })}
+
+                {render_step("progress", this.props.appState.progress)}
+                
+                
+                {(this.props.appState.todos).map(function(d){
+                    return render_step("todo", d)
+                })}
+                </Panel>
+            
+            </div>
+            );
+        }
+        
     }
 })
 

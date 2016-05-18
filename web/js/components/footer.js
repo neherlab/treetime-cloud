@@ -32,9 +32,12 @@ var Footer  = React.createClass({
 
     render (){
         return (
-            <div id="footer">
-                <Authors/>
-                <Copyright/>
+            <div id="footer_wrapper" >
+                <a href='/terms.html/' id="impressum">About/Impressum</a>
+                <div id="footer">
+                    <Authors/>
+                    <Copyright/>
+                </div>
             </div>
         );
     }

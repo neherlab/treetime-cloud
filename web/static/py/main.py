@@ -8,6 +8,7 @@ import os,sys,copy,json
 from Bio import Phylo, AlignIO, Seq, SeqRecord, Align
 from Bio.Alphabet import generic_dna
 import matplotlib.pyplot as plt
+import zipfile 
 plt.ion()
 plt.show()
 
@@ -251,6 +252,7 @@ def save_results(tt, state, root):
         treetime.treetime_to_json(tt,  os.path.join(root, "out_tree.json"))
         treetime.tips_data_to_json(tt, os.path.join(root, "out_tips.json"))
         treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
+        treetime.root_lh_to_csv(tt,   os.path.join(root, "out_root_lh.csv"))
 
         # save full alignment 
         aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence))) for n in tt.tree.find_clades ()])
@@ -261,6 +263,28 @@ def save_results(tt, state, root):
 
         #save metadata as csv file
         treetime.save_all_nodes_metadata(tt, os.path.join(root, "out_metadata.csv"))
+
+        #save molecular clock in normal format 
+        mclock = np.array([(tip.dist2root, tip.numdate_given) 
+            for tip in tt.tree.get_terminals() 
+            if hasattr(tip, 'dist2root') and hasattr(tip, 'numdate_given')])
+        np.savetxt(os.path.join(root, 'molecular_clock.csv'), mclock, 
+            delimiter=',', 
+            header='Distance_to_root,Sampling_date')
+
+        # save GTR in csv file
+        treetime.save_gtr_to_file(tt.gtr, os.path.join(root, "out_gtr.txt"))
+
+        # zip all results to one file
+        with zipfile.ZipFile(os.path.join(root, 'treetime_results.zip'), 'w') as out_zip:
+            out_zip.write(os.path.join(root, 'out_newick_tree.nwk'), arcname='out_newick_tree.nwk')
+            out_zip.write(os.path.join(root, 'out_aln.fasta'), arcname='out_aln.fasta')
+            out_zip.write(os.path.join(root, 'out_metadata.csv'), arcname='out_metadata.csv')
+            out_zip.write(os.path.join(root, 'out_tree.json'), arcname='out_tree.json')
+            out_zip.write(os.path.join(root, 'settings.json'), arcname='settings.json')
+            out_zip.write(os.path.join(root, 'molecular_clock.csv'), arcname='molecular_clock.csv')
+            out_zip.write(os.path.join(root, 'out_root_lh.csv'), arcname='out_root_lh.csv')
+            out_zip.write(os.path.join(root, 'out_gtr.txt'), arcname='out_gtr.txt')
 
         state['status'] = 'Done'
         return tt, True
@@ -309,11 +333,83 @@ def process(root, steps, state, ostate):
 
 def pipeline(root, ostate):
     
-    #ostate = os.path.join(root, 'state.json')
-    
+    # build tree 
+    # GTR = from tree ? J-C : from the available options
+    # read files 
+    # infer ancestral state 
+    # infer the temporal constraints
+    #   set the branch len penalty 
+
+    # reroot to best root
+    # init date constraints (slope=slope)
+    # run treetime
+    # resolve polytomies
+    # relax molecular clock 
+    # run coalsecent model (?)
+    # save results
+
     steps = load_settings(root)
     state = write_initial_state(root, steps, ostate)
     process(root, steps, state, ostate) 
+
+def check_cb_prop(props, prop):
+    return prop in props and props[prop]==True
+
+def update_session_state(state, err=None):
+    if err is not None:
+        state["error"] = err
+    else: # normal run
+        # update state dictionary
+        if state["progress"] != "":
+            state["done"].append(state["progress"])
+        step_name = state["todo"][0]
+        state["progress"] = step_name
+        state["todo"].remove(step_name)
+    # save state to json file 
+
+def run_treetime(props, root):
+
+    state = {
+        "state":"Running",
+        "done":[],
+        "progress":"",
+        "todo":[],
+    }
+
+    update_session_state(state)
+    
+    # build tree 
+    if check_cb_prop(props, "do_build_tree"):
+        build_tree(root)
+    
+    import treetime
+    # GTR = from tree ? J-C : from the available options
+    # read files 
+    # infer ancestral state 
+    # infer the temporal constraints
+    #   set the branch len penalty 
+
+    # reroot to best root
+    # init date constraints (slope=slope)
+    # run treetime
+    # resolve polytomies
+    # relax molecular clock 
+    # run coalsecent model (?)
+    # save results
+
+def build_tree(root):
+    
+    tree_filename = os.path.join(root, "in_tree.nwk")
+    aln_filename = os.path.join(root, "in_aln.nwk")
+
+    call = ['/ebio/ag-neher/share/programs/bin/fasttree', '-nt','-quiet',\
+    aln_filename, ' > ', tree_filename]
+    
+    os.system(' '.join(call))
+
+
+
+
 
 if __name__ == '__main__':
 

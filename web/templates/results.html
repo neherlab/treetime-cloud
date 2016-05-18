@@ -1,10 +1,14 @@
 <!doctype html>
 <header>
     <title>TreeTime</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </header>
 <body>
-<div id='react' userid={{ UserId }}>
+<div id='react' userid={{ UserId }} >
 <section id="react_"  ></section>
 <script src="{{ url_for('static', filename='js/results.js') }}"></script>
 </div>

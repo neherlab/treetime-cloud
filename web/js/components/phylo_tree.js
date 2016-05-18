@@ -108,6 +108,7 @@ PhyloTree.padding_left = 20;
 
 PhyloTree.create = function(el, props, state){
 
+  if (!props.root || typeof props.root == 'undefined') return null;
   //console.log("CREATING tree");
   var w  = el.offsetWidth;
   var h = el.offsetHeight;
@@ -136,19 +137,23 @@ PhyloTree.create = function(el, props, state){
   this._drawTips(el,scales, dispatcher);
   this._drawLinks(el,scales,dispatcher);
   return dispatcher;
+
 };
 
 PhyloTree._create_data = function(props){
     
     ////console.log(props.root)
     this.root = props.root;
+    console.log("Creating tree data...")
+    console.log(this.root)
     this.layout = d3.layout.tree();
     this.vis_nodes = this.layout.nodes(this.root);
     this.vis_links = this.layout.links(this.vis_nodes);
     this.vis_links.push({"source":this.root, "target":this.root});
-    this.vis_tips = this.gatherTips(this.root, []);
+    this.vis_tips = []
+    this.gatherTips(this.root, this.vis_tips);
     this.vis_tips.map(function(d){d.selected=false;});
-
+    console.log(this.vis_tips)
     this._update_vis(this.root);
 };
 
@@ -318,6 +323,7 @@ PhyloTree._tipRadius = function(d) {return d.selected ? 16.0 : 10.0;}
 
 PhyloTree._drawTips = function(el, scales, dispatcher) {
     
+    if (typeof this.vis_tips ==' undefined' || this.vis_tips.length < 2) return;
     var  _drawVirusToolTip = this._drawVirusToolTip
     var _hideVirusToolTip = this._hideVirusToolTip
     var xpos = this._x_pos;
@@ -326,6 +332,11 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
     var g = d3.select(el).selectAll('.d3-tips');
     var tip = g.selectAll('.d3-tip')
         .data(this.vis_tips);
+
+    console.log("VIS TIPS")
+    console.log(this.vis_tips)
+    console.log(this.vis_tips.map(function(d){return d.strain}))
+    console.log(d3.sum(this.vis_tips.map(function(d){if (typeof d.strain == 'undefined') return 1; else return 0;}) ) ) 
     tip.enter()
       .append("circle")
       .attr("class", "d3-tip")

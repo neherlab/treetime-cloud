@@ -5,6 +5,7 @@ module.exports = {
         welcome: "./js/components/welcome.js",
         progress: "./js/components/progress.js", 
         results: "./js/components/results.js", 
+        terms: "./js/components/terms.js", 
 
     },
 
