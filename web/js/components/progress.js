@@ -33,7 +33,7 @@ var Status = React.createClass({
 });
 
 var StepName = React.createClass({
-    
+
     render(){
         return (
 
@@ -45,7 +45,7 @@ var StepName = React.createClass({
 });
 
 var Step = React.createClass({
-    
+
     style:{
         'float': 'left',
         'width':'100%',
@@ -64,7 +64,7 @@ var Step = React.createClass({
 });
 
 var Progress  = React.createClass({
-    
+
     getInitialState(){
         return (
         {
@@ -81,7 +81,7 @@ var Progress  = React.createClass({
     },
 
     request_session_state: function(){
-       
+
         request.get('/' + this.state.UID + '/session_state')
             .send({UID:this.state.UID})
             .end(this.on_session_state);
@@ -94,7 +94,7 @@ var Progress  = React.createClass({
             }
             return;
         }
-        
+
         var state = JSON.parse(res.text).steps
         this.setState({
             done:state.done,
@@ -104,7 +104,7 @@ var Progress  = React.createClass({
             todos:state.todo,
             warns:state.warn
         });
-        
+
         if (this.state.error != ""){
             clearInterval(this.interval);
         }
@@ -117,7 +117,7 @@ var Progress  = React.createClass({
     },
 
     componentDidMount: function(){
-        
+
         var parentNode = this.getDOMNode().parentNode;
         //console.log(parentNode)
         var UID = (parentNode.attributes.userid.value);
@@ -126,11 +126,11 @@ var Progress  = React.createClass({
         this.request_session_state();
         this.interval = setInterval(this.request_session_state, 10000);
     },
- 
+
     setAppState : function(partialState){
         this.setState(partialState);
     },
-    
+
     componentWillUnmount : function(){
         clearInterval(this.interval);
     },
@@ -147,11 +147,11 @@ var Progress  = React.createClass({
 
 
     render: function(){
-        
+
         return (
             <div>
                 <Header />
-                <Body 
+                <Body
                     appState={this.state}
                     setAppState={this.setAppState}/>
                 <Footer />
@@ -161,28 +161,28 @@ var Progress  = React.createClass({
 });
 
 var Body = React.createClass({
-    
+
     render_step : function (type, step){
-        
+
         // pick a glyphicon from bootstrap
         var glyph_type = "";
         switch(type){
-            
+
             case ("todo"):
             glyph_type = "option-horizontal";
             break;
-            
+
             case ("progress"):
             glyph_type = "arrow-right";
             break;
-            
+
             case ("done"):
             glyph_type = "ok";
             break;
         }
 
-        
-        
+
+
         //console.log("status = "+ s)
         if (status != 'Error'){
             return (
@@ -190,16 +190,16 @@ var Body = React.createClass({
                 <Col xs={1} md={1} id="results_col_step" className="grid-treetime-col-left">
                     <Glyphicon glyph={glyph_type}/>
                 </Col>
-                
+
                 <Col xs={11} md={11} id="results_col_step" className="grid-treetime-col-right">
                     <span>{step}</span>
                 </Col>
-            
+
             </Row>
             );
         }
         else {
-            // TODO show error banner 
+            // TODO show error banner
             clearInterval(this.interval);
         }
     },
@@ -210,7 +210,7 @@ var Body = React.createClass({
         return (
             <div className="progress_error">
             <h4 id="error_header"> Ooops... An error occured</h4>
-            <Panel collapsible defaultExpanded header="">
+            <Panel collapsible defaultExpanded header="" id='error_message'>
             <Row className="grid-treetime-row">
                 <Glyphicon id="error_header" glyph={glyph_type}/>
             </Row>
@@ -219,16 +219,14 @@ var Body = React.createClass({
             </Row>
             <Row className="grid-treetime-row">
                 <p style={{"text-align":"justify"}}>
-                The reason migjht be that either the input parameters cause some numerical problems or out of range of computation, or there is some internal bug in the program. 
-                Please, send us an <a href={mail} target="_top">e-mail</a>, so that we can diagnose the problem and improve the functionality and performance of the package. 
-                We kindly ask you to indicate the session name (copy the address string fromthe browser) in order for us to identify the runnning parameters. 
-
+                Either the input parameters caused some numerical problems/overflow exceptions, or you encountered a bug in TreeTime.
+                Please, send us an <a href={mail} target="_top">e-mail</a> to help us diagnose and fix the problem. (please keep the session ID in the mail subject). THANK YOU.
                 </p>
             </Row>
-            
+
             <Row className="grid-treetime-row">
                 <p style={{"text-align":"justify"}}>
-                We are sorry for the incovenience and will try to fix the problem as soon as possible. 
+                We are sorry for the incovenience and will try to fix the problem as soon as possible.
                 </p>
             </Row>
 
@@ -250,25 +248,25 @@ var Body = React.createClass({
         return (
             <div className="page_container">
                 <Banner/>
-                
+                <div className="bigspacer"></div>
                 <Panel header="Progress...">
                 {(this.props.appState.done).map(function(d){
                     return render_step("done", d)
                 })}
 
                 {render_step("progress", this.props.appState.progress)}
-                
+
                 {this.switch_error()}
-                
+
                 {(this.props.appState.todos).map(function(d){
                     return render_step("todo", d)
                 })}
                 </Panel>
-            
+
             </div>
             );
 
-        
+
     }
 })
 

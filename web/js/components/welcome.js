@@ -23,18 +23,18 @@ var DoBuildTree = React.createClass({
         //console.log("Build tree Checkbox state changed to: " + this.state.checked);
         this.props.SetAppConfig({do_build_tree: !this.props.AppConfig.do_build_tree})
     },
-    
+
     render(){
         return (
             <div>
-              <Checkbox className="cbox-treetime" id="cbox-treetime-build_tree" 
+              <Checkbox className="cbox-treetime" id="cbox-treetime-build_tree"
                 checked={this.props.AppConfig.do_build_tree}
-                onChange={this.handleChange}> 
-            Build new tree
+                onChange={this.handleChange}>
+            Build tree from alignment
             </Checkbox>
             </div>
         );
-    } 
+    }
 });
 
 var ShouldReuseBranchLength = React.createClass({
@@ -45,19 +45,19 @@ var ShouldReuseBranchLength = React.createClass({
             checked: this.props.AppConfig.reuse_branch_len
         }
         );
-    },    
-    
+    },
+
     handleChange(e){
         var chk = this.props.AppConfig.reuse_branch_len;
         this.state.checked = !chk;
         this.props.SetAppConfig({"reuse_branch_len" : !this.props.AppConfig.reuse_branch_len});
     },
-    
+
 
     render(){
         return (
             <div className="config-entry">
-               <Checkbox className="cbox-treetime" id="cbox-treetime-reuse_branches" 
+               <Checkbox className="cbox-treetime" id="cbox-treetime-reuse_branches"
                 checked={this.props.AppConfig.reuse_branch_len}
                 onChange={this.handleChange}>
                 Reuse tree branches
@@ -69,27 +69,27 @@ var ShouldReuseBranchLength = React.createClass({
 
 var DoReRoot = React.createClass({
 
-    
+
     getInitialState(){
         return (
         {
             checked:this.props.AppConfig.reroot
         }
         );
-    },    
-    
+    },
+
     handleChange(e){
         var chk = this.props.AppConfig.reroot
         this.state.checked = !chk;
         //console.log("doReRoot Checkbox state changed to: " + this.state.checked);
         this.props.SetAppConfig({"reroot":this.state.checked});
     },
-    
+
 
     render(){
         return (
             <div className="config-entry">
-               <Checkbox className="cbox-treetime" id="welcome-panel_config-cbox_reroot" 
+               <Checkbox className="cbox-treetime" id="welcome-panel_config-cbox_reroot"
                 checked={this.props.AppConfig.reroot}
                 onChange={this.handleChange}>
                 Optimize tree root position
@@ -101,7 +101,7 @@ var DoReRoot = React.createClass({
 });
 
 var GTRmodel = React.createClass({
-    
+
     onChange: function(value){
         console.log(value.target.value)
         var val = value.target.value
@@ -110,7 +110,7 @@ var GTRmodel = React.createClass({
         }else{
             this.props.SetAppConfig({"gtr":val, "infer_gtr":false})
         }
-    }, 
+    },
 
     render: function(){
 
@@ -135,12 +135,12 @@ var UseBranchPenalty = React.createClass({
             checked: this.props.AppConfig.use
         }
         );
-    },    
+    },
 
     validate(text){
         return true;
     },
-      
+
     handleCBChange(){
         var bool = this.state.settings.bool;
         var settings = this.state.settings;
@@ -169,17 +169,17 @@ var UseBranchPenalty = React.createClass({
 
                 <Checkbox className="cbox-treetime" id="welcome-panel_config-cbox_penalty"
                     checked={this.state.settings.bool}
-                    onChange={this.handleCBChange}> 
-                Branch penalty = 
+                    onChange={this.handleCBChange}>
+                Branch penalty =
                 </Checkbox>
-                
-                
+
+
 
                 <FormControl type="number" className="treetime-input-number" id="welcome-panel_config-input_penalty"
-                    disabled={!this.state.settings.bool} 
-                    onChange={this.handleTextChange}/> 
+                    disabled={!this.state.settings.bool}
+                    onChange={this.handleTextChange}/>
 
-              
+
             </div>
         );
     }
@@ -195,12 +195,12 @@ var UseSlope = React.createClass({
             mu: this.props.AppConfig.mu
         }
         );
-    },    
+    },
 
     validate(text){
         return true;
     },
-      
+
     handleCBChange(){
         var checked = this.props.AppConfig.use_mu
         this.props.SetAppConfig({use_mu: !checked})
@@ -224,20 +224,20 @@ var UseSlope = React.createClass({
             <div className="config-entry">
               <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_slope"
                     checked={this.props.AppConfig.use_mu}
-                    onChange={this.handleCBChange}> 
-                
-                Mutation rate (&mu;) = 
-              
+                    onChange={this.handleCBChange}>
+
+                Mutation rate (&mu;) =
+
               </Checkbox>
               <div className="div-block">
               <FormControl type="number" className="treetime-input-number div-block"
-                    disabled={!this.props.AppConfig.use_mu} 
+                    disabled={!this.props.AppConfig.use_mu}
                     onChange={this.handleTextChange}
-                    value={this.props.AppConfig.mu}/> 
-              
+                    value={this.props.AppConfig.mu}/>
+
               <span className="treetime-span-input">(#/year)</span>
               </div>
-            
+
             </div>
         );
     }
@@ -251,15 +251,15 @@ var DoResolvePoly = React.createClass({
             checked: this.props.AppConfig.resolve_poly
         }
         );
-    },    
-    
+    },
+
     handleChange(e){
         var chk = this.props.AppConfig.resolve_poly
         this.state.checked = !chk;
         //console.log("DoResolvePoly Checkbox state changed to: " + this.state.checked);
         this.props.SetAppConfig({"resolve_poly":!this.props.AppConfig.resolve_poly})
     },
-    
+
 
     render(){
         return (
@@ -275,7 +275,7 @@ var DoResolvePoly = React.createClass({
 });
 
 var DoCoalescent = React.createClass({
-    
+
     getInitialState(){
         return (
         {
@@ -283,12 +283,12 @@ var DoCoalescent = React.createClass({
             coalescent:this.props.AppConfig.coalescent
         }
         );
-    },    
+    },
 
     validate(text){
         return true;
     },
-      
+
     handleCBChange(){
         var  chk = this.props.AppConfig.coalescent
         this.props.SetAppConfig({"coalescent": !chk})
@@ -310,28 +310,28 @@ var DoCoalescent = React.createClass({
 
         return (
             <div className="config-entry" id="welcome_panel_config-div_coalescent">
-                
+
                     <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_coalescent"
                            checked={this.props.AppConfig.coalescent}
                            onChange={this.handleCBChange}>
-        
-                        Model coalescent process. 
-                    
+
+                        Model coalescent process.
+
                     </Checkbox>
-                
+
                     <div id="div-block">
-                        
-                        <span className="treetime-span-input"> Tc = </span> 
-                        
+
+                        <span className="treetime-span-input"> Tc = </span>
+
                         <FormControl  type="number" className="treetime-input-number"
-                            disabled={!this.props.AppConfig.coalescent} 
+                            disabled={!this.props.AppConfig.coalescent}
                             onChange={this.handleTextChange}
-                            value={this.props.AppConfig.Tc}/> 
-                        
-                        <span  className="treetime-span-input" id="welcome_panel_config-coalescence_spanHammDist"> (Hamming distance) </span> 
-                    
+                            value={this.props.AppConfig.Tc}/>
+
+                        <span  className="treetime-span-input" id="welcome_panel_config-coalescence_spanHammDist"> (Hamming distance) </span>
+
                     </div>
-            
+
             </div>
         );
     }
@@ -348,12 +348,12 @@ var DoRelaxedClock = React.createClass({
             coupling: this.props.AppConfig.coupling,
         }
         );
-    },    
+    },
 
     validate(text){
         return true;
     },
-      
+
     handleCBChange(){
         var chk = this.props.AppConfig.relax_mu
         if (chk){
@@ -384,67 +384,67 @@ var DoRelaxedClock = React.createClass({
         this.props.SetAppConfig({"coupling":text})
 
     },
-       
+
     render(){
 
         return (
             <div className="config-entry"  id="welcome_panel_config-div_relaxed" >
-              
+
                 <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_relaxed"
                 checked={this.props.AppConfig.relax_mu}
                 onChange={this.handleCBChange}>
                     Relax molecular clock
                 </Checkbox>
-              
+
                 <div className="div-block">
-                
-                <span className="treetime-span-input" id="welcome_panel_config-beta_relaxed"> 
-                    Slack(&alpha;) = 
-                </span> 
+
+                <span className="treetime-span-input" id="welcome_panel_config-beta_relaxed">
+                    Slack(&alpha;) =
+                </span>
 
                  <FormControl className="treetime-input-number" id="welcome_panel_config-bval_relaxed"
-                        type= "text" 
+                        type= "text"
                         disabled={!this.props.AppConfig.relax_mu}
                         onChange={this.handleBChange}
-                        value={this.props.AppConfig.slack}/> 
+                        value={this.props.AppConfig.slack}/>
                 </div>
 
                 <div className="div-block">
-                
-                    <span className="treetime-span-input"> 
-                        Coupling(&beta;) = 
-                    </span> 
-                 
+
+                    <span className="treetime-span-input">
+                        Coupling(&beta;) =
+                    </span>
+
                     <FormControl className="treetime-input-number"
-                        type= "number" 
+                        type= "number"
                         disabled={!this.props.AppConfig.relax_mu}
                         onChange={this.handleAChange}
                         value={this.props.AppConfig.coupling}/>
                 </div>
 
-              
+
             </div>
         );
     }
 });
 
 var DoRootJoint = React.createClass ({
-   
+
     getInitialState(){
         return (
         {
             checked: this.props.settings.settings[this.props.settings.name]
         }
         );
-    },    
-    
+    },
+
     handleChange(e){
         var chk = this.state.checked;
         this.state.checked = !chk;
         //console.log("doRootJoint Checkbox state changed to: " + this.state.checked);
         this.props.settings.change_handle(this.props.settings.name, this.state.checked);
     },
-    
+
 
     render(){
         return (
@@ -467,14 +467,14 @@ var TreeTimeForm = React.createClass({
     setAppState : function(partialState){
         this.setState(partialState);
     },
-    
+
     getInitialState : function() {
       return {
-        UID: "JHG", 
+        UID: "JHG",
         config: {
             do_build_tree:false,
             reuse_branch_len:false,
-            reroot:false, 
+            reroot:false,
             use_mu:false,
             coalescent:false,
             relax_mu:false,
@@ -512,7 +512,7 @@ var TreeTimeForm = React.createClass({
     },
 
     on_run_status : function(err, res){
-    
+
         //console.log("RUN RESPONSE");
         //console.log(res)
         if (err){
@@ -539,9 +539,9 @@ var TreeTimeForm = React.createClass({
         //console.log("Validating the form...");
         return null;
     },
-    
+
     uploadTreeFile :function(evt){
-        
+
         if (evt.target.files.length == 0){
             console.log("Resetting treefile")
             this.setState({
@@ -571,14 +571,14 @@ var TreeTimeForm = React.createClass({
         }
 
         this.setState({
-            tree_filename:JSON.parse(res.text).TreeFile, 
+            tree_filename:JSON.parse(res.text).TreeFile,
             tree_file:true
         })
 
     },
 
     uploadAlnFile :function(evt){
-    
+
         if (evt.target.files.length == 0){
             // console.log("Resetting treefile")
             // this.setState({tree_filename:"No file chosen"})
@@ -653,19 +653,19 @@ var TreeTimeForm = React.createClass({
     },
 
     on_example_upload_status : function(err, res){
-    
+
         console.log("Example files uploaded")
         this.on_upload_aln(err, res)
         this.on_upload_meta(err, res)
         this.on_upload_tree(err, res)
-    
-    }, 
+
+    },
 
     SetAppConfig : function(cfg){
         console.log(cfg)
         var new_config = this.state.config
-        for (var key in cfg) { 
-            new_config[key] = cfg[key]; 
+        for (var key in cfg) {
+            new_config[key] = cfg[key];
             if (key == "do_build_tree" ){
                 if (cfg[key]){
                     this.setState({
@@ -690,119 +690,117 @@ var TreeTimeForm = React.createClass({
             <div>
                 <Header/>
                 <div className="page_container">
-    
-                    <h2>Run TreeTime on server</h2>
-
+                <div className="spacer"></div>
                         <Panel collapsible defaultExpanded header="Upload data" className="panel-treetime" id="welcome_panel_files">
-                            <Grid id="welcome_upload_grid"> 
+                            <Grid id="welcome_upload_grid">
 
-                            <Row className="grid-treetime-row"> 
-                            
-                                <Col  xs={6} md={4} 
+                            <Row className="grid-treetime-row">
+
+                                <Col  xs={6} md={4}
                                     id="welcome_col_upload_tree" className="grid-treetime-col-right" >
-                                    
+
                                     <span className="btn btn-primary btn-file btn-file-treetime" id="btn-1">
                                         Newick <input  type="file" disabled={this.state.config.do_build_tree}  onChange={this.uploadTreeFile} />
                                     </span>
-                                    
+
                                     {this.state.tree_filename}
-                                    
+
                                     <DoBuildTree
                                         AppConfig={this.state.config}
                                         SetAppConfig={this.SetAppConfig}
-                                        
+
                                         />
 
                                 </Col>
-                            </Row> 
-                            
-                            <Row className="grid-treetime-row"> 
-                                                                
+                            </Row>
+
+                            <Row className="grid-treetime-row">
+
                                 <Col  xs={6} md={4} className="grid-treetime-col-right">
-                                    
+
                                     <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
                                         Fasta <input type="file" onChange={this.uploadAlnFile} />
                                     </span>
                                     {this.state.aln_filename}
-                                
-                                </Col>
-                            </Row> 
 
-                            <Row className="grid-treetime-row"> 
-                                
-                                <Col xs={6} md={4} className="grid-treetime-col-right"> 
+                                </Col>
+                            </Row>
+
+                            <Row className="grid-treetime-row">
+
+                                <Col xs={6} md={4} className="grid-treetime-col-right">
                                     <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
                                         CSV <input type="file" onChange={this.uploadMetaFile} />
                                     </span>
                                     {this.state.meta_filename}
                                 </Col>
-                            </Row> 
-                            </Grid> 
+                            </Row>
+                            </Grid>
                         </Panel>
-    
-                        <Panel collapsible defaultCollapsed header="Alternatively, choose example dataset" className="panel-treetime" id="welcome_panel_examples">
+
+                        <Panel collapsible defaultCollapsed header="Example datasets" className="panel-treetime" id="welcome_panel_examples">
                             <Row>
                             <Col xs={6} md={4} className="grid-treetime-col-right">
                                 <button className="link_button" onClick={this.on_example_H3N2_NA_20}>Influenza H3N2 NA, 20 sequences</button>
-                            </Col> 
+                            </Col>
                             <Col xs={6} md={4} className="grid-treetime-col-right">
-                            </Col> 
-                            </Row> 
+                            </Col>
+                            </Row>
 
-                            <Row> 
-                            
+                            <Row>
+
                             <Col xs={6} md={4} className="grid-treetime-col-right">
                                 <button className="link_button" onClick={this.on_example_H3N2_NA_500}>Influenza H3N2 NA, 500 sequences</button>
-                            </Col> 
-                            
-                            <Col xs={6} md={4} className="grid-treetime-col-right">
-                            </Col> 
+                            </Col>
 
-                            </Row> 
+                            <Col xs={6} md={4} className="grid-treetime-col-right">
+                            </Col>
+
+                            </Row>
                         </Panel>
 
                     <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
-                                
-                        <ShouldReuseBranchLength 
+
+                        <ShouldReuseBranchLength
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-                        
-                        <DoReRoot 
+
+                        <DoReRoot
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-        
-                        <GTRmodel 
+
+                        <GTRmodel
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-        
-        
-                        <UseSlope  
+
+
+                        <UseSlope
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-        
-                        <DoResolvePoly 
+
+                        <DoResolvePoly
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-        
-                        <DoCoalescent  
+
+                        <DoCoalescent
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-                        
-                        <DoRelaxedClock  
+
+                        <DoRelaxedClock
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
-        
-                        
+
+
                     </Panel>
 
                     <Button bsStyle="primary" className="btn-treetime" onClick={this.handle_run}>
                     Run TreeTime
-                    </Button> 
+                    </Button>
 
 
                 <div id="welcome_description">
                     <p>Welcome to the TreeTime server.
-                    The description and HOWTO will appear here shortly. Please scroll down in order to 
+                    The description and HOWTO will appear here shortly. Please scroll down in order to
                     run tree-time on the server.</p>
                 </div>
                 </div>

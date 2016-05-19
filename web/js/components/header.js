@@ -1,4 +1,5 @@
 import React from 'react'
+import { Row } from "react-bootstrap";
 
 
 var Logo = React.createClass({
@@ -22,7 +23,8 @@ var Name = React.createClass({
         return (
             <div id='name'>
             <h1>TreeTime </h1>
-            <h2>Molecular Clock Phylogeny</h2>
+            <div className="spacer"></div>
+            <h4>Maximum likelihood Inference molecular clock phylogenies</h4>
             </div>
         );
     }
@@ -32,10 +34,12 @@ var Header  = React.createClass({
 
     render(){
         return (
+            <Row>
             <div id="header">
                 <Logo/>
                 <Name/>
             </div>
+            </Row>
         );
     }
 });

@@ -25,32 +25,31 @@ h3{
 * Header is present on the top of all pages of the application
 */
 #header{
-
   float:left;
   position:relative;
   width:100%;
   margin-bottom: 40px;
   padding-bottom: 50px;
-  border-bottom: solid 1px lightgrey;
-
+  border-bottom: solid 0px lightgrey;
+  max-width: 1110px;
 }
 /** Logo - top left rectangle of the webpage */
 #logo{
-  position: relative; 
+  position: relative;
   float:left;
-  width:200px;
-  height:150px;
-  border-right: solid 1px lightgrey;
+  width:150px;
+  margin-left: 50px;
+  /** height:150px; **/
+  /**border-right: solid 1px lightgrey;**/
 }
 /** Name of the web page (separated with gray line )*/
 #name{
-  position: relative; 
+  position: relative;
   float:left;
   text-align: center;
-  
   width:70%;
   min-width: 400px;
-  height:150px; 
+  height:150px;
 }
 
 /*
@@ -97,26 +96,34 @@ Footer definition (bottom for all pages of the application) **/
 }
 
 
-/** 
+/**
 *
 *
 *
-*  General definitions 
+*  General definitions
 *
 *
 *
 **/
 
+.spacer{
+  height:10px;
+}
+
+.bigspacer{
+  height:30px;
+}
 /** General container for the web pages (except the results page)**/
 .page_container{
   width:100%;
-  float:center;
-  
+  float:left;
+  max-width: 1100px;
+  padding-left: 50px;
 }
 
 /** All panels**/
 .panel-treetime{
-  position: relative;  
+  position: relative;
 }
 
 /** Grid, extends bootstrap grid**/
@@ -126,7 +133,7 @@ Footer definition (bottom for all pages of the application) **/
 
 /**Grid: rows, extend bootstrap row**/
 .grid-treetime-row{
-  
+
   text-align: center;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -196,11 +203,11 @@ Footer definition (bottom for all pages of the application) **/
 .btn-file-treetime{
   width:100px;
   margin-right:15px;
-  
+
 }
 
 .btn-treetime{/*if we want to specialize buttons*/
-    
+
 }
 
 
@@ -211,11 +218,11 @@ Footer definition (bottom for all pages of the application) **/
 /** Make some buttons look like links**/
 .link_button{
      background:none!important;
-     border:none; 
+     border:none;
      padding:0!important;
      font: inherit;
      /*border is optional*/
-     border-bottom:1px solid #0000FF; 
+     border-bottom:1px solid #0000FF;
      cursor: pointer;
      color: #0000FF;
 }
@@ -239,9 +246,9 @@ bottom: 3px;
 }
 
 .treetime-span-input{
-  line-height: 34px; 
+  line-height: 34px;
   float:left;
-  display:block; 
+  display:block;
 }
 
 .treetime-input-number{
@@ -269,11 +276,11 @@ input[type="number"]{
 
 
 /**
-* 
-* 
-* Special definitions for welcome page 
-* 
-* 
+*
+*
+* Special definitions for welcome page
+*
+*
 **/
 
 #welcome_panel_files{
@@ -309,9 +316,9 @@ input[type="number"]{
 .config-entry{
   width:100%;
   float:left;
-  display:inline-block;    
+  display:inline-block;
   position:relative;
-  vertical-align:middle; 
+  vertical-align:middle;
   margin-top: 10px;
 }
 
@@ -401,21 +408,21 @@ width:100%;
 }
 
 /**
-*  
-*  
+*
+*
 *  Special definitions for progress page
-*  
-*  
+*
+*
 **/
 
 
 /**
-*   
-*   
-*   
+*
+*
+*
 *   Definitions for the results page
-*   
-*   
+*
+*
 **/
 
 .results-section{
@@ -455,7 +462,7 @@ width:100%;
   border-color: gray;
   border-width: 1px;
 
- 
+
 }
 
 #results-section_tree-left_pane-select_colorscheme{
@@ -486,7 +493,7 @@ width:100%;
 }
 
 #results-section_tree-left_pane-pos{
-  
+
   float:left;
   line-height: 34px;
 
@@ -502,7 +509,7 @@ width:100%;
   border-color: gray;
   border-width: 1px;
 
- 
+
 }
 
 
@@ -518,7 +525,7 @@ width:100%;
 }
 
 #results-section_download-left_pane{
-  
+
 }
 
 #results-section_download-btn_download{
@@ -526,7 +533,7 @@ width:100%;
 }
 
 #results-section_download-right_pane{
-  
+
   width:70%;
   margin-left: 29.5%;
 }
@@ -536,12 +543,17 @@ width:100%;
 }
 
 .progress_error{
+  width: 70%;
+}
 
+#error_message{
+  text-align:center;
 }
 
 #error_header{
   color:red;
 }
+
 .terms{
   text-align:center;
 }
@@ -571,7 +583,7 @@ width:100%;
 }
 
 .box{
-  
+
   text-align:left;
   float:left;
   border-color: grey;
