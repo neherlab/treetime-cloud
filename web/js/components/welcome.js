@@ -524,34 +524,6 @@ var TreeTimeForm = React.createClass({
 
     },
 
-    on_settings_changed : function(name, setting){
-      //console.log("APP:: settings changed. " + name + " new value = " + setting);
-      var settings = this.state.config
-      settings[name] = setting;
-
-      
-      //this.state.settings = settings;
-
-      if (name == "do_build_tree" ){
-        if (setting){
-            this.setState({
-                tree_filename: "Will be built from alignment",
-                tree_file: false,
-            })
-        }else{
-            this.setState({
-                tree_filename: "Select tree file",
-                tree_file: false,
-            })
-        }
-      }
-      if (name=="GTR"){
-            console.log(setting)
-      }
-      console.log(this.state.config)
-    },
-
-
     componentDidMount: function(){
         //console.log("Welcome has been mounted");
         var parentNode = this.getDOMNode().parentNode;
@@ -672,7 +644,8 @@ var TreeTimeForm = React.createClass({
     },
 
     runExample : function(example){
-        console.log("run example requested" + example)
+        console.log("run example requested:  " + example)
+        this.SetAppConfig({"do_build_tree":false})
         request.post("/" + this.state.UID + "/example")
           .set('Content-Type', 'application/json')
           .send({example:example})

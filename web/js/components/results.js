@@ -117,36 +117,6 @@ var CategorialScale = function(){
 
 };
 
-var styleMain = {
-    //float:'left',
-    ////background: "#eebbff",
-    //padding: "5px",
-    //margin: "5px",
-    //width:"100%",
-    ////height: "600px",
-    ////'border-style':'solid',
-    ////'border-width': '1px'
-};
-
-var styleLeftPane = {
-
-  //float:'left',
-  //width:'29.5%',
-
-};
-
-var styleRightPane = {
-  height: "700px",
-  //width:'400px',
-  float:'left',
-  width:'70%',
-  //height:styleMain.height,
-  'border-style':'solid',
-  'border-width': '1px',
-  'position':'relative',
-  //background: "#bbff66",
-};
-
 ///////////// Rendering the D3 tree
 var TreeContainer = React.createClass({
     componentWillUpdate : function(){
@@ -183,7 +153,7 @@ var TreeLeftPane = React.createClass({
     
     getInitialState : function(){
         return ({
-            pos_disabled : false,
+            pos_disabled : true,
             pos_selected: 1,
 
         });
@@ -204,10 +174,11 @@ var TreeLeftPane = React.createClass({
                 <div id="results-section_tree-left_pane-select_colorscheme" >
                 <FormControl componentClass="select" placeholder="numdate_given" className="select-treetime" id="results-section_tree-left_pane-select_colorval" 
                         onChange={this.scaleChanged}>
+                    <option value="numdate_given">numdate_given</option>
                     <option value="N">Nucleotide</option>
                     {
                         this.props.appState.terminal_colorby.map(function(d) {
-                            return <option key={d} value={d}>{d}</option>;
+                            if (d!="numdate_given")return <option key={d} value={d}>{d}</option>;
                         })
                     }
                 </FormControl>
@@ -237,31 +208,7 @@ var TreeLeftPane = React.createClass({
     scaleChanged : function(value){
         var value = (value.target.value);
         switch(value){
-        // case ("T"):
-        //     this.setState({pos_disabled : true});
-        //     var cValFunc = function(d){return d.tvalue}; // d[fieldName]
-        //     var cScale = new CScale();
-            
-        //     var root = this.props.root
-        //     if (typeof(root) == 'undefined') {
-            
-        //         // do nothing
-            
-        //     }else{
-            
-        //         var layout = d3.layout.tree();
-        //         var all_nodes = layout.nodes(root);
-        //         var tval = all_nodes.map(function(d) {return +cValFunc(d);});
-        //         cScale.create(tval);
-            
-        //     }
 
-        //     this.props.setAppState({
-        //             cvalue : cValFunc,
-        //             cscale: cScale
-        //         })
-
-        //     break;
         case ("N"):
             this.setState({pos_disabled : false});
             var cValFunc = function(d){return d.strseq[1]};
@@ -313,6 +260,7 @@ var TreeLeftPane = React.createClass({
             this.setState({pos_disabled : true});
             break;
         }
+        this.forceUpdate();
     },
 
     posChanged: function(e){
@@ -351,7 +299,7 @@ var LegendComponent = React.createClass({
     componentDidMount: function () {
     },
     
-    componentWillUpdate : function(){
+    componentDidUpdate : function(){
         if (!this.props.root) return false;
         var el = this.getDOMNode();
         
@@ -460,7 +408,6 @@ var TreeRightPane = React.createClass({
 
 });
 
-
 var MuContainer = React.createClass({
     render: function(){
         return (
@@ -557,7 +504,6 @@ var MuRightPane = React.createClass({
     }
 
 });
-
 
 var TmrcaContainer = React.createClass({
     render: function(){
@@ -754,7 +700,24 @@ var Results = React.createClass({
         })
         var merged = Array.from(new Set([].concat.apply([], all_metas)));
         this.setState({terminal_colorby:merged})
-        this.forceUpdate()    
+        
+        // create initial legend 
+        var cValFunc = function(d){
+            var md = d.terminal_metadata.filter(function(d){return d.name=="numdate_given"})
+            if (md.length == 0) return null;
+            return md[0].value;
+        }
+        var tips = []
+        PhyloTree.gatherTips(root, tips)
+        var all_values = tips.map(cValFunc)
+        var cScale = new CScale(); // legend with continuous scale 
+        cScale.create(all_values);
+        this.setState({
+            cvalue : cValFunc,
+            cscale: cScale
+        })
+
+        this.forceUpdate()
     
     },
 

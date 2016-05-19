@@ -128,7 +128,8 @@ def save_results(root, tt):
     treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
     treetime.root_lh_to_csv(tt,   os.path.join(root, "out_root_lh.csv"))
     # save full alignment 
-    aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence))) for n in tt.tree.find_clades ()])
+    aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence)), id=n.name, name=n.name, description="") 
+        for n in tt.tree.find_clades ()])
     AlignIO.write(aln, os.path.join(root, "out_aln.fasta"), "fasta")
     
     # save newick tree
