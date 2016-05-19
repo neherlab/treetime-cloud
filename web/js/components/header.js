@@ -35,9 +35,11 @@ var Header  = React.createClass({
     render(){
         return (
             <Row>
+            <div className="page_container">
             <div id="header">
                 <Logo/>
                 <Name/>
+            </div>
             </div>
             </Row>
         );

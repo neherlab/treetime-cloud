@@ -27,7 +27,7 @@ var CScale = function(){
 
     this.colors = ["#4D92BF", "#5AA5A8", "#6BB18D", "#80B974", "#98BD5E", "#B1BD4E",
           "#C8B944", "#DAAC3D", "#E59738", "#E67732", "#E14F2A", "#DB2522"];
-    
+
     this.create = function (all_values){
         this.color = d3.scale.quantile()
             .domain([d3.min(all_values), d3.max(all_values)])
@@ -41,7 +41,7 @@ var CScale = function(){
             return this.color(x);
         }
     };
-    
+
     this.get_cmap = function(){
         var cc = this.color;
         var cs = this.colors;
@@ -54,10 +54,10 @@ var CScale = function(){
 };
 
 var NucScale = function(){
-    
+
     this.colors = ["#4D92BF", "#98BD5E", "#E59738", "#DB2522"];
     this.nucs = ["A", "C", "G", "T"]
-    
+
     this.get_color = function(val){
 
         //var val = color_val_getter(d);
@@ -65,7 +65,7 @@ var NucScale = function(){
         var idx = this.nucs.indexOf(val)
         //console.log(idx)
         if (idx == -1){return "#808080";}
-        else{ 
+        else{
             //console.log(this.colors[idx])
             return this.colors[idx];
         }
@@ -78,13 +78,13 @@ var NucScale = function(){
                  {color:this.colors[2], value: this.nucs[2]},
                  {color:this.colors[3], value: this.nucs[3]}]
         return m;
-    
+
     };
 
 };
 
 var CategorialScale = function(){
-    
+
     this.domain = [];
     this.cScale = null;
 
@@ -107,7 +107,7 @@ var CategorialScale = function(){
             return this.cScale(x);
         }
     };
-    
+
     this.get_cmap = function(){
         var get_color = this.cScale;
         return this.domain.map(function (c){
@@ -128,7 +128,7 @@ var TreeContainer = React.createClass({
     render: function(){
         return (
             <div className="results-section" id="results-section_tree">
-                <TreeLeftPane 
+                <TreeLeftPane
                     root={this.props.root}
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}
@@ -150,29 +150,29 @@ var TreeContainer = React.createClass({
 });
 
 var TreeLeftPane = React.createClass({
-    
+
     getInitialState : function(){
         return ({
             pos_disabled : true,
             pos_selected: 1,
 
         });
-    }, 
+    },
 
     render: function(){
         return (
             <div className="results-section-left_pane" id="results-section_tree-left_pane">
                 <h2>Phylogenetic tree</h2>
-                <TreeTime 
+                <TreeTime
                     root={this.props.root}
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
-                
+
                 <Button bsStyle="primary" onClick={this.props.resetLayout}>Reset Layout</Button>
-                
+
                 <h3>Color by: </h3>
                 <div id="results-section_tree-left_pane-select_colorscheme" >
-                <FormControl componentClass="select" placeholder="numdate_given" className="select-treetime" id="results-section_tree-left_pane-select_colorval" 
+                <FormControl componentClass="select" placeholder="numdate_given" className="select-treetime" id="results-section_tree-left_pane-select_colorval"
                         onChange={this.scaleChanged}>
                     <option value="numdate_given">numdate_given</option>
                     <option value="N">Nucleotide</option>
@@ -186,10 +186,10 @@ var TreeLeftPane = React.createClass({
                     <span id="results-section_tree-left_pane-pos" >
                         Pos:
                     </span>
-    
-                        <FormControl type="number" className="treetime-input-number" id="results-section_tree-left_pane-select_pos" 
+
+                        <FormControl type="number" className="treetime-input-number" id="results-section_tree-left_pane-select_pos"
                             onChange={this.posChanged}
-                            disabled={this.state.pos_disabled}> 
+                            disabled={this.state.pos_disabled}>
                     </FormControl>
                 </div>
 
@@ -197,13 +197,13 @@ var TreeLeftPane = React.createClass({
 
 
                 <h3>Color codes:</h3>
-                <LegendComponent 
+                <LegendComponent
                     root={this.props.root}
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
             </div>
             );
-    }, 
+    },
 
     scaleChanged : function(value){
         var value = (value.target.value);
@@ -227,7 +227,7 @@ var TreeLeftPane = React.createClass({
         default:
 
             console.log(value)
-            
+
             var cValFunc = function(d){
                 var md = d.terminal_metadata.filter(function(d){return d.name==value})
                 if (md.length == 0) return null;
@@ -237,16 +237,16 @@ var TreeLeftPane = React.createClass({
             PhyloTree.gatherTips(this.props.root, tips)
             var all_values = tips.map(cValFunc)
 
-            // get all types of the metadata entries 
+            // get all types of the metadata entries
             all_values = all_values.filter(function(d, index){return all_values.indexOf(d) == index})
             var all_types = all_values.map(function(d){return typeof(d)})
             all_types = all_types.filter(function(d, index){return all_types.indexOf(d) == index;})
 
             var cScale;
             if (all_types.length == 1 && all_types[0] == "number"){ // all numbers - continuous scale
-                cScale = new CScale();         
-                
-            }else{ // strings or messed types - unique color for ever value 
+                cScale = new CScale();
+
+            }else{ // strings or messed types - unique color for ever value
                 cScale = new CategorialScale();
 
             }
@@ -275,7 +275,7 @@ var TreeLeftPane = React.createClass({
 });
 
 var LegendComponent = React.createClass({
-    
+
     styleLegend :{
         width: "100%",
         height:"400px",
@@ -288,30 +288,30 @@ var LegendComponent = React.createClass({
     dispatcher: null,
     getInitialState : function (){
         return ({legend_created: false});
-    }, 
+    },
 
     render : function(){
         return (
             <div  style={this.styleLegend} ref="legend_svg" class="treelegend-container" id="treelegend_container" />
             );
     },
-    
+
     componentDidMount: function () {
     },
-    
+
     componentDidUpdate : function(){
         if (!this.props.root) return false;
         var el = this.getDOMNode();
-        
+
         if (this.state.legend_created){
             TreeLegend.update(el, this.props.appState);
         }else{
-            this.dispatcher = TreeLegend.create(el, 
-                {style:this.styleLegend}, 
+            this.dispatcher = TreeLegend.create(el,
+                {style:this.styleLegend},
                 this.props.appState);
             this.state.legend_created = true;
         }
-        return true; 
+        return true;
     }
 });
 
@@ -327,7 +327,7 @@ var TreeTime = React.createClass({
     render :function(){
         return (
             <div>
-                <Checkbox 
+                <Checkbox
                 onChange={this.handleCheck}
                 checked={this.props.appState.treetime}>
                 Toggle time-tree
@@ -338,12 +338,12 @@ var TreeTime = React.createClass({
 });
 
 var TreeRightPane = React.createClass({
-    
+
     dispatcher: null,
     getInitialState: function(){
         return ({
             tree_initialized:false,
-            
+
         });
     },
 
@@ -355,15 +355,15 @@ var TreeRightPane = React.createClass({
 
     render: function() {
         return (
-                <div 
-                    id="results-section_tree-right_pane" 
-                    className="results-section-right_pane" 
+                <div
+                    id="results-section_tree-right_pane"
+                    className="results-section-right_pane"
                     ref="tree_svg"/>
         );
     },
 
     componentDidMount: function () {
-        
+
     },
 
     componentDidUpdate : function(){
@@ -373,24 +373,21 @@ var TreeRightPane = React.createClass({
             console.log("Results page cannot update Tree Container: No tree root defined")
             return false;
         }
-        
+
         var el = this.getDOMNode();
         if (this.state.tree_initialized){
             PhyloTree.update(el, this.props.appState, this.dispatcher);
         }else{
-            
+
             this.setState({tree_initialized:true});
-            
-            var width =  el.offsetWidth;
-            var height = el.offsetHeight;
 
             var dispatcher = PhyloTree.create(el, {
-                root:this.props.root}, 
+                root:this.props.root},
                 this.props.appState);
 
             this.dispatcher = dispatcher;
             if (!dispatcher || typeof dispatcher == 'undefined') return;
-            
+
             dispatcher.on('point:tip_mouseover', this.select_tip);
             dispatcher.on('point:tip_mouseout', this.unselect_tip);
         }
@@ -400,11 +397,11 @@ var TreeRightPane = React.createClass({
     select_tip : function(d){
 
         this.props.setAppState({selected_tip : d.name});
-    }, 
+    },
 
     unselect_tip : function(d){
         this.props.setAppState({selected_tip : null});
-    },    
+    },
 
 });
 
@@ -412,12 +409,12 @@ var MuContainer = React.createClass({
     render: function(){
         return (
             <div className="results-section" id="results-section_mu">
-            <MuLeftPane 
+            <MuLeftPane
                 appState={this.props.appState}
                 setAppState={this.props.setAppState}
                 mu={this.props.mu}
                 root={this.props.root}/>
-            <MuRightPane 
+            <MuRightPane
                 appState={this.props.appState}
                 setAppState={this.props.setAppState}
                 root={this.props.root}/>
@@ -427,22 +424,22 @@ var MuContainer = React.createClass({
 });
 
 var MuLeftPane = React.createClass({
-    
+
     mu : function(){
-        return this.props.appState.mol_clock ? 
-            this.props.appState.mol_clock.slope.toExponential(3) 
+        return this.props.appState.mol_clock ?
+            this.props.appState.mol_clock.slope.toExponential(3)
             : "---";
-    }, 
+    },
 
     r2 : function(){
-        return this.props.appState.mol_clock ? 
+        return this.props.appState.mol_clock ?
             Math.round(this.props.appState.mol_clock.r2 * 1000) / 1000
             : "---";
-    }, 
+    },
 
     render: function(){
         return (
-            <div className="results-section-left_pane" id="results-section_mu-left_pane"> 
+            <div className="results-section-left_pane" id="results-section_mu-left_pane">
             <h2>Molecular clock</h2>
             <h4>Average mutation rate:<br/> &mu; = {this.mu()} year<sup>-1</sup></h4>
             <h4>Correlation coefficient:<br/> R<sup>2</sup> = {this.r2()}</h4>
@@ -452,14 +449,14 @@ var MuLeftPane = React.createClass({
 });
 
 var MuRightPane = React.createClass({
-    
-    dispatcher: null, 
-    
-    
+
+    dispatcher: null,
+
+
     render : function(){
-        return <div 
-            id="results-section_mu-right_pane" 
-            className="results-section-right_pane" 
+        return <div
+            id="results-section_mu-right_pane"
+            className="results-section-right_pane"
             ref="mu_svg"/>
     },
 
@@ -471,14 +468,14 @@ var MuRightPane = React.createClass({
     },
 
     componentDidUpdate : function(){
-        
+
         if (!this.props.root) return false;
         var el = this.getDOMNode();
         if (!this.state.mu_initialized){
-            this.dispatcher = MuPlot.create(el, 
+            this.dispatcher = MuPlot.create(el,
                 {
                     root:this.props.root
-                }, 
+                },
                 this.props.appState);
             this.dispatcher.on('point:point_mouseover', this.select_point);
             this.dispatcher.on('point:point_mouseout', this.unselect_point);
@@ -487,12 +484,12 @@ var MuRightPane = React.createClass({
         }else{
             MuPlot.update(el, this.props.root, this.props.appState, this.dispatcher)
         }
-    
+
     },
 
     on_regression_changed : function(regression){
         this.props.setAppState({mol_clock: regression});
-        
+
     },
 
     select_point : function(d){
@@ -533,28 +530,28 @@ var TmrcaLeftPane = React.createClass({
 });
 
 var TmrcaRightPane = React.createClass({
-    
-    dispatcher: null, 
+
+    dispatcher: null,
     render: function(){
-        return <div 
-            id="results-section_tmrca-right_pane" 
+        return <div
+            id="results-section_tmrca-right_pane"
             className="results-section-right_pane"
             ref="lrooth_svg"/>
 
-    }, 
+    },
     componentDidUpdate : function(){
-        
+
         if (!this.props.lh) return false;
         var width = this.getDOMNode().offsetWidth;
         var height = this.getDOMNode().offsetHeight;
         var el = this.getDOMNode();
         if (!this.props.appState.root_lh_initialized){
-            this.dispatcher = RootLhPlot.create(el, 
+            this.dispatcher = RootLhPlot.create(el,
                 {
-                    width:width, 
-                    height:height, 
+                    width:width,
+                    height:height,
                     lh:this.props.lh
-                }, 
+                },
                 this.props.appState);
             this.dispatcher.on('point:point_mouseover', this.select_point);
             this.dispatcher.on('point:point_mouseout', this.unselect_point);
@@ -562,31 +559,31 @@ var TmrcaRightPane = React.createClass({
         }else{
             RootLhPlot.update(el, this.props.lh, this.props.appState, this.dispatcher)
         }
-    
+
     },
 
     select_point : function(d){
-        
+
     },
 
     unselect_point : function(d){
-        
+
     }
 });
 
 var DownloadContainer = React.createClass({
     render: function(){
         return(
-            <div className="results-section" id="results-section_dowload"> 
-                
-                <DownloadLeftPane 
+            <div className="results-section" id="results-section_dowload">
+
+                <DownloadLeftPane
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
-                
-                <DownloadRightPane 
+
+                <DownloadRightPane
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
-            </div> 
+            </div>
         )
     }
 });
@@ -594,9 +591,9 @@ var DownloadContainer = React.createClass({
 var DownloadLeftPane = React.createClass({
     render : function(){
         return(
-            <div className="results-section-left_pane" id="results-section_download-left_pane"> 
+            <div className="results-section-left_pane" id="results-section_download-left_pane">
                 <a className="btn btn-primary btn-file" id="results-section_download-btn_download" href={"/sessions/" + this.props.appState.UID + "/treetime_results.zip"} target="_blank">Download results (.zip)</a>
-            </div> 
+            </div>
         )
     }
 
@@ -605,15 +602,15 @@ var DownloadLeftPane = React.createClass({
 var DownloadRightPane = React.createClass({
     render : function(){
         return(
-            <div className="results-section-right_pane" id="results-section_download-right_pane"> 
-               
+            <div className="results-section-right_pane" id="results-section_download-right_pane">
+
                 <Panel collapsible defaultCollapsed header="List of files in download archive" className="panel-treetime" id="results-panel_download_files">
-                    <Table> 
-                        <thead> 
-                            <th>File name</th> 
+                    <Table>
+                        <thead>
+                            <th>File name</th>
                             <th>Description</th>
                         </thead>
-                        <tbody> 
+                        <tbody>
                             <tr>
                                 <td>out_newick_tree.nwk</td>
                                 <td>Phylogenetic tree in newick format. The branches lengths in the tree  are optimized with the TreeTime algorithm. Each internal node is assigned a name in format "NODE_XXXXXX" to link the nodes to the additional data provided (see below). Due to the limitations of the newick format, there is no additional information available in thetree file.</td>
@@ -647,25 +644,25 @@ var DownloadRightPane = React.createClass({
                                 <td>out_tree.json</td>
                                 <td>Phylogenetic tree in json format. The tree includes entire information of the alignment and metadata. It also stores some useful technical information for tree representation</td>
                             </tr>
-                        </tbody> 
-                    </Table> 
+                        </tbody>
+                    </Table>
 
                 </Panel>
-            </div> 
+            </div>
         )
     }
 
 });
-///// Main APP 
+///// Main APP
 var Results = React.createClass({
-    
+
     root:undefined,
     mu:null,
-    lh:null, 
-    
+    lh:null,
+
     getInitialState : function (){
         return ({
-            treetime:false, 
+            treetime:false,
             cvalue : function(d){
                 return "";
             },
@@ -680,18 +677,18 @@ var Results = React.createClass({
     },
 
     on_root : function (err, root){
-    
+
         //console.log("ROOT node came")
         console.log(root)
         if (err){
-            console.warn("Can not get root node for the tree"); 
+            console.warn("Can not get root node for the tree");
             console.warn(err);
             return;
         }
         this.root = root;
         this._update_lh_from_root();
-        
-        
+
+
         // load data to color terminal nodes and branches
         var tips = []
         PhyloTree.gatherTips(root, tips)
@@ -700,8 +697,8 @@ var Results = React.createClass({
         })
         var merged = Array.from(new Set([].concat.apply([], all_metas)));
         this.setState({terminal_colorby:merged})
-        
-        // create initial legend 
+
+        // create initial legend
         var cValFunc = function(d){
             var md = d.terminal_metadata.filter(function(d){return d.name=="numdate_given"})
             if (md.length == 0) return null;
@@ -710,7 +707,7 @@ var Results = React.createClass({
         var tips = []
         PhyloTree.gatherTips(root, tips)
         var all_values = tips.map(cValFunc)
-        var cScale = new CScale(); // legend with continuous scale 
+        var cScale = new CScale(); // legend with continuous scale
         cScale.create(all_values);
         this.setState({
             cvalue : cValFunc,
@@ -718,12 +715,12 @@ var Results = React.createClass({
         })
 
         this.forceUpdate()
-    
+
     },
 
     on_root_lh : function (err, lh){
         if (err){
-            console.warn("Can not get root node for the tree"); 
+            console.warn("Can not get root node for the tree");
             console.warn(err);
             return;
         }
@@ -733,9 +730,9 @@ var Results = React.createClass({
     },
 
     _update_lh_from_root : function() {
-        
+
     },
-    
+
     on_mu : function(err, mu){
         this.mu=mu;
         this.forceUpdate();
@@ -744,7 +741,7 @@ var Results = React.createClass({
     select_tip : function(d){
         //console.log("Tip selected: " + d.strain);
     },
-    
+
     unselect_tip : function(d){
         //console.log("Tip unselected: " + d.strain);
     },
@@ -761,40 +758,39 @@ var Results = React.createClass({
         d3.json("/sessions/" + this.state.UID + "/out_tree.json", this.on_root);
         d3.json("/sessions/" + this.state.UID + "/out_tips.json", this.on_mu);
         d3.json("/sessions/" + this.state.UID + "/out_root_lh.json", this.on_root_lh);
-        
+        window.addEventListener("resize", this.setAppState);
     },
 
     render : function(){
         return (
-            
+
             <div>
                 <Header />
                 <div id='results_container' >
-                <h1>Results</h1>
                 <TreeContainer
-                    UID={this.props.UID} 
+                    UID={this.props.UID}
                     root={this.root}
                     appState={this.state}
                     setAppState={this.setAppState}/>
-               
+
                 <MuContainer
                     mu={this.mu}
                     root={this.root}
                     appState={this.state}
                     setAppState={this.setAppState}/>
-                
-                <TmrcaContainer 
+
+                <TmrcaContainer
                     lh={this.lh}
                     appState={this.state}
                     setAppState={this.setAppState}/>
-                <DownloadContainer 
+                <DownloadContainer
                     appState={this.state}
                     setAppState={this.setAppState}/>
                 </div>
                 <Footer/>
             </div>
         );
-    }, 
+    },
     on_treetime_changed : function(){
         var checked = this.state.treetime;
         this.setState({treetime : !checked})

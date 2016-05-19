@@ -25,13 +25,13 @@ h3{
 * Header is present on the top of all pages of the application
 */
 #header{
-  float:left;
+  float:center;
   position:relative;
+  text-align: center;
   width:100%;
   margin-bottom: 40px;
   padding-bottom: 50px;
   border-bottom: solid 0px lightgrey;
-  max-width: 1110px;
 }
 /** Logo - top left rectangle of the webpage */
 #logo{
@@ -113,10 +113,13 @@ Footer definition (bottom for all pages of the application) **/
 .bigspacer{
   height:30px;
 }
+.hugespacer{
+  height:200px;
+}
 /** General container for the web pages (except the results page)**/
 .page_container{
   width:100%;
-  float:left;
+  float:center;
   max-width: 1100px;
   padding-left: 50px;
 }
@@ -430,6 +433,7 @@ width:100%;
   padding: 5px;
   margin: 5px;
   width:100%;
+  max-width: 1500px;
 }
 
 #results-section_tree{
@@ -439,6 +443,7 @@ width:100%;
 .results-section-left_pane{
   float:left;
   width:29.5%;
+  max-width:300px;
   padding-bottom:20px;
   text-align: left;
 }
@@ -450,7 +455,7 @@ width:100%;
   float:none;
   width:60%;
   border-style:solid;
-  border-width: 1px;
+  border-width: 0px;
 }
 
 #results-section_tree-right_pane{
@@ -458,9 +463,10 @@ width:100%;
   float:left;
   width:70%;
   position:relative;
+  background-color:#FFFFFF;
   border-style:solid;
   border-color: gray;
-  border-width: 1px;
+  border-width: 0px;
 
 
 }
