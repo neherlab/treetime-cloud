@@ -8,14 +8,22 @@ from Bio.Alphabet import generic_dna
 import matplotlib.pyplot as plt
 import zipfile 
 import StringIO
+import treetime
 
-def _write_json(state_dic, outfile):
+dirname = (os.path.dirname(__file__))
+
+def write_json(state_dic, outfile):
+    """ 
+    Write pytho dictionary to json file
+    """
     with open(outfile, 'w') as of:
             json.dump(state_dic, of)
 
 def create_initial_state(root, config_dic):
     """
-    Create the list of steps to perform from the configuration supplied by the user
+    Create the dictionary containing the list of steps and summary of the current 
+    session state. The computational steps are inferred from the configuration 
+    dictionary supplied by the end-user.
     """
 
     # create steps from settings
@@ -25,6 +33,7 @@ def create_initial_state(root, config_dic):
         "todo":[],
         "progress":"",
         "done":[],
+        "error":""
     }
     if config_dic["do_build_tree"]==True:
         state["todo"].append("Build Phylogenetic tree")
@@ -62,6 +71,8 @@ def create_initial_state(root, config_dic):
         state["todo"].append("Relax molecular clock")
     
     state["todo"].append("Save results")
+    state["todo"].append("Redirect to the results page")
+    
     return state
 
 def _update_session_state(root, state, state_fname="session_state.json", err=None, warn=None):
@@ -87,36 +98,73 @@ def _update_session_state(root, state, state_fname="session_state.json", err=Non
             state["progress"] = step_name
             state["todo"].remove(step_name)
 
-    _write_json(state, os.path.join(root, state_fname))
+    write_json (state, os.path.join(root, state_fname))
     print (state)
     # TODO save state to json file 
 
 def build_tree(root):
-    try:
-
-        aln_filename = os.path.join(root, "in_aln.nwk")
-        tree_filename = os.path.join(root, "in_tree.nwk")
     
-        call = ['/ebio/ag-neher/share/programs/bin/fasttree', '-nt','-quiet',\
-            aln_filename, ' > ', tree_filename]
-            
-        os.system(' '.join(call))
-        return True
+    aln_filename = os.path.join(root, "in_aln.fasta")
+    tree_filename = os.path.join(root, "in_tree.nwk")
+    fast_tree_bin = os.path.join(dirname, "fasttree")
+    if not os.path.exists(fast_tree_bin):
+        raise (RuntimeError("Cannot find FastTree binary."))
+
+    call = [fast_tree_bin, '-nt','-quiet', aln_filename, ' > ', tree_filename]
+        
+    res = os.system(' '.join(call))
+    if res != 0:
+        raise RuntimeError("FastTree: Exception caught while building the NJ tree")
+
+    return
     
-    except:
+def save_results(root, tt):
+    print (root)
+    if not isinstance (tt, treetime.TreeTime):  return
 
-        return False
-
+    #  save files
+    treetime.treetime_to_json(tt,  os.path.join(root, "out_tree.json"))
+    treetime.tips_data_to_json(tt, os.path.join(root, "out_tips.json"))
+    treetime.root_lh_to_json(tt,   os.path.join(root, "out_root_lh.json"))
+    treetime.root_lh_to_csv(tt,   os.path.join(root, "out_root_lh.csv"))
+    # save full alignment 
+    aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence))) for n in tt.tree.find_clades ()])
+    AlignIO.write(aln, os.path.join(root, "out_aln.fasta"), "fasta")
+    
+    # save newick tree
+    Phylo.write(tt.tree, os.path.join(root, "out_newick_tree.nwk"), "newick")
+    #save metadata as csv file
+    treetime.save_all_nodes_metadata(tt, os.path.join(root, "out_metadata.csv"))
+    #save molecular clock in normal format 
+    mclock = np.array([(tip.dist2root, tip.numdate_given) 
+        for tip in tt.tree.get_terminals() 
+        if hasattr(tip, 'dist2root') and hasattr(tip, 'numdate_given')])
+    np.savetxt(os.path.join(root, 'molecular_clock.csv'), mclock, 
+        delimiter=',', 
+        header='Distance_to_root,Sampling_date')
+    # save GTR in csv file
+    treetime.save_gtr_to_file(tt.gtr, os.path.join(root, "out_gtr.txt"))
+    # zip all results to one file
+    with zipfile.ZipFile(os.path.join(root, 'treetime_results.zip'), 'w') as out_zip:
+        out_zip.write(os.path.join(root, 'out_newick_tree.nwk'), arcname='out_newick_tree.nwk')
+        out_zip.write(os.path.join(root, 'out_aln.fasta'), arcname='out_aln.fasta')
+        out_zip.write(os.path.join(root, 'out_metadata.csv'), arcname='out_metadata.csv')
+        out_zip.write(os.path.join(root, 'out_tree.json'), arcname='out_tree.json')
+        out_zip.write(os.path.join(root, 'config.json'), arcname='config.json')
+        out_zip.write(os.path.join(root, 'molecular_clock.csv'), arcname='molecular_clock.csv')
+        out_zip.write(os.path.join(root, 'out_root_lh.csv'), arcname='out_root_lh.csv')
+        out_zip.write(os.path.join(root, 'out_gtr.txt'), arcname='out_gtr.txt')
+  
 def process(root, config_dic, state_fname="session_state.json"):
 
-    import treetime
+   
     
     # some global configurations:
     if config_dic["use_mu"]==True:
         try:
             mu = float(config_dic["mu"])
-        except:
-            print ("Cannot set mutation rate from the string: %s. Data not understood" % config_dic["mu"])
+        except Exception, e:
+            print ("Cannot set mutation rate from the string. Data not understood" % config_dic["mu"])
             mu = None
     else:
         mu = None
@@ -129,42 +177,41 @@ def process(root, config_dic, state_fname="session_state.json"):
     #initialize the session state dictionary from the config_dic:
     state = create_initial_state(root, config_dic)
     
-    err=None    
     if config_dic["do_build_tree"] == True:
-        _update_session_state(root, state, state_fname=state_fname, err=err) 
+        _update_session_state(root, state, state_fname=state_fname) 
         try:
             build_tree(root)
-        except:
-            err = "Error in TreeTime run: cannot build phylogenetic tree."
+        except Exception, e:
+            err = "Error occurred while building the tree.  %s" % repr(e)
             _update_session_state(root, state, state_fname=state_fname, err=err)
             return
 
-    _update_session_state(root, state, state_fname=state_fname, err=err)
-    try:
+    _update_session_state(root, state, state_fname=state_fname)
+    #try:
 
-        gtr = treetime.GTR.standard() # always start from standard J-C model
-        tt = treetime.treetime_from_newick(gtr, nwk)  # load tree
-        treetime.set_seqs_to_leaves(tt, AlignIO.read(aln, 'fasta'))  # assign sequences
-        treetime.read_metadata(tt, meta)  # load meta data 
+    gtr = treetime.GTR.standard() # always start from standard J-C model
+    tt = treetime.treetime_from_newick(gtr, nwk)  # load tree
+    treetime.set_seqs_to_leaves(tt, AlignIO.read(aln, 'fasta'))  # assign sequences
+    treetime.read_metadata(tt, meta)  # load meta data 
     
-    except:
-        err = "Cannot initialize TreeTime objects."
-        _update_session_state(root, state, state_fname=state_fname, err=err)
-        return
+    #except:
+    #    err = "Cannot initialize TreeTime objects."
+    #    _update_session_state(root, state, state_fname=state_fname, err=err)
+    #    return
 
 
     ##  Pipeline
     if config_dic["reuse_branch_len"] == False:
-        _update_session_state(root, state, state_fname=state_fname,  err=err)
+        _update_session_state(root, state, state_fname=state_fname)
         try:
             tt.optimize_seq_and_branch_len(False, True)
-        except:
-            err = "Branch lengths optimization failed."
+        except Exception, e:
+            err = "Error in branch len optimization\n%s " % repr(e)
             _update_session_state(root, state, state_fname=state_fname, err=err)
             return
 
     
-    _update_session_state(root, state, state_fname=state_fname, err=err)
+    _update_session_state(root, state, state_fname=state_fname)
     try:
         if config_dic["reroot"] == True:
             # This function does the following:
@@ -182,22 +229,22 @@ def process(root, config_dic, state_fname="session_state.json"):
             # and infer ancestral sequences
             tt.init_date_constraints(slope=mu, ancestral_inference=True)
 
-    except:
-        err = "Preparation of the TreeTime object failed."
+    except Exception, e:
+        err = "Error in TreeTime object initialiation\n%s" %repr(e)
         _update_session_state(root, state, state_fname=state_fname, err=err)
         return   
 
     # run TreeTime-ML optimization
-    _update_session_state(root, state, state_fname=state_fname, err=err)
+    _update_session_state(root, state, state_fname=state_fname)
     try:
         tt.ml_t()
-    except:
-        err = "Error in the main TreeTime script. Cannot continue."
+    except Exception, e:
+        err = "Error in TreeTime Max-likelihood optimization\n%s" % repr(e)
         _update_session_state(root, state, state_fname=state_fname, err=err)
         return   
 
     # some post-processing
-    _update_session_state(root, state, state_fname=state_fname, err=err)
+    _update_session_state(root, state, state_fname=state_fname)
     try:
         if config_dic["coalescent"]==True:
             tt.coalescent_model(Tc) # Run the coalescent model + resolve polytomies
@@ -205,18 +252,18 @@ def process(root, config_dic, state_fname="session_state.json"):
             tt.resolve_polytomies() # Resolve multiple mergers
         else:
             pass  # do nothing
-    except:
-        warn = "Error in the Coalescent model or polytomies resolution."
+    except Exception, e:
+        warn = "Error in the Coalescent model run\n%s" % repr(e)
         _update_session_state(root, state, state_fname=state_fname, warn=warn)
 
 
     if config_dic["relax_mu"]==True:  # Relaxed molecular clock 
-        _update_session_state(root, state, state_fname=state_fname, err=err)
+        _update_session_state(root, state, state_fname=state_fname)
         # set slack 
         try:
             slack = float(config_dic["slack"])
-        except:
-            print ("Cannot set mutation rate from the string: %s. Data not understood" % config_dic["mu"])
+        except Exception, e:
+            print ("Cannot set mutation rate from the string\n. Data not understood" % config_dic["mu"])
             slack = None
         if slack <=0 or slack > 1: 
             slack = None
@@ -224,8 +271,8 @@ def process(root, config_dic, state_fname="session_state.json"):
         #set coupling
         try:
             coupling = float(config_dic["coupling"])
-        except:
-            print ("Cannot set mutation rate from the string: %s. Data not understood" % config_dic["mu"])
+        except Exception, e:
+            print ("Cannot set mutation rate from the string\n. Data not understood" % config_dic["mu"])
             coupling = None
         if coupling <=0 or coupling > 1: 
             coupling = None
@@ -240,12 +287,17 @@ def process(root, config_dic, state_fname="session_state.json"):
             warn = "Cannot relax molecular clock: cannot read slack or coupling variables."
             _update_session_state(root, state, state_fname=state_fname, warn=warn)
 
-    _update_session_state(root, state, state_fname=state_fname, err=err)
-    # TODO save results
+    _update_session_state(root, state, state_fname=state_fname)
+    try:
+        save_results(root, tt)
+    except Exception, e:
+        err = "Error in saving results\n%s" % repr(e)
+        _update_session_state(root, state, state_fname=state_fname, err=err)
+        return 
 
-    _update_session_state(root, state, state_fname=state_fname, err=err)
 
-
+    _update_session_state(root, state, state_fname=state_fname) # redirection 
+    _update_session_state(root, state, state_fname=state_fname) # last step -> complete
 
 if __name__=="__main__":
     

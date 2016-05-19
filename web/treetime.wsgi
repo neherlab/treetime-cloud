@@ -3,7 +3,7 @@ import sys
 import logging
 
 root_dir =  '/var/www/treetime_web'
-treetime_dir=  '/var/www/treetime'
+treetime_dir =  '/var/www/treetime'
 
 
 if not treetime_dir in sys.path:
@@ -14,6 +14,6 @@ if not root_dir in sys.path:
 
 logging.basicConfig(stream=sys.stderr)
 
-from dummy import app
+from treetime_server import app
 application = app
 

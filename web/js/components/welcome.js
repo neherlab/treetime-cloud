@@ -1,9 +1,7 @@
 import React from  'react'
 import ReactDOM from 'react-dom'
-import Collapsible from 'react-collapsible'
 import { Panel, PanelGroup, Button, Grid, Row, Col, FormControl, Checkbox, Table } from "react-bootstrap";
 var request = require('superagent');
-
 import Header from './header.js'
 import Footer from './footer.js'
 
@@ -20,10 +18,10 @@ var DoBuildTree = React.createClass({
     },
 
     handleChange(e){
-        var build = this.state.checked;
+        var build = this.props.AppConfig.do_build_tree
         this.state.checked = !build;
         //console.log("Build tree Checkbox state changed to: " + this.state.checked);
-        this.props.SetAppConfig({do_build_tree:this.state.checked})
+        this.props.SetAppConfig({do_build_tree: !this.props.AppConfig.do_build_tree})
     },
     
     render(){

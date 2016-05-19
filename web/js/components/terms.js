@@ -1,6 +1,5 @@
 import React from  'react'
 import ReactDOM from 'react-dom'
-import Collapsible from 'react-collapsible'
 import { Panel, Button, Grid, Row, Col } from "react-bootstrap";
 
 import Header from './header.js'

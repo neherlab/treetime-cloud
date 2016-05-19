@@ -73,7 +73,7 @@ var Progress  = React.createClass({
             todos : [],
             progress : "",
             done : [],
-            state : "None",
+            session_state : "None",
             error : "",
             warns : []
         }
@@ -89,35 +89,31 @@ var Progress  = React.createClass({
 
     on_session_state : function (err, res){
         if (err){
-            //console.log(err);
-            //console.log(err.status)
             if (err.status == 404){
                 window.location.replace("404")
             }
             return;
         }
-        console.log(JSON.parse(res.text).steps)
+        
         var state = JSON.parse(res.text).steps
         this.setState({
             done:state.done,
             error: state.error,
             progress: state.progress,
-            state:state.state,
+            session_state:state.state,
             todos:state.todo,
             warns:state.warn
         });
-        console.log(this.state)
-        //////console.log(JSON.parse(res.text));
-        //////var sts = JSON.parse(res);
-        //this.setState({steps:JSON.parse(res.text).steps});
-        ////console.log("Steps:")
-        ////console.log(this.state.steps)
-        ////console.log(JSON.parse(res.text))
-        //if (this.check_all_done()){
-        //    clearInterval(this.interval);
-        //    window.location.replace('/' + this.state.UID + '/results')
-        //    // TODO redirect
-        //}
+        
+        if (this.state.error != ""){
+            clearInterval(this.interval);
+        }
+        console.log("Check session state...")
+        if (this.check_all_done()){
+            console.log("All Done!")
+            clearInterval(this.interval);
+            window.location.replace('/' + this.state.UID + '/results')
+        }
     },
 
     componentDidMount: function(){
@@ -129,7 +125,6 @@ var Progress  = React.createClass({
         this.state.UID = UID;
         this.request_session_state();
         this.interval = setInterval(this.request_session_state, 10000);
-
     },
  
     setAppState : function(partialState){
@@ -142,15 +137,12 @@ var Progress  = React.createClass({
 
 
     check_all_done : function(){
-        var arrayLength = this.state.steps.length;
-        for (var i = 0; i < arrayLength; i++) {
-            var step =  this.state.steps[i];
-            //console.log(step);
-            if (step.status != "Done"){
-                return false;
-            }
+        console.log(this.state.session_state);
+        if (this.state.session_state == "complete"){
+            return true;
+        }else{
+            return false;
         }
-        return true;
     },
 
 
@@ -245,10 +237,17 @@ var Body = React.createClass({
         )
     },
 
+    switch_error: function(){
+        if (this.props.appState.error != ""){
+            return this.render_error(this.props.appState.error)
+        }else{
+            return null;
+        }
+    },
+
     render: function(){
         var render_step = this.render_step
-        if (this.props.appState.error != ""){
-            return (
+        return (
             <div className="page_container">
                 <Banner/>
                 
@@ -259,8 +258,7 @@ var Body = React.createClass({
 
                 {render_step("progress", this.props.appState.progress)}
                 
-                
-                {this.render_error(this.props.appState.error)}
+                {this.switch_error()}
                 
                 {(this.props.appState.todos).map(function(d){
                     return render_step("todo", d)
@@ -269,27 +267,7 @@ var Body = React.createClass({
             
             </div>
             );
-        }else{
-            return (
-            <div className="page_container">
-                <Banner/>
-                
-                <Panel header="Progress...">
-                {(this.props.appState.done).map(function(d){
-                    return render_step("done", d)
-                })}
 
-                {render_step("progress", this.props.appState.progress)}
-                
-                
-                {(this.props.appState.todos).map(function(d){
-                    return render_step("todo", d)
-                })}
-                </Panel>
-            
-            </div>
-            );
-        }
         
     }
 })
