@@ -689,8 +689,8 @@ var TreeTimeForm = React.createClass({
         return (
             <div>
                 <Header/>
+                <div className="hugespacer"></div>
                 <div className="page_container">
-                <div className="spacer"></div>
                         <Panel collapsible defaultExpanded header="Upload data" className="panel-treetime" id="welcome_panel_files">
                             <Grid id="welcome_upload_grid">
 

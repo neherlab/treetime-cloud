@@ -60,15 +60,15 @@ var linkTooltip = d3tip()
   .offset(function(d){if (d.source.x > 500) {return [0, -3]} else{return [0,3]};})
   .html(function(d) {
     //console.log(d)
-    
+
     var string = ""
     if (typeof d.frequency != "undefined") {
       string += "Frequency: " + (100 * d.frequency).toFixed(1) + "%"
     }
-    
+
     string += "<div class=\"smallspacer\"></div>";
     string += "<div class=\"smallnote\">";
-    
+
     if (false) {//((typeof d.aa_muts !="undefined")&&(mutType=='aa')){
       var ncount = 0;
       for (tmp_gene in d.aa_muts) {ncount+=d.aa_muts[tmp_gene].length;}
@@ -79,7 +79,7 @@ var linkTooltip = d3tip()
         }
       }
     }
-    
+
     else if ((typeof d.target.muts !="undefined")&&(d.target.muts.length)){
       var tmp_muts = d.target.muts.split(',');
       var nmuts = tmp_muts.length;
@@ -92,7 +92,7 @@ var linkTooltip = d3tip()
     string += "click to zoom into clade"
     string += "</div>";
     return string;
-  
+
   });
 
 
@@ -110,23 +110,23 @@ PhyloTree.create = function(el, props, state){
 
   if (!props.root || typeof props.root == 'undefined') return null;
   //console.log("CREATING tree");
-  var w  = el.offsetWidth;
-  var h = el.offsetHeight;
-  var svg = d3.select(el).append('svg')
+  this.width  = el.offsetWidth;
+  this.height = el.offsetHeight;
+  this.svg = d3.select(el).append('svg')
       .attr('class', 'd3-phylotree')
-      .attr('width', w)
-      .attr('height', h)
+      .attr('width', this.width)
+      .attr('height', this.height)
 
-  
-  svg.append('g')
+
+  this.svg.append('g')
       .attr('class', 'd3-tree_axis')
-  svg.append('g')
+  this.svg.append('g')
       .attr('class', 'd3-links');
-  svg.append('g')
+  this.svg.append('g')
       .attr('class', 'd3-tips');
 
-  svg.call(virusTooltip);
-  svg.call(linkTooltip);
+  this.svg.call(virusTooltip);
+  this.svg.call(linkTooltip);
 
   var dispatcher = new EventEmitter();
   this._create_data(props);
@@ -141,7 +141,7 @@ PhyloTree.create = function(el, props, state){
 };
 
 PhyloTree._create_data = function(props){
-    
+
     ////console.log(props.root)
     this.root = props.root;
     console.log("Creating tree data...")
@@ -183,7 +183,7 @@ PhyloTree.resetLayout = function(el, dispatcher){
 };
 
 PhyloTree.gatherTips = function (node, tips) {
-    
+
     if (typeof node.children != "undefined") {
         for (var i=0, c=node.children.length; i<c; i++) {
             this.gatherTips(node.children[i], tips);
@@ -196,23 +196,26 @@ PhyloTree.gatherTips = function (node, tips) {
 };
 
 PhyloTree.update = function(el, state, dispatcher) {
-  
+  if (this.width != el.offsetWidth || this.height != el.offsetHeight){
+      this._update_scales(el, state, dispatcher);
+  }
+
   if (this.state.cscale != state.cscale || this.state.cvalue != state.cvalue){
     this._update_node_colors(state);
   }
 
   if (this.state.selected_tip != state.selected_tip){
       this._update_selected(el, state);
-  }  
-  
+  }
+
   if (this.state.xUnit != state.xUnit){
-    
+
     this._x_pos = function(d){
       return d[state.xUnit];
     };
-  
+
     this._update_scales(el, state, dispatcher);
-  
+
   }
 
   // update the tree state
@@ -221,7 +224,7 @@ PhyloTree.update = function(el, state, dispatcher) {
 
 
 PhyloTree._update_selected = function(el,state){
-    
+
     this.vis_tips.map(function(d){
           if (state.selected_tip && d.strain == state.selected_tip){
               d.selected = true;
@@ -236,11 +239,10 @@ PhyloTree._update_selected = function(el,state){
 };
 
 PhyloTree._update_scales = function(el, state, dispatcher){
-
     var scales = this._scales(el, state);
     //this._drawLinks(el, scales, dispatcher);
     this._moveLinks(el, scales, dispatcher);
-    //this._drawTips(el, scales, dispatcher); 
+    //this._drawTips(el, scales, dispatcher);
     this._moveTips(el,scales, dispatcher);
     this._update_axis (el, state, scales, dispatcher);
 };
@@ -249,6 +251,8 @@ PhyloTree._scales = function(el, state) {
 
   var width = el.offsetWidth;
   var height = el.offsetHeight;
+  this.svg.attr('width', width)
+          .attr('height', height);
   var xpos = this._x_pos;
   var ypos = this._y_pos;
 
@@ -258,11 +262,11 @@ PhyloTree._scales = function(el, state) {
   console.log(xMin, xMax)
   var yMin = minimumAttribute(this.vis_root, ypos, ypos(this.vis_root));
   var yMax = maximumAttribute(this.vis_root, ypos, ypos(this.vis_root));
-  
+
   var x = d3.scale.linear()
       .domain([xMin, xMax])
       .range([this.padding_left, width-this.padding_right]);
-  
+
   var y = d3.scale.linear()
       .domain([yMin, yMax])
       .range([this.padding_top,height-this.padding_bottom])
@@ -271,21 +275,21 @@ PhyloTree._scales = function(el, state) {
 };
 
 /*
-Get x position for the tree node 
+Get x position for the tree node
 */
 PhyloTree._x_pos = function (d){
   return d["xvalue"];
 };
 
 /*
-Get y position for the tree node 
+Get y position for the tree node
 */
 PhyloTree._y_pos = function(d){
   return d["yvalue"];
 };
 
 PhyloTree._update_node_colors = function(state){
-    
+
     this.vis_tips.forEach(function (d) {
         if (typeof(d) =='undefined') {return;}
         var cval = state.cvalue(d);
@@ -306,7 +310,7 @@ PhyloTree.get_color_scale = function(){
 };
 
 PhyloTree._tipFillColor = function(d) {
-    
+
     var c =  d3.rgb(d.color).brighter([0.65]);
     return c;
 };
@@ -322,7 +326,7 @@ PhyloTree._branchStrokeWidth = function(d) {return 3;}
 PhyloTree._tipRadius = function(d) {return d.selected ? 16.0 : 10.0;}
 
 PhyloTree._drawTips = function(el, scales, dispatcher) {
-    
+
     if (typeof this.vis_tips ==' undefined' || this.vis_tips.length < 2) return;
     var  _drawVirusToolTip = this._drawVirusToolTip
     var _hideVirusToolTip = this._hideVirusToolTip
@@ -336,18 +340,18 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
     console.log("VIS TIPS")
     console.log(this.vis_tips)
     console.log(this.vis_tips.map(function(d){return d.strain}))
-    console.log(d3.sum(this.vis_tips.map(function(d){if (typeof d.strain == 'undefined') return 1; else return 0;}) ) ) 
+    console.log(d3.sum(this.vis_tips.map(function(d){if (typeof d.strain == 'undefined') return 1; else return 0;}) ) )
     tip.enter()
       .append("circle")
       .attr("class", "d3-tip")
       .attr("id", function(d) { return (d.strain).replace(/\//g, ""); })
-      .attr("cx", function(d) { 
-            
+      .attr("cx", function(d) {
+
             return scales.x(xpos(d))
             //if (d.old_x){
-            //    return d.old_x;    
+            //    return d.old_x;
             //}
-            //return d.x; 
+            //return d.x;
         })
     tip
       .attr("r", this._tipRadius)
@@ -368,7 +372,7 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
 };
 
 PhyloTree._moveTips = function(el, scales, dispatcher) {
-    
+
     var xpos = this._x_pos;
     var ypos = this._y_pos;
 
@@ -380,22 +384,22 @@ PhyloTree._moveTips = function(el, scales, dispatcher) {
         return scales.x(xpos(d))
       })
       .attr('cy', function(d){
-        return scales.y(ypos(d)) 
+        return scales.y(ypos(d))
       });
 };
 
 PhyloTree._drawLinks = function(el, scales, dispatcher){
-        
+
     var bpoints = this._branchPoints;
 
     var g = d3.select(el).selectAll('.d3-links');
     var link = g.selectAll('.d3-link')
         .data(this.vis_links);
 
-    
-    
+
+
     var zoom = this._zoom;
-    
+
     link.enter()
         .append("polyline")
         .attr("class", "d3-link")
@@ -414,14 +418,14 @@ PhyloTree._drawLinks = function(el, scales, dispatcher){
           console.log("MOUSECLICK")
           zoom(d.target, el, dispatcher);
         });
-        
+
     // /link.transition()
     // /        .attr("points", this._branchPoints)
     // /        .duration(ANIMATION_DURATION)
 };
 
 PhyloTree._moveLinks = function(el, scales, dispatcher){
-        
+
     var bpoints = this._branchPoints;
 
     var g = d3.select(el).selectAll('.d3-links');
@@ -433,7 +437,7 @@ PhyloTree._moveLinks = function(el, scales, dispatcher){
 };
 
 PhyloTree._zoom = function (d, el, dispatcher){
-  
+
   PhyloTree._hide_axis(el, PhyloTree.state, dispatcher);
   PhyloTree._update_vis(d);
   PhyloTree._update_scales(el, PhyloTree.state, dispatcher);
@@ -441,29 +445,29 @@ PhyloTree._zoom = function (d, el, dispatcher){
 };
 
 PhyloTree._branchPoints = function(d, scales) {
-    
-    
+
+
     var xpos = PhyloTree._x_pos;
     var ypos = PhyloTree._y_pos;
 
     var tmp =   scales.x(xpos(d.source)).toString() + "," + scales.y(ypos(d.target)).toString() + " "
               + scales.x(xpos(d.target)).toString() + "," + scales.y(ypos(d.target)).toString();
-    
+
     if (typeof d.target.children != "undefined"){
-        
+
         var child_ys = d.target.children.map(function (x){
           return scales.y(ypos(x));
         });
-        
+
         tmp+= " "+ scales.x(xpos(d.target)).toString()+","+d3.min(child_ys).toString() + " "
                  + scales.x(xpos(d.target)).toString()+","+d3.max(child_ys).toString();
-    
+
     }
     return tmp;
 },
 
 PhyloTree._branchPoints_old = function(d) {
-    
+
     var tmp =   d.source.old_x.toString() + "," + d.target.old_y.toString() + " "
               + d.target.old_x.toString() + "," + d.target.old_y.toString();
     if (typeof d.target.children != "undefined"){
@@ -492,7 +496,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
         .scale(scales.x)
         .orient("bottom")
         .ticks(10)
-    
+
     // function for the x grid lines
     function make_x_axis() {
     return d3.svg.axis()
@@ -543,7 +547,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
 };
 
 PhyloTree._hide_axis = function (el, state, dispatcher){
-    
+
     console.log("HIDE axis called")
     var g = d3.select(el).select('.d3-tree_axis').selectAll("*");
     g.remove();
