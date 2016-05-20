@@ -33,7 +33,7 @@ TreeLegend.state = {};
 
 TreeLegend.update = function (el, state, dispatcher){
 
-    console.log("UPDATING legend");
+    
     if (this.state.cscale != state.cscale){
         this.state.cscale = state.cscale;
         this._draw_legend(el, dispatcher);        

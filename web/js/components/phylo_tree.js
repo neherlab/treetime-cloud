@@ -196,8 +196,13 @@ PhyloTree.gatherTips = function (node, tips) {
 };
 
 PhyloTree.update = function(el, state, dispatcher) {
+  
   if (this.width != el.offsetWidth || this.height != el.offsetHeight){
+      this._hide_axis(el, state, dispatcher);
       this._update_scales(el, state, dispatcher);
+      this.width = el.offsetWidth;
+      this.height = el.offsetHeight;
+      //this._update_axis(el, state, scales, dispatcher)
   }
 
   if (this.state.cscale != state.cscale || this.state.cvalue != state.cvalue){
@@ -213,7 +218,7 @@ PhyloTree.update = function(el, state, dispatcher) {
     this._x_pos = function(d){
       return d[state.xUnit];
     };
-
+    this._hide_axis(el, state, dispatcher)
     this._update_scales(el, state, dispatcher);
 
   }
@@ -548,7 +553,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
 
 PhyloTree._hide_axis = function (el, state, dispatcher){
 
-    console.log("HIDE axis called")
+    
     var g = d3.select(el).select('.d3-tree_axis').selectAll("*");
     g.remove();
 };

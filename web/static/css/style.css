@@ -124,6 +124,12 @@ Footer definition (bottom for all pages of the application) **/
   padding-left: 50px;
 }
 
+.page_wide{
+  width:100%;
+  float:center;
+  max-width: 1600px;
+  padding-left: 50px; 
+}
 /** All panels**/
 .panel-treetime{
   position: relative;
@@ -433,9 +439,21 @@ width:100%;
   padding: 5px;
   margin: 5px;
   width:100%;
-  max-width: 1500px;
+  max-width: 1600px;
 }
 
+.results-section-wide{
+overflow: hidden;
+min-width: 700px;
+}
+.results-section-narrow{
+  display:block;
+  float:left;
+  text-align: left;
+  width:49%;
+  min-width: 350px;
+  height:400px;
+}
 #results-section_tree{
 
 }
@@ -507,31 +525,32 @@ width:100%;
 
 
 #results-section_mu-right_pane{
- height:700px;
-   float:left;
-  width:70%;
-  position:relative;
-  border-style:solid;
-  border-color: gray;
-  border-width: 1px;
+ height:400px;
+ float:left;
+ width:70%;
+ position:relative;
+ border-style:solid;
+ border-color: gray;
+ border-width: 0px;
+ background-color: grey;
 
 
 }
 
 
 #results-section_tmrca-right_pane{
- height:700px;
+ height:400px;
  float:left;
  width:70%;
  position:relative;
  border-style:solid;
  border-color: gray;
- border-width: 1px;
+ border-width: 0px;
 
 }
 
 #results-section_download-left_pane{
-
+  max-width: 300px;
 }
 
 #results-section_download-btn_download{

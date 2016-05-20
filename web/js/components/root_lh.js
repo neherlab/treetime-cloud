@@ -19,17 +19,20 @@ RootLhPlot.padding_left = 120;
 
 RootLhPlot.create = function(el, props, state){
     
+    this.width = el.offsetWidth
+    this.height = el.offsetHeight
+
     //console.log("CREATING lh PLOT")
-    var svg = d3.select(el).append('svg')
+    this.svg = d3.select(el).append('svg')
       .attr('class', 'd3_lh')
       .attr('width', el.offsetWidth)
       .attr('height', el.offsetHeight);
     
     ////console.log(svg)
-    svg.append('svg')
+    this.svg.append('svg')
       .attr('class', 'd3_lh_axis')
 
-    svg.append('g')
+    this.svg.append('g')
       .attr('class', 'd3_lh_points')
 
     var dispatcher = new EventEmitter();
@@ -44,8 +47,6 @@ RootLhPlot._update_points = function(){
 
 RootLhPlot.update = function(el, lh, state, dispatcher){
     
-    //console.log("UPDATING lh");
-
     if (this.points != lh){
       
       // update the whole plot
@@ -57,6 +58,27 @@ RootLhPlot.update = function(el, lh, state, dispatcher){
       this._draw_points(el, scales, dispatcher)
     
     }   
+
+    if (this.width != el.offsetHeight || this.height != el.offsetHeight){
+      
+      var g = d3.select(el).select('.d3_lh_axis').selectAll("*");
+      g.remove();
+      g = d3.select(el).select('.d3_lh_points').selectAll("*");
+      g.remove();
+
+      this.svg
+        .attr("width", el.offsetWidth)
+        .attr("height", el.offsetHeight);
+
+      var scales = this._scales(el);
+      this._draw_axis(el, scales)
+      this._draw_points(el, scales, dispatcher)
+      this.width = el.offsetWidth;
+      this.height = el.offsetHeight;
+
+    }
+
+    
     // selected node
 };
 
@@ -246,10 +268,7 @@ RootLhPlot._draw_points = function(el, scales, dispatcher){
       .x(function(d) { return scales.x(d.x); })
       .y(function(d) { return scales.y(d.y); });
     
-    var svg = d3.select(el).select('.d3_lh').append("svg")
-      .append("g")
-
-    svg.append("path")
+    g.append("path")
       .datum(this.points)
       .attr("class", "d3_lh_line")
       .attr("d", line);

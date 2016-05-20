@@ -32,18 +32,18 @@ MuPlot.regression = {};
 
 MuPlot.create = function(el, props, state){
     //console.log("CREATING MU PLOT")
-    var width = el.offsetWidth
-    var height = el.offsetHeight
-
-    var svg = d3.select(el).append('svg')
+    this.width = el.offsetWidth
+    this.height = el.offsetHeight
+    console.log("MU height: " + this.height);
+    this.svg = d3.select(el).append('svg')
       .attr('class', 'd3_mu')
-      .attr('width',  width)
-      .attr('height', height);
+      .attr('width',  this.width)
+      .attr('height', this.height);
     
-    svg.append('g')
+    this.svg.append('g')
       .attr('class', 'd3_mu_axis')
 
-    svg.append('g')
+    this.svg.append('g')
       .attr('class', 'd3_mu_points')
 
     var dispatcher = new EventEmitter();
@@ -119,7 +119,7 @@ MuPlot._draw_regression = function(el, scales) {
   var max_y = this.regression.slope * max_x + this.regression.intercept
   var min_y = this.regression.slope * min_x + this.regression.intercept
 
-  var svg = d3.select(el).select('.d3_mu').append('line')
+  var svg = d3.select(el).select('.d3_mu_points').append('line')
     .attr('class', 'd3_mu_regression')
     .attr('x1', function(d){return scales.x(min_x)})
     .attr('y1', function(d){return scales.y(min_y)})
@@ -136,6 +136,24 @@ MuPlot.update = function(el, root, state, dispatcher){
     
     //console.log("UPDATING MU");
 
+    if (this.width != el.offsetWidth || this.height != el.offsetHeight){
+        
+        var g = d3.select(el).select('.d3_mu_axis').selectAll("*");
+        g.remove();
+        g = d3.select(el).select('.d3_mu_points').selectAll("*");
+        g.remove();
+        this.svg
+          .attr('width',  el.offsetWidth)
+          .attr('height', el.offsetHeight);
+        var scales = this._scales(el);
+        this._draw_axis(el, scales)
+        this._draw_points(el, scales, dispatcher)
+        this._draw_regression(el, scales)
+        this.width = el.offsetWidth;
+        this.height = el.offsetHeight;
+
+    }
+
     if (this.tree != root){
       // update all points 
       //console.log("MuPlot detected Tree changes, recreating the plot...")
@@ -143,9 +161,9 @@ MuPlot.update = function(el, root, state, dispatcher){
       this._set_points_from_root(dispatcher);
       this._update_lin_regression(dispatcher);
       var scales = this._scales(el);
-      this._draw_axis(el, scales)
       this._draw_points(el, scales, dispatcher)
       this._draw_regression(el, scales)
+      this._draw_axis(el, scales)
 
     }
 
@@ -191,6 +209,26 @@ MuPlot._scales = function(el){
       .range([this.padding_top,height-this.padding_bottom])
   return {x: x, y: y};
 
+};
+
+MuPlot._draw_text = function(el, scales){
+
+  var g = d3.select(el).select('.d3_mu_axis').append("g")
+    .attr("class", "d3Mu_axis_coefftext");
+  
+  var text_x  = scales.x(0.1 * d3.max(scales.x.domain())  +  0.9 * d3.min(scales.x.domain()));
+  var text_y  = scales.y(0.9 * d3.max(scales.y.domain()) - 0.1 * d3.min(scales.y.domain()));
+  
+  var html = "<div> &mu; = " + this.regression.slope.toExponential(3) + "<br/> R<sup>2</sup> = " + Math.round(this.regression.r2 * 1000) / 1000 + "</div>"
+  console.log(html)
+  g.append('foreignObject')
+    .attr("x", text_x)
+    .attr("y", text_y)
+    .attr('width', 100)
+    .attr('height', 50)
+    .append("xhtml:body")
+    .html(html)
+    
 };
 
 MuPlot._tipRadius = function(d){
@@ -269,6 +307,8 @@ MuPlot._draw_axis = function(el, scales){
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Distance to root");
+
+    this._draw_text(el, scales)
 };
 
 MuPlot._draw_points = function(el, scales, dispatcher){

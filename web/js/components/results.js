@@ -127,7 +127,7 @@ var TreeContainer = React.createClass({
 
     render: function(){
         return (
-            <div className="results-section" id="results-section_tree">
+            <div className="results-section-wide" id="results-section_tree">
                 <TreeLeftPane
                     root={this.props.root}
                     appState={this.props.appState}
@@ -408,12 +408,12 @@ var TreeRightPane = React.createClass({
 var MuContainer = React.createClass({
     render: function(){
         return (
-            <div className="results-section" id="results-section_mu">
-            <MuLeftPane
+            <div className="results-section results-section-narrow" id="results-section_mu">
+            {/*<MuLeftPane
                 appState={this.props.appState}
                 setAppState={this.props.setAppState}
                 mu={this.props.mu}
-                root={this.props.root}/>
+                root={this.props.root}/>*/}
             <MuRightPane
                 appState={this.props.appState}
                 setAppState={this.props.setAppState}
@@ -455,8 +455,7 @@ var MuRightPane = React.createClass({
 
     render : function(){
         return <div
-            id="results-section_mu-right_pane"
-            className="results-section-right_pane"
+            className="results-section results-section-narrow" id="results-section_mu"
             ref="mu_svg"/>
     },
 
@@ -505,7 +504,7 @@ var MuRightPane = React.createClass({
 var TmrcaContainer = React.createClass({
     render: function(){
         return (
-            <div  className="results-section" id="results-section_tmrca">
+            <div  className="results-section results-section-narrow" id="results-section_tmrca">
             <TmrcaLeftPane
                 lh={this.props.lh}
                 appState={this.props.appState}
@@ -534,8 +533,7 @@ var TmrcaRightPane = React.createClass({
     dispatcher: null,
     render: function(){
         return <div
-            id="results-section_tmrca-right_pane"
-            className="results-section-right_pane"
+            className="results-section results-section-narrow" id="results-section_tmrca"
             ref="lrooth_svg"/>
 
     },
@@ -574,8 +572,8 @@ var TmrcaRightPane = React.createClass({
 var DownloadContainer = React.createClass({
     render: function(){
         return(
-            <div className="results-section" id="results-section_dowload">
-
+            <div className="results-section results-section-wide" id="results-section_dowload">
+                <div className="spacer"></div>
                 <DownloadLeftPane
                     appState={this.props.appState}
                     setAppState={this.props.setAppState}/>
@@ -766,23 +764,25 @@ var Results = React.createClass({
 
             <div>
                 <Header />
-                <div id='results_container' >
+                <div className="hugespacer"></div>
+                <div className="page_container page_wide" >
                 <TreeContainer
                     UID={this.props.UID}
                     root={this.root}
                     appState={this.state}
                     setAppState={this.setAppState}/>
 
-                <MuContainer
+                <MuRightPane
                     mu={this.mu}
                     root={this.root}
                     appState={this.state}
                     setAppState={this.setAppState}/>
 
-                <TmrcaContainer
+                <TmrcaRightPane
                     lh={this.lh}
                     appState={this.state}
                     setAppState={this.setAppState}/>
+                <div className="hugespacer"></div>
                 <DownloadContainer
                     appState={this.state}
                     setAppState={this.setAppState}/>
