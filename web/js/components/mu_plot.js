@@ -219,7 +219,7 @@ MuPlot._draw_text = function(el, scales){
   var text_x  = scales.x(0.1 * d3.max(scales.x.domain())  +  0.9 * d3.min(scales.x.domain()));
   var text_y  = scales.y(0.9 * d3.max(scales.y.domain()) - 0.1 * d3.min(scales.y.domain()));
   
-  var html = "<div> &mu; = " + this.regression.slope.toExponential(3) + "<br/> R<sup>2</sup> = " + Math.round(this.regression.r2 * 1000) / 1000 + "</div>"
+  var html = "<p> &mu; = " + this.regression.slope.toExponential(3) + "<br/> R <sup>2</sup>= " + Math.round(this.regression.r2 * 1000) / 1000 + "</p>"
   console.log(html)
   g.append('foreignObject')
     .attr("x", text_x)
@@ -241,65 +241,36 @@ MuPlot._draw_axis = function(el, scales){
     var height = el.offsetHeight;
 
     var xAxis = d3.svg.axis()
-        .scale(scales.x)
-        .orient("bottom")
-        .ticks(5)
+         .scale(scales.x)
+         .orient("bottom")
+         .ticks(5)
+         .tickSize(-height + this.padding_top, 0, 0)
+         .tickFormat(d3.format("d"))
     
     var yAxis = d3.svg.axis()
         .scale(scales.y)
         .orient("left")
         .ticks(10)
-
-    // function for the y grid lines
-    function make_x_axis() {
-    return d3.svg.axis()
-      .scale(scales.x)
-      .orient("bottom")
-      .ticks(5)
-    }
-
-    function make_y_axis() {
-    return d3.svg.axis()
-      .scale(scales.y)
-      .orient("left")
-      .ticks(10)
-    }
+        .tickSize(-width+this.padding_left, 0, 0)
 
     var svg = d3.select(el).select('.d3_mu_axis')
-        
 
     svg.append("g")
-        .attr("class", "d3_mu_x_axis")
-        .attr("transform", "translate(0," + (height -  this.padding_bottom) + ")")
-        .call(xAxis)
+         .attr("class", "d3_mu_x_axis")
+         .attr("transform", "translate(0," + (height -  this.padding_bottom) + ")")
+         .call(xAxis)
 
     svg.append("text")      // text label for the x axis
         .attr("x", width / 2 )
         .attr("y", height - this.padding_text )
         .style("text-anchor", "middle")
         .text("Sampling date");
-
-
-   svg.append("g")
-        .attr("class", "d3_mu_x_grid")
-        .attr("transform", "translate(0," +  ( + this.padding_text) + ")")
-        .call(make_x_axis()
-            .tickSize(height-this.padding_bottom, 0, 0)
-            .tickFormat("")
-            )
     
     svg.append("g")
         .attr("class", "d3_mu_y_axis")
         .attr("transform", "translate(" + (this.padding_left) + ",0)")
         .call(yAxis);
-    
-    svg.append("g")
-        .attr("class", "d3_mu_y_grid")
-        .attr("transform", "translate(" + ( width) + ",0)")
-        .call(make_y_axis()
-            .tickSize(width-this.padding_left, 0, 0)
-            .tickFormat("")
-            )
+
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", this.padding_text)

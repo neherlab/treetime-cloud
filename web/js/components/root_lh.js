@@ -109,31 +109,36 @@ RootLhPlot._draw_axis = function(el, scales){
     
     var width = el.offsetWidth;
     var height = el.offsetHeight;
+    var h = -height + 30
 
     var xAxis = d3.svg.axis()
         .scale(scales.x)
         .orient("bottom")
-        .ticks(5)
+        .tickValues(scales.x.ticks(5).concat(scales.x.domain()[1]))
+        .tickFormat(d3.format("d"))
+        .tickSize(h, 0, 0)
     
     var yAxis = d3.svg.axis()
         .scale(scales.y)
         .orient("left")
-        .ticks(10)
+        .tickValues(scales.y.ticks(10).concat(scales.y.domain()[1]))
+        .tickFormat(d3.format(".1f"))
+        .tickSize(-width, 0, 0)
 
     // function for the y grid lines
-    function make_x_axis() {
-    return d3.svg.axis()
-      .scale(scales.x)
-      .orient("bottom")
-      .ticks(5)
-    }
+    //function make_x_axis() {
+    //return d3.svg.axis()
+    //  .scale(scales.x)
+    //  .orient("bottom")
+    //  .ticks(5)
+   // }
 
-    function make_y_axis() {
-    return d3.svg.axis()
-      .scale(scales.y)
-      .orient("left")
-      .ticks(10)
-    }
+    //function make_y_axis() {
+    //return d3.svg.axis()
+    //  .scale(scales.y)
+    //  .orient("left")
+    //  .ticks(10)
+    //}
 
     var svg = d3.select(el).select('.d3_lh_axis')
         
@@ -150,26 +155,26 @@ RootLhPlot._draw_axis = function(el, scales){
         .text("Inferred root date");
 
 
-   svg.append("g")
-        .attr("class", "d3_lh_x_grid")
-        .attr("transform", "translate(0," +  ( + this.padding_text) + ")")
-        .call(make_x_axis()
-            .tickSize(height-this.padding_bottom, 0, 0)
-            .tickFormat("")
-            )
+   //svg.append("g")
+   //     .attr("class", "d3_lh_x_grid")
+   //     .attr("transform", "translate(0," +  ( + this.padding_text) + ")")
+   //     .call(make_x_axis()
+   //         .tickSize(height-this.padding_bottom, 0, 0)
+   //         .tickFormat("")
+   //         )
     
     svg.append("g")
         .attr("class", "d3_lh_y_axis")
         .attr("transform", "translate(" + (this.padding_left) + ",0)")
         .call(yAxis);
     
-    svg.append("g")
-        .attr("class", "d3_lh_y_grid")
-        .attr("transform", "translate(" + ( width) + ",0)")
-        .call(make_y_axis()
-            .tickSize(width-this.padding_left, 0, 0)
-            .tickFormat("")
-            )
+    // /svg.append("g")
+    // /    .attr("class", "d3_lh_y_grid")
+    // /    .attr("transform", "translate(" + ( width) + ",0)")
+    // /    .call(make_y_axis()
+    // /        .tickSize(width-this.padding_left, 0, 0)
+    // /        .tickFormat("")
+    // /        )
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", this.padding_text)
@@ -178,66 +183,6 @@ RootLhPlot._draw_axis = function(el, scales){
         .style("text-anchor", "middle")
         .text("Normalized likelihood");
 
-        ////console.log("LH el: ")
-//    ////console.log(el)
-//    var width = el.offsetWidth;
-//    var height = el.offsetHeight;
-//
-//    var xAxis = d3.svg.axis()
-//        .scale(scales.x)
-//        .orient("bottom")
-//        .ticks(5)
-//    
-//    var yAxis = d3.svg.axis()
-//        .scale(scales.y)
-//        .orient("left")
-//        .ticks(10)
-//
-//    // function for the y grid lines
-//    function make_x_axis() {
-//    return d3.svg.axis()
-//      .scale(scales.x)
-//      .orient("bottom")
-//      .ticks(5)
-//    }
-//
-//    function make_y_axis() {
-//    return d3.svg.axis()
-//      .scale(scales.y)
-//      .orient("left")
-//      .ticks(10)
-//    }
-//
-//    var svg = d3.select(el).selectAll('svg.d3_lh_axis')
-//        .attr("width", width)
-//        .attr("height", height)
-//
-//    svg.append('g')
-//        .attr("transform", "translate(0," + (height - this.padding) + ")")
-//        .call(xAxis)
-//    ////console.log("SVG = ")
-//    ////console.log(svg)
-//
-//
-//    svg.append("g")
-//        .attr("class", "d3_lh_grid")
-//        .attr("transform", "translate(0," + (this.padding) + ")")
-//        .call(make_x_axis()
-//            .tickSize(height-2*this.padding, 0, 0)
-//            .tickFormat("")
-//            )
-//    
-//    svg.append("g")
-//        .attr("transform", "translate(" + (this.left_padding) + ",0)")
-//        .call(yAxis);
-//    
-//    svg.append("g")
-//        .attr("class", "d3_lh_grid")
-//        .attr("transform", "translate(" + (width - this.padding) + ",0)")
-//        .call(make_y_axis()
-//            .tickSize(width-this.padding-this.left_padding, 0, 0)
-//            .tickFormat("")
-//            )
 };
 
 RootLhPlot._draw_points = function(el, scales, dispatcher){
