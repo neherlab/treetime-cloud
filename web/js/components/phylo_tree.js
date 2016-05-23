@@ -196,7 +196,7 @@ PhyloTree.gatherTips = function (node, tips) {
 };
 
 PhyloTree.update = function(el, state, dispatcher) {
-  
+
   if (this.width != el.offsetWidth || this.height != el.offsetHeight){
       this._hide_axis(el, state, dispatcher);
       this._update_scales(el, state, dispatcher);
@@ -272,9 +272,10 @@ PhyloTree._scales = function(el, state) {
       .domain([xMin, xMax])
       .range([this.padding_left, width-this.padding_right]);
 
+  var tip_radius = 10;
   var y = d3.scale.linear()
       .domain([yMin, yMax])
-      .range([this.padding_top,height-this.padding_bottom])
+      .range([this.padding_top+tip_radius,height-this.padding_bottom-2*tip_radius])
 
   return {x: x, y: y};
 };
@@ -501,6 +502,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
         .scale(scales.x)
         .orient("bottom")
         .ticks(10)
+        .tickFormat(d3.format("d"));
 
     // function for the x grid lines
     function make_x_axis() {
@@ -553,7 +555,7 @@ PhyloTree._draw_axis = function(el, state, scales, dispatcher){
 
 PhyloTree._hide_axis = function (el, state, dispatcher){
 
-    
+
     var g = d3.select(el).select('.d3-tree_axis').selectAll("*");
     g.remove();
 };

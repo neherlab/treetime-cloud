@@ -39,7 +39,7 @@ MuPlot.create = function(el, props, state){
       .attr('class', 'd3_mu')
       .attr('width',  this.width)
       .attr('height', this.height);
-    
+
     this.svg.append('g')
       .attr('class', 'd3_mu_axis')
 
@@ -58,8 +58,8 @@ MuPlot._set_points_from_root = function(dispatcher){
   if (!this.tree) {return ;}
   var tip_lhs = [];
   getLeafNodes(tip_lhs, this.tree);
-  
- 
+
+
   this.points = tip_lhs
       .map(function(d){
         return ({
@@ -78,16 +78,16 @@ MuPlot._set_points_from_root = function(dispatcher){
 };
 
 MuPlot._update_lin_regression = function(dispatcher){
-    
+
     //console.log("Updateting linear regression for MU plot...");
-    
+
     var n = this.points.length;
-    
+
     if (n == 0) {
       this.regression = {};
       return;
     }
-    
+
     var sum_x =  d3.sum(this.points.map(function(d){return d.x}));
     var sum_y =  d3.sum(this.points.map(function(d){return d.y}));
     var sum_xy = d3.sum(this.points.map(function(d){return d.x * d.y}));
@@ -133,11 +133,11 @@ MuPlot._draw_regression = function(el, scales) {
 };
 
 MuPlot.update = function(el, root, state, dispatcher){
-    
+
     //console.log("UPDATING MU");
 
     if (this.width != el.offsetWidth || this.height != el.offsetHeight){
-        
+
         var g = d3.select(el).select('.d3_mu_axis').selectAll("*");
         g.remove();
         g = d3.select(el).select('.d3_mu_points').selectAll("*");
@@ -155,7 +155,7 @@ MuPlot.update = function(el, root, state, dispatcher){
     }
 
     if (this.tree != root){
-      // update all points 
+      // update all points
       //console.log("MuPlot detected Tree changes, recreating the plot...")
       this.tree = root;
       this._set_points_from_root(dispatcher);
@@ -179,14 +179,14 @@ MuPlot.update = function(el, root, state, dispatcher){
         });
         this._refresh_selected_tip(el);
     }
-        
+
     this.old_state = state;
     // selected node
 
 };
 
 MuPlot._refresh_selected_tip = function(el){
-    
+
     var g = d3.select(el).selectAll('.d3_mu_points');
     var tip = g.selectAll('.d3_mu_point')
     tip.attr("r", this._tipRadius)
@@ -195,7 +195,7 @@ MuPlot._refresh_selected_tip = function(el){
 
 MuPlot._scales = function(el){
 
-  
+
   var width = el.offsetWidth;
   var height = el.offsetHeight;
   var xs = this.points.map(function(d){return d.x});
@@ -215,10 +215,10 @@ MuPlot._draw_text = function(el, scales){
 
   var g = d3.select(el).select('.d3_mu_axis').append("g")
     .attr("class", "d3Mu_axis_coefftext");
-  
+
   var text_x  = scales.x(0.1 * d3.max(scales.x.domain())  +  0.9 * d3.min(scales.x.domain()));
   var text_y  = scales.y(0.9 * d3.max(scales.y.domain()) - 0.1 * d3.min(scales.y.domain()));
-  
+
   var html = "<div> &mu; = " + this.regression.slope.toExponential(3) + "<br/> R<sup>2</sup> = " + Math.round(this.regression.r2 * 1000) / 1000 + "</div>"
   console.log(html)
   g.append('foreignObject')
@@ -228,7 +228,7 @@ MuPlot._draw_text = function(el, scales){
     .attr('height', 50)
     .append("xhtml:body")
     .html(html)
-    
+
 };
 
 MuPlot._tipRadius = function(d){
@@ -236,7 +236,7 @@ MuPlot._tipRadius = function(d){
 };
 
 MuPlot._draw_axis = function(el, scales){
-    
+
     var width = el.offsetWidth;
     var height = el.offsetHeight;
 
@@ -244,7 +244,8 @@ MuPlot._draw_axis = function(el, scales){
         .scale(scales.x)
         .orient("bottom")
         .ticks(5)
-    
+        .tickFormat(d3.format("d"));
+
     var yAxis = d3.svg.axis()
         .scale(scales.y)
         .orient("left")
@@ -266,40 +267,41 @@ MuPlot._draw_axis = function(el, scales){
     }
 
     var svg = d3.select(el).select('.d3_mu_axis')
-        
 
     svg.append("g")
         .attr("class", "d3_mu_x_axis")
         .attr("transform", "translate(0," + (height -  this.padding_bottom) + ")")
         .call(xAxis)
 
+    var axis_start = scales.x.range()[0];
+    var axis_width = scales.x.range()[1]-scales.x.range()[0];
     svg.append("text")      // text label for the x axis
-        .attr("x", width / 2 )
+        .attr("x", axis_start + axis_width / 2 )
         .attr("y", height - this.padding_text )
         .style("text-anchor", "middle")
         .text("Sampling date");
-
 
    svg.append("g")
         .attr("class", "d3_mu_x_grid")
         .attr("transform", "translate(0," +  ( + this.padding_text) + ")")
         .call(make_x_axis()
-            .tickSize(height-this.padding_bottom, 0, 0)
+            .tickSize(height-this.padding_bottom - 20, 0, 0)
             .tickFormat("")
             )
-    
+
     svg.append("g")
         .attr("class", "d3_mu_y_axis")
         .attr("transform", "translate(" + (this.padding_left) + ",0)")
         .call(yAxis);
-    
+
     svg.append("g")
         .attr("class", "d3_mu_y_grid")
         .attr("transform", "translate(" + ( width) + ",0)")
         .call(make_y_axis()
-            .tickSize(width-this.padding_left, 0, 0)
+            .tickSize(width-this.padding_left , 0, 0)
             .tickFormat("")
             )
+
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", this.padding_text)
@@ -316,7 +318,7 @@ MuPlot._draw_points = function(el, scales, dispatcher){
     //console.log("MU DRAW POINTS...")
     var g = d3.select(el).selectAll('.d3_mu_points');
 
-    
+
     var tip = g.selectAll('.d3_mu_point')
         .data(this.points);
 
@@ -326,7 +328,7 @@ MuPlot._draw_points = function(el, scales, dispatcher){
       .attr("id", function(d){
         return "NAME" //(d.name).replace(/\//g, "")
       })
-    
+
     tip
       .attr("cx", function(d){return scales.x(d.x)})
       .attr("cy", function(d){return scales.y(d.y)})
