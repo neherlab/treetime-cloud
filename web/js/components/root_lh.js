@@ -18,7 +18,7 @@ RootLhPlot.padding_right = 10;
 RootLhPlot.padding_left = 120;
 
 RootLhPlot.create = function(el, props, state){
-    
+
     this.width = el.offsetWidth
     this.height = el.offsetHeight
 
@@ -27,7 +27,7 @@ RootLhPlot.create = function(el, props, state){
       .attr('class', 'd3_lh')
       .attr('width', el.offsetWidth)
       .attr('height', el.offsetHeight);
-    
+
     ////console.log(svg)
     this.svg.append('svg')
       .attr('class', 'd3_lh_axis')
@@ -46,21 +46,21 @@ RootLhPlot._update_points = function(){
 };
 
 RootLhPlot.update = function(el, lh, state, dispatcher){
-    
+
     if (this.points != lh){
-      
+
       // update the whole plot
       this.lh = lh;
       this._update_points();
-  
+
       var scales = this._scales(el);
       this._draw_axis(el, scales)
       this._draw_points(el, scales, dispatcher)
-    
-    }   
+
+    }
 
     if (this.width != el.offsetHeight || this.height != el.offsetHeight){
-      
+
       var g = d3.select(el).select('.d3_lh_axis').selectAll("*");
       g.remove();
       g = d3.select(el).select('.d3_lh_points').selectAll("*");
@@ -78,18 +78,18 @@ RootLhPlot.update = function(el, lh, state, dispatcher){
 
     }
 
-    
+
     // selected node
 };
 
 RootLhPlot._scales = function(el){
 
-  
+
   var width = el.offsetWidth;
   var height = el.offsetHeight;
   var xs = this.points.map(function(d){return d.x});
   var ys = this.points.map(function(d){return d.y});
-  
+
   var x = d3.scale.linear()
     .domain([d3.min(xs) , d3.max(xs)])
     .range([this.padding_left, width-this.padding_right]);
@@ -106,7 +106,7 @@ RootLhPlot._tipRadius = function(d){
 };
 
 RootLhPlot._draw_axis = function(el, scales){
-    
+
     var width = el.offsetWidth;
     var height = el.offsetHeight;
     var h = -height + 30
@@ -125,56 +125,29 @@ RootLhPlot._draw_axis = function(el, scales){
         .tickFormat(d3.format(".1f"))
         .tickSize(-width, 0, 0)
 
-    // function for the y grid lines
-    //function make_x_axis() {
-    //return d3.svg.axis()
-    //  .scale(scales.x)
-    //  .orient("bottom")
-    //  .ticks(5)
-   // }
-
-    //function make_y_axis() {
-    //return d3.svg.axis()
-    //  .scale(scales.y)
-    //  .orient("left")
-    //  .ticks(10)
-    //}
-
+    
     var svg = d3.select(el).select('.d3_lh_axis')
-        
+
 
     svg.append("g")
         .attr("class", "d3_lh_x_axis")
         .attr("transform", "translate(0," + (height -  this.padding_bottom) + ")")
         .call(xAxis)
 
+    var axis_start = scales.x.range()[0];
+    var axis_width = scales.x.range()[1]-scales.x.range()[0];
     svg.append("text")      // text label for the x axis
-        .attr("x", width / 2 )
+        .attr("x", axis_start + axis_width / 2 )
         .attr("y", height - this.padding_text )
         .style("text-anchor", "middle")
         .text("Inferred root date");
 
 
-   //svg.append("g")
-   //     .attr("class", "d3_lh_x_grid")
-   //     .attr("transform", "translate(0," +  ( + this.padding_text) + ")")
-   //     .call(make_x_axis()
-   //         .tickSize(height-this.padding_bottom, 0, 0)
-   //         .tickFormat("")
-   //         )
-    
     svg.append("g")
         .attr("class", "d3_lh_y_axis")
         .attr("transform", "translate(" + (this.padding_left) + ",0)")
         .call(yAxis);
-    
-    // /svg.append("g")
-    // /    .attr("class", "d3_lh_y_grid")
-    // /    .attr("transform", "translate(" + ( width) + ",0)")
-    // /    .call(make_y_axis()
-    // /        .tickSize(width-this.padding_left, 0, 0)
-    // /        .tickFormat("")
-    // /        )
+
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", this.padding_text)
@@ -196,7 +169,7 @@ RootLhPlot._draw_points = function(el, scales, dispatcher){
       .append("circle")
       .attr("class", "d3_lh-point")
       .attr("id", function(d){return d.x})
-    
+
     tip
       .attr("cx", function(d){return scales.x(d.x)})
       .attr("cy", function(d){return scales.y(d.y)})
@@ -212,7 +185,7 @@ RootLhPlot._draw_points = function(el, scales, dispatcher){
     var line = d3.svg.line()
       .x(function(d) { return scales.x(d.x); })
       .y(function(d) { return scales.y(d.y); });
-    
+
     g.append("path")
       .datum(this.points)
       .attr("class", "d3_lh_line")

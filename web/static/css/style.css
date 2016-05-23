@@ -128,7 +128,7 @@ Footer definition (bottom for all pages of the application) **/
   width:100%;
   float:center;
   max-width: 1600px;
-  padding-left: 50px; 
+  padding-left: 50px;
 }
 /** All panels**/
 .panel-treetime{
@@ -564,7 +564,7 @@ min-width: 700px;
 }
 
 #results-panel_download_files{
-
+  text-align: justify;
 }
 
 .progress_error{

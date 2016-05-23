@@ -611,7 +611,10 @@ var DownloadRightPane = React.createClass({
                         <tbody>
                             <tr>
                                 <td>out_newick_tree.nwk</td>
-                                <td>Phylogenetic tree in newick format. The branches lengths in the tree  are optimized with the TreeTime algorithm. Each internal node is assigned a name in format "NODE_XXXXXX" to link the nodes to the additional data provided (see below). Due to the limitations of the newick format, there is no additional information available in thetree file.</td>
+                                <td>Phylogenetic tree in newick format. The branch lengths in the tree are optimized with the TreeTime algorithm.
+                                    Each internal node is assigned a name "NODE_XXXXXX" used to identify the
+                                    node in the tables with additional meta data and alignments (see below).
+                                    Not all node information is contained in the newick file due to the limitations of the format. </td>
                             </tr>
                             <tr>
                                 <td>out_aln.fasta</td>
@@ -619,28 +622,37 @@ var DownloadRightPane = React.createClass({
                             </tr>
                             <tr>
                                 <td>out_metadata.csv</td>
-                                <td>Extended metadata in csv format. This file contains the metadata provided by the user. On top of this, there are the inferred dates for all nodes of the tree ("numdate"), including the leaves. The dates are in the format of "YYYY.F". There is also the values for the relaxed molecular clock ("mutation_rate/avg"), the deviation of the branch lengs from the optimal values ("branch_len/opt") and time since MRCA in numeric date format.</td>
+                                <td>Extended metadata in csv format. This file contains the metadata provided by the user.
+                                In addition, inferred dates of all nodes of the tree are given (column "numdate").
+                                The dates are given as floating point values in units of years.
+                                Other columns contain the branch specific rate estimated by the relaxed molecular method
+                                (given as fold-change relative to average, column "mutation_rate/avg"),
+                                the ratio of estimated branch length of optimal branch length ("branch_len/opt")
+                                and the time since MRCA in numeric date format.</td>
                             </tr>
                             <tr>
                                 <td>out_gtr.csv</td>
-                                <td>Matrix for GTR model of evolution, used  in the TreeTime run. If "Infer from tree" was chosen, than the GTR matrix returned is one inferred from the data. For the detailed description of how the model was inferred from the tree, see the methods page. See our GTR project documentation (coming soon) for more details.</td>
+                                <td>The GTR model used. If the model was inferred from the tree,
+                                the file will contain this specific model. Otherwise, it contains the standard model
+                                specified in the advanced configuration. </td>
                             </tr>
                             <tr>
                                 <td>out_root_lh.csv</td>
-                                <td>Likelihood distribution of the tree root position. The distribution is normalized to one.</td>
-
+                                <td>Likelihood distribution of the tree root position.
+                                The distribution is normalized to one.</td>
                             </tr>
                             <tr>
                                 <td>out_molecular_clock.csv</td>
-                                <td>Molecular clock estimate from the input tree</td>
+                                <td>Estimated substition rate and root-to-tip distances vs time of sampling</td>
                             </tr>
                             <tr>
-                                <td>settings.json</td>
+                                <td>config.json</td>
                                 <td>Settings file used to run TreeTime</td>
                             </tr>
                             <tr>
                                 <td>out_tree.json</td>
-                                <td>Phylogenetic tree in json format. The tree includes entire information of the alignment and metadata. It also stores some useful technical information for tree representation</td>
+                                <td>Phylogenetic tree in json format. The tree includes entire alignment and metadata.
+                                It also contains variables used for tree representation</td>
                             </tr>
                         </tbody>
                     </Table>

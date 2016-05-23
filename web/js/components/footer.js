@@ -21,7 +21,7 @@ var Authors = React.createClass({
     render(){
         return (
             <div id="authors">
-            Richard Neher and Pavel Sagulenko, 2016
+            Pavel Sagulenko and Richard Neher, 2016
             </div>
 
         );
@@ -44,4 +44,4 @@ var Footer  = React.createClass({
 
 });
 
-export default Footer; 
+export default Footer;
