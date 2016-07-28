@@ -7,6 +7,8 @@ var RootLhPlot = {};
 
 RootLhPlot.lh = [];
 
+RootLhPlot.current_node = null;
+
 RootLhPlot.padding_bottom = 80;
 
 RootLhPlot.padding_text = 20;
@@ -36,21 +38,24 @@ RootLhPlot.create = function(el, props, state){
       .attr('class', 'd3_lh_points')
 
     var dispatcher = new EventEmitter();
-    this.update(el, this.lh, state, dispatcher);
+    this.lh = props.lh
+
+
+    //this.update(el, this.lh, state, dispatcher);
     return dispatcher;
 
 };
 
 RootLhPlot._update_points = function(){
-    this.points = this.lh;
+    this.points = this.lh[this.current_node];
 };
 
-RootLhPlot.update = function(el, lh, state, dispatcher){
+RootLhPlot.update = function(el, node_name, state, dispatcher){
 
-    if (this.points != lh){
+    if (this.current_node != node_name){
 
       // update the whole plot
-      this.lh = lh;
+      this.current_node = node_name
       this._update_points();
 
       var scales = this._scales(el);
@@ -115,9 +120,9 @@ RootLhPlot._draw_axis = function(el, scales){
         .scale(scales.x)
         .orient("bottom")
         .tickValues(scales.x.ticks(5).concat(scales.x.domain()[1]))
-        .tickFormat(d3.format("d"))
+        .tickFormat(d3.format(".2f"))
         .tickSize(h, 0, 0)
-    
+
     var yAxis = d3.svg.axis()
         .scale(scales.y)
         .orient("left")
@@ -125,7 +130,7 @@ RootLhPlot._draw_axis = function(el, scales){
         .tickFormat(d3.format(".1f"))
         .tickSize(-width, 0, 0)
 
-    
+
     var svg = d3.select(el).select('.d3_lh_axis')
 
 

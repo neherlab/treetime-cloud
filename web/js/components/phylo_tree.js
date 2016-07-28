@@ -195,6 +195,20 @@ PhyloTree.gatherTips = function (node, tips) {
     return tips;
 };
 
+PhyloTree.gatherAllNodes = function (node, all_nodes) {
+
+    if (typeof node.children != "undefined") {
+        for (var i=0, c=node.children.length; i<c; i++) {
+            all_nodes.push(node)
+            this.gatherAllNodes(node.children[i], all_nodes);
+        }
+    }
+    else {
+        all_nodes.push(node);
+    }
+    return all_nodes;
+};
+
 PhyloTree.update = function(el, state, dispatcher) {
 
   if (this.width != el.offsetWidth || this.height != el.offsetHeight){
@@ -296,11 +310,19 @@ PhyloTree._y_pos = function(d){
 
 PhyloTree._update_node_colors = function(state){
 
-    this.vis_tips.forEach(function (d) {
+   console.log("Update node colors called")
+    this.vis_nodes.forEach(function (d) {
         if (typeof(d) =='undefined') {return;}
         var cval = state.cvalue(d);
-        d.color = state.cscale.get_color(cval);
+
+        if (cval == null){
+          d.color = "#808080"
+        }else{
+          d.color = state.cscale.get_color(cval);
+        }
     });
+
+
 
     var  _drawVirusToolTip = this._drawVirusToolTip
     var _hideVirusToolTip = this._hideVirusToolTip
@@ -310,6 +332,26 @@ PhyloTree._update_node_colors = function(state){
     tip
       .style("fill", this._tipFillColor)
       .style("stroke", this._tipStrokeColor)
+
+
+    this.vis_links.forEach(function (d) {
+
+        if (typeof d.target.metadata == 'undefined') {return;}
+        var cval = state.cvalue(d.target);
+        if (cval == null || cval == ""){
+          d.color = "#808080"
+        }else{
+          d.color = state.cscale.get_color(cval);
+        }
+    });
+
+    var g_links = d3.selectAll('.d3-links');
+    var link = g_links.selectAll('.d3-link')
+    link
+      //.style("fill", this._tipFillColor)
+      .style("stroke", this._tipStrokeColor)
+
+
 };
 
 PhyloTree.get_color_scale = function(){
@@ -329,11 +371,12 @@ PhyloTree._tipVisibility = function (d) { return d.current?"visible":"hidden";}
 
 PhyloTree._branchStrokeWidth = function(d) {return 3;}
 
-PhyloTree._tipRadius = function(d) {return d.selected ? 16.0 : 10.0;}
+PhyloTree._tipRadius = function(d) {return d.selected ? 8.0 : 6.0;}
 
 PhyloTree._drawTips = function(el, scales, dispatcher) {
 
-    if (typeof this.vis_tips ==' undefined' || this.vis_tips.length < 2) return;
+
+    if (typeof this.vis_tips == 'undefined' || this.vis_tips.length < 2) return;
     var  _drawVirusToolTip = this._drawVirusToolTip
     var _hideVirusToolTip = this._hideVirusToolTip
     var xpos = this._x_pos;
@@ -411,17 +454,18 @@ PhyloTree._drawLinks = function(el, scales, dispatcher){
         .attr("class", "d3-link")
         .attr("points", function(d){return bpoints(d, scales);})
         .style("stroke-width", 3)
-        .style("stroke", "gray")
+        //.style("stroke", "gray")
         .style("stroke-linejoin", "round")
         .style("cursor", "pointer")
         .on("mouseover", function(d){
-            linkTooltip.show(d)
+            linkTooltip.show(d);
+            dispatcher.emit('link:link_mouseover', d);
         })
         .on("mouseout", function(d){
-            linkTooltip.hide()
+            linkTooltip.hide();
+            dispatcher.emit('link:link_mouseout', d);
         })
         .on("click", function(d){
-          console.log("MOUSECLICK")
           zoom(d.target, el, dispatcher);
         });
 

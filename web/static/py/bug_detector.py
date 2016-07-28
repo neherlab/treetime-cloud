@@ -9,7 +9,7 @@ plt.ion()
 plt.show()
 
 #  set the configuration parameters
-reuse_branch_len=True  # Do we trust the branch lengths of the tree given?
+reuse_branch_len=False  # Do we trust the branch lengths of the tree given?
 infer_gtr=True  # Infer GTR model from the data given (Use default if False)?
 reroot = True  # Find the root node which maximizes the molecular clock correlation?
 
@@ -18,9 +18,9 @@ mu=None  #  #mutations per years per position
 resolve_poly=True  # Try to resolve multiple mergers
 coalescent = False  # Run the coalescent model (takes care about polytomies resolution)
 Tc = 0.01  #  coalescent distance (%difference )
-relax_mu = False  #  Relax mutation rate?
-slack = 0.0  # How much we allow for variation between parents and children (from 0 to 1)
-coupling = 0.0  # How much we allow for variation between sister branches (from 0 to 1)
+relax_mu = True  #  Relax mutation rate?
+slack = 0.1  # How much we allow for variation between parents and children (from 0 to 1)
+coupling = 0.001  # How much we allow for variation between sister branches (from 0 to 1)
 
 def parse_config_dic(root):
     pass
@@ -50,13 +50,14 @@ if __name__=="__main__":
     if not reuse_branch_len:
         tt.optimize_seq_and_branch_len(False, True)
 
+
     if reroot:
         # This function does the following:
         # 1. re-root
         # 2. infer GTR model if needed
         # 3. ancestral inference
         # 4. init time constraints
-        tt.reroot_to_best_root(infer_gtr=infer_gtr) # we can
+        tt.reroot_to_best_root(infer_gtr=infer_gtr)
 
     elif infer_gtr: #
         tt.infer_gtr()  # will make first shot in ancestral state reconstruction

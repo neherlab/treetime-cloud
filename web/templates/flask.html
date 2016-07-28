@@ -13,4 +13,28 @@
 <section id="react_"  ></section>
 <script src="{{ url_for('static', filename='js/welcome.js') }}"></script>
 </div>
+
+
+<!-- Piwik -->
+<script type="text/javascript">
+    console.log("PIWICK is starting...")
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.tuebingen.mpg.de/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 22]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
+    g.defer=true; g.async=true; g.src=u+'piwik.js';
+s.parentNode.insertBefore(g,s);
+  })();
+  console.log("PIWICK done!")
+</script>
+<noscript><p><img
+src="http://piwik.tuebingen.mpg.de/piwik.php?idsite=22"
+style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+
+
 </body>

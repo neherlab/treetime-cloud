@@ -103,7 +103,6 @@ var CategorialScale = function(){
         if (!this.cScale || this.domain.length == 0){
             return "#808080";
         }else{
-            console.log(this.cScale)
             return this.cScale(x);
         }
     };
@@ -229,14 +228,14 @@ var TreeLeftPane = React.createClass({
             console.log(value)
 
             var cValFunc = function(d){
-                var md = d.terminal_metadata.filter(function(d){return d.name==value})
+                var md = d.metadata.filter(function(d){return d.name==value})
                 if (md.length == 0) return null;
                 return md[0].value;
             }
             var tips = []
-            PhyloTree.gatherTips(this.props.root, tips)
+            PhyloTree.gatherAllNodes(this.props.root, tips)
             var all_values = tips.map(cValFunc)
-
+            console.log(all_values)
             // get all types of the metadata entries
             all_values = all_values.filter(function(d, index){return all_values.indexOf(d) == index})
             var all_types = all_values.map(function(d){return typeof(d)})
@@ -390,12 +389,22 @@ var TreeRightPane = React.createClass({
 
             dispatcher.on('point:tip_mouseover', this.select_tip);
             dispatcher.on('point:tip_mouseout', this.unselect_tip);
+            dispatcher.on('link:link_mouseover', this.select_link);
+            dispatcher.on('link:link_mouseout', this.unselect_link);
         }
         return true;
     },
 
-    select_tip : function(d){
+    select_link : function(d){
+        console.log ("Link selected: " + d.target.name)
+        this.select_tip(d.target);
+    },
 
+    unselect_link : function(d){
+        this.unselect_tip(d.target);
+    },
+
+    select_tip : function(d){
         this.props.setAppState({selected_tip : d.name});
     },
 
@@ -537,25 +546,52 @@ var TmrcaRightPane = React.createClass({
             ref="lrooth_svg"/>
 
     },
-    componentDidUpdate : function(){
 
-        if (!this.props.lh) return false;
+    getInitialState : function(){
+        return ({
+            current_node_lh : null
+        });
+    },
+
+    _create_lh_plot : function (){
+
+        console.log("Creating LH plot for node:")
+        this.setState({current_node_lh : this.props.appState.selected_tip})
+
         var width = this.getDOMNode().offsetWidth;
         var height = this.getDOMNode().offsetHeight;
         var el = this.getDOMNode();
-        if (!this.props.appState.root_lh_initialized){
-            this.dispatcher = RootLhPlot.create(el,
+        this.dispatcher = RootLhPlot.create(el,
                 {
                     width:width,
                     height:height,
                     lh:this.props.lh
                 },
                 this.props.appState);
-            this.dispatcher.on('point:point_mouseover', this.select_point);
-            this.dispatcher.on('point:point_mouseout', this.unselect_point);
-            this.props.setAppState({root_lh_initialized : true});
+        this.dispatcher.on('point:point_mouseover', this.select_point);
+        this.dispatcher.on('point:point_mouseout', this.unselect_point);
+        this.props.setAppState({root_lh_initialized : true});
+
+
+    },
+
+    componentDidUpdate : function(){
+
+        if (!this.props.lh) return false;
+        if (typeof this.props.root =='undefined' || !this.props.root) return false;
+
+        if (!this.props.appState.root_lh_initialized){
+
+            this._create_lh_plot();
+            var el = this.getDOMNode();
+            RootLhPlot.update(el, this.props.root.name, this.props.appState, this.dispatcher)
+
         }else{
-            RootLhPlot.update(el, this.props.lh, this.props.appState, this.dispatcher)
+
+            var new_node = this.props.appState.selected_tip ? this.props.appState.selected_tip : this.props.root.name
+            var el = this.getDOMNode();
+            RootLhPlot.update(el, new_node, this.props.appState, this.dispatcher)
+
         }
 
     },
@@ -567,6 +603,7 @@ var TmrcaRightPane = React.createClass({
     unselect_point : function(d){
 
     }
+
 });
 
 var DownloadContainer = React.createClass({
@@ -703,20 +740,21 @@ var Results = React.createClass({
         var tips = []
         PhyloTree.gatherTips(root, tips)
         var all_metas = tips.map(function(t){
-            return t.terminal_metadata.map(function (m){return m.name})
+            return t.metadata.map(function (m){return m.name})
         })
         var merged = Array.from(new Set([].concat.apply([], all_metas)));
         this.setState({terminal_colorby:merged})
 
         // create initial legend
         var cValFunc = function(d){
-            var md = d.terminal_metadata.filter(function(d){return d.name=="numdate_given"})
+            var md = d.metadata.filter(function(d){return d.name=="numdate_given"})
             if (md.length == 0) return null;
             return md[0].value;
         }
         var tips = []
         PhyloTree.gatherTips(root, tips)
         var all_values = tips.map(cValFunc)
+
         var cScale = new CScale(); // legend with continuous scale
         cScale.create(all_values);
         this.setState({
@@ -792,6 +830,7 @@ var Results = React.createClass({
 
                 <TmrcaRightPane
                     lh={this.lh}
+                    root={this.root}
                     appState={this.state}
                     setAppState={this.setAppState}/>
                 <div className="hugespacer"></div>
