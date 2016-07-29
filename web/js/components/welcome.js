@@ -1,13 +1,9 @@
 import React from  'react'
 import ReactDOM from 'react-dom'
-import { Panel, PanelGroup, Button, Grid, Row, Col, FormControl, Checkbox, Table } from "react-bootstrap";
+import { Panel, PanelGroup, Button, Grid, Row, Col, FormControl, Checkbox, Table, OverlayTrigger, Tooltip } from "react-bootstrap";
 var request = require('superagent');
 import Header from './header.js'
 import Footer from './footer.js'
-
-
-
-
 
 var DoBuildTree = React.createClass({
     getInitialState(){
@@ -24,13 +20,24 @@ var DoBuildTree = React.createClass({
         this.props.SetAppConfig({do_build_tree: !this.props.AppConfig.do_build_tree})
     },
 
+
+
     render(){
+        const tooltip = (
+            <Tooltip id="tooltip">
+               Select to build the tree with the <strong>FastTree</strong> tool, <br/> Which implements Neighbour-Join algorithm followed by gradual Maximum-Likelihood opotimization.
+            </Tooltip>
+        );
+
         return (
             <div>
+
               <Checkbox className="cbox-treetime" id="cbox-treetime-build_tree"
                 checked={this.props.AppConfig.do_build_tree}
                 onChange={this.handleChange}>
-            Build tree from alignment
+                <OverlayTrigger placement="bottom" overlay={tooltip}>
+                    <div> Build tree from alignment </div>
+                </OverlayTrigger>
             </Checkbox>
             </div>
         );
@@ -55,12 +62,21 @@ var ShouldReuseBranchLength = React.createClass({
 
 
     render(){
+        const tooltip = (
+            <Tooltip id="tooltip">
+                Set checked if you are sure that the branch lenghts of the input tree
+                are consitent with the GTR model (e.g. represent Hamming distance, or similar).
+            </Tooltip>
+        );
+
         return (
             <div className="config-entry">
                <Checkbox className="cbox-treetime" id="cbox-treetime-reuse_branches"
                 checked={this.props.AppConfig.reuse_branch_len}
                 onChange={this.handleChange}>
-                Reuse tree branches
+                    <OverlayTrigger placement="top" overlay={tooltip}>
+                        <div>Reuse tree branches</div>
+                    </OverlayTrigger>
                 </Checkbox>
             </div>
         );
@@ -87,12 +103,20 @@ var DoReRoot = React.createClass({
 
 
     render(){
+        const tooltip = (
+            <Tooltip id="tooltip">
+                Attempt to find the root position in the tree, which maximizes the
+                correlation coefficient of the molecular clock regression.
+            </Tooltip>
+        );
         return (
             <div className="config-entry">
                <Checkbox className="cbox-treetime" id="welcome-panel_config-cbox_reroot"
                 checked={this.props.AppConfig.reroot}
                 onChange={this.handleChange}>
-                Optimize tree root position
+                    <OverlayTrigger placement="top" overlay={tooltip}>
+                    <div>Optimize tree root position</div>
+                    </OverlayTrigger>
                 </Checkbox>
             </div>
         );
@@ -220,13 +244,21 @@ var UseSlope = React.createClass({
 
     render(){
 
+        const tooltip = (
+            <Tooltip id="tooltip">
+                Use the mutation rate value, assessed elsewhere.
+            </Tooltip>
+        );
+
         return (
             <div className="config-entry">
               <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_slope"
                     checked={this.props.AppConfig.use_mu}
                     onChange={this.handleCBChange}>
 
-                Mutation rate (&mu;) =
+                    <OverlayTrigger placement="top" overlay={tooltip}>
+                        <div>Mutation rate (&mu;) =</div>
+                    </OverlayTrigger>
 
               </Checkbox>
               <div className="div-block">
@@ -387,13 +419,22 @@ var DoRelaxedClock = React.createClass({
 
     render(){
 
+        const tooltip = (
+            <Tooltip id="tooltip">
+                Perform an autocorrelated relaxation of the mutation rate along the tree.
+            </Tooltip>
+        );
+
+
         return (
             <div className="config-entry"  id="welcome_panel_config-div_relaxed" >
 
                 <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_relaxed"
                 checked={this.props.AppConfig.relax_mu}
                 onChange={this.handleCBChange}>
-                    Relax molecular clock
+                    <OverlayTrigger placement="top" overlay={tooltip}>
+                    <div>Relax molecular clock</div>
+                    </OverlayTrigger>
                 </Checkbox>
 
                 <div className="div-block">
@@ -542,6 +583,8 @@ var TreeTimeForm = React.createClass({
 
     uploadTreeFile :function(evt){
 
+        this.SetAppConfig({"do_build_tree":false})
+
         if (evt.target.files.length == 0){
             console.log("Resetting treefile")
             this.setState({
@@ -556,6 +599,7 @@ var TreeTimeForm = React.createClass({
         //for (var key in evt.target.files) {
         //    formData.append(key, files[key]);
         //}
+
 
         this.setAppState({tree_file:true});
         request.post('/upload/' + this.state.UID + '/file')
@@ -686,7 +730,31 @@ var TreeTimeForm = React.createClass({
 
     render:function(){
         //console.log(this.state.settings)
+        const csv_tooltip = (
+            <Tooltip id="tooltip">
+                Upload comma-separated file with additional metadata to run  TreeTime.
+                The format of the file should be as folows:
+                <li>The first row of the file contains the <strong>names</strong> of the columns. All other rows only contain data</li>
+
+                <li>The first colunm of the file hsould contain the <strong>names</strong> of the tips/sequences.
+                Its name should de either <strong>names</strong> or <strong>#names</strong></li>
+
+                <li>Preferrably, the second column should contain the sampling dates for (all) tree leaves.
+                The name should be referred as "sampling_date" or similar. The data format should be either numerical date (YYYY.F), or
+                the human-readable dates. In the latter case, the server will try to parse the input dates and convert them to the
+                numerical date format. If the server fails to find the dates in the second column, it will try to
+                scan the rest of the csv until it finds any suitable column, which then will
+                be treated as the sampling dates.</li>
+
+                <li>The other columns may contain arbuitrary data of any format and have arbitrary names. The server will try
+                to parse the data and show it in the results section.</li>
+
+            </Tooltip>
+        );
+
+
         return (
+
             <div>
                 <Header/>
                 <div className="hugespacer"></div>
@@ -700,7 +768,7 @@ var TreeTimeForm = React.createClass({
                                     id="welcome_col_upload_tree" className="grid-treetime-col-right" >
 
                                     <span className="btn btn-primary btn-file btn-file-treetime" id="btn-1">
-                                        Newick <input  type="file" disabled={this.state.config.do_build_tree}  onChange={this.uploadTreeFile} />
+                                        Newick <input  type="file"  onChange={this.uploadTreeFile} />
                                     </span>
 
                                     {this.state.tree_filename}
@@ -729,10 +797,13 @@ var TreeTimeForm = React.createClass({
                             <Row className="grid-treetime-row">
 
                                 <Col xs={6} md={4} className="grid-treetime-col-right">
+                                    <OverlayTrigger placement="top" overlay={csv_tooltip}>
                                     <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
-                                        CSV <input type="file" onChange={this.uploadMetaFile} />
+                                            CSV <input type="file" onChange={this.uploadMetaFile} />
                                     </span>
+                                    </OverlayTrigger>
                                     {this.state.meta_filename}
+
                                 </Col>
                             </Row>
                             </Grid>
@@ -761,9 +832,11 @@ var TreeTimeForm = React.createClass({
 
                     <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
 
+
                         <ShouldReuseBranchLength
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
+
 
                         <DoReRoot
                             AppConfig={this.state.config}

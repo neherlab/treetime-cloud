@@ -41,15 +41,14 @@ var virusTooltip = d3tip()
   .attr('class', 'd3-tip')
   .offset([0, -12])
   .html(function(d){
+
     var string = "";
     string += "<h4>" + d.strain +"</h4>"
     "<div class=\"smallspacer\"></div>";
     string += "<div class=\"smallnote\">";
-
-    string += "Numdate: " + d.numdate + " <br/>";
-    string += "Time since Tmrca: " + d.tvalue + "<br/>";
-    string += "Country: " + d.country + "<br/>" ;
-    string += "Region: " + d.region + "<br/>" ;
+    string += d.metadata.map(function(d){
+                  return "<li style=\"margin-top: 10px;\">" +  d.name + " : " + d.value + "</li>"
+              }).join("")
     string += "</div>";
 
     return (string)});
@@ -84,13 +83,21 @@ var linkTooltip = d3tip()
       var tmp_muts = d.target.muts.split(',');
       var nmuts = tmp_muts.length;
       tmp_muts = tmp_muts.slice(0,Math.min(10, nmuts))
-      string += "<li>"+tmp_muts.join(', ');
+      string += "<li style=\"margin-top: 10px;\" >"+tmp_muts.join(', ');
       if (nmuts>10) {string+=' + '+ (nmuts-10) + ' more';}
       string += "</li>";
     }
     string += "</ul>";
-    string += "click to zoom into clade"
+
+    string += "</br>TARGET: " + d.target.name + "</br>";
+
+    string += d.target.metadata.map(function(d){
+              return "<li style=\"margin-top: 10px;\">" + d.name + " : " + d.value + "</li>"
+          }).join("")
+
+    string += "</br> click to zoom into clade"
     string += "</div>";
+    console.log(string)
     return string;
 
   });

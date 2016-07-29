@@ -20,6 +20,16 @@ h3{
   color:#565656;
 }
 
+#tooltip{
+  text-align:left;
+
+}
+
+
+.tooltip-inner{
+  text-align:left;
+  font-size:12pt;
+}
 /*
 * Header definition
 * Header is present on the top of all pages of the application
