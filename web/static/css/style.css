@@ -20,14 +20,15 @@ h3{
   color:#565656;
 }
 
-#tooltip{
-  text-align:left;
-
-}
-
-
 .tooltip-inner{
   text-align:left;
+  font-size:12pt;
+}
+
+.csv_tooltip
+.tooltip-inner{
+  max-width: 600px;
+  width:600px;
   font-size:12pt;
 }
 /*
@@ -275,12 +276,12 @@ bottom: 3px;
   display:block;
   margin-right: 10px;
   margin-left: 10px;
-  width:100px;
+  width:150px;
 }
 
 input[type="text"]{
   height:30px;
-  width: 50px;
+  width: 80px;
 }
 
 input[type="number"]{
@@ -355,7 +356,7 @@ width:100%;
 }
 
 #welcome-panel_config-span_GTR{
-  width:100px;
+  width:155px;
 
   float:left;
 }
@@ -379,6 +380,11 @@ float:left;
 
 #welcome_panel_config-div_coalescent{
 
+}
+
+#welcome_panel_config_tc{
+  margin-left:10px;
+  width:32px;
 }
 
 #welcome_panel_config-cbox_coalescent{

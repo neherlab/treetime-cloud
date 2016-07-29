@@ -199,7 +199,7 @@ var UseBranchPenalty = React.createClass({
 
 
 
-                <FormControl type="number" className="treetime-input-number" id="welcome-panel_config-input_penalty"
+                <FormControl type="text" className="treetime-input-number" id="welcome-panel_config-input_penalty"
                     disabled={!this.state.settings.bool}
                     onChange={this.handleTextChange}/>
 
@@ -262,7 +262,7 @@ var UseSlope = React.createClass({
 
               </Checkbox>
               <div className="div-block">
-              <FormControl type="number" className="treetime-input-number div-block"
+              <FormControl type="text" className="treetime-input-number div-block"
                     disabled={!this.props.AppConfig.use_mu}
                     onChange={this.handleTextChange}
                     value={this.props.AppConfig.mu}/>
@@ -353,9 +353,9 @@ var DoCoalescent = React.createClass({
 
                     <div id="div-block">
 
-                        <span className="treetime-span-input"> Tc = </span>
+                        <span className="treetime-span-input" id="welcome_panel_config_tc" > Tc = </span>
 
-                        <FormControl  type="number" className="treetime-input-number"
+                        <FormControl  type="text" className="treetime-input-number"
                             disabled={!this.props.AppConfig.coalescent}
                             onChange={this.handleTextChange}
                             value={this.props.AppConfig.Tc}/>
@@ -731,7 +731,7 @@ var TreeTimeForm = React.createClass({
     render:function(){
         //console.log(this.state.settings)
         const csv_tooltip = (
-            <Tooltip id="tooltip">
+            <Tooltip className="csv_tooltip">
                 Upload comma-separated file with additional metadata to run  TreeTime.
                 The format of the file should be as folows:
                 <li>The first row of the file contains the <strong>names</strong> of the columns. All other rows only contain data</li>
@@ -740,7 +740,7 @@ var TreeTimeForm = React.createClass({
                 Its name should de either <strong>names</strong> or <strong>#names</strong></li>
 
                 <li>Preferrably, the second column should contain the sampling dates for (all) tree leaves.
-                The name should be referred as "sampling_date" or similar. The data format should be either numerical date (YYYY.F), or
+                The column should be referred to as "sampling_date" or similar. The data format should be either numerical date (YYYY.F), or
                 the human-readable dates. In the latter case, the server will try to parse the input dates and convert them to the
                 numerical date format. If the server fails to find the dates in the second column, it will try to
                 scan the rest of the csv until it finds any suitable column, which then will
@@ -797,7 +797,7 @@ var TreeTimeForm = React.createClass({
                             <Row className="grid-treetime-row">
 
                                 <Col xs={6} md={4} className="grid-treetime-col-right">
-                                    <OverlayTrigger placement="top" overlay={csv_tooltip}>
+                                    <OverlayTrigger placement="bottom" overlay={csv_tooltip}>
                                     <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
                                             CSV <input type="file" onChange={this.uploadMetaFile} />
                                     </span>
@@ -842,16 +842,16 @@ var TreeTimeForm = React.createClass({
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
 
+                        <DoResolvePoly
+                            AppConfig={this.state.config}
+                            SetAppConfig={this.SetAppConfig}/>
+
                         <GTRmodel
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
 
 
                         <UseSlope
-                            AppConfig={this.state.config}
-                            SetAppConfig={this.SetAppConfig}/>
-
-                        <DoResolvePoly
                             AppConfig={this.state.config}
                             SetAppConfig={this.SetAppConfig}/>
 
@@ -872,9 +872,7 @@ var TreeTimeForm = React.createClass({
 
 
                 <div id="welcome_description">
-                    <p>Welcome to the TreeTime server.
-                    The description and HOWTO will appear here shortly. Please scroll down in order to
-                    run tree-time on the server.</p>
+
                 </div>
                 </div>
                 <Footer/>
