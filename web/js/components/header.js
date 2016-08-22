@@ -35,10 +35,10 @@ var Header  = React.createClass({
 
     render(){
         const navbarInstance = (
-          <Navbar inverse>
+          <Navbar inverse className="navbar-treetime">
             <Navbar.Header  className='navbar-header-treetime'>
               <Navbar.Brand>
-                <span style={{"font-size":"20pt;"}}> TreeTime: Maximum-Likelihood molecular clock phylogenies</span>
+                <span style={{"color":"white", "font-size":"20pt;"}}> TreeTime: Maximum-Likelihood molecular clock phylogenies</span>
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
