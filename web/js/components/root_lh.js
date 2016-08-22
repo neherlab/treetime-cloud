@@ -178,7 +178,7 @@ RootLhPlot._draw_points = function(el, scales, dispatcher){
     tip
       .attr("cx", function(d){return scales.x(d.x)})
       .attr("cy", function(d){return scales.y(d.y)})
-      .attr("r", this._tipRadius)
+      .attr("r", 0)//this._tipRadius)
       .style("fill", "#4D92BF")
       .on('mouseover', function(d) {
           dispatcher.emit('point:point_mouseover', d);

@@ -8,16 +8,16 @@ import Footer from './footer.js'
 var DoBuildTree = React.createClass({
     getInitialState(){
         return ({
-            checked:this.props.AppConfig.do_build_tree
+            checked:this.props.AppConfig.build_tree
         }
         );
     },
 
     handleChange(e){
-        var build = this.props.AppConfig.do_build_tree
+        var build = this.props.AppConfig.build_tree
         this.state.checked = !build;
         //console.log("Build tree Checkbox state changed to: " + this.state.checked);
-        this.props.SetAppConfig({do_build_tree: !this.props.AppConfig.do_build_tree})
+        this.props.SetAppConfig({build_tree: !this.props.AppConfig.build_tree})
     },
 
 
@@ -25,7 +25,7 @@ var DoBuildTree = React.createClass({
     render(){
         const tooltip = (
             <Tooltip id="tooltip">
-               Select to build the tree with the <strong>FastTree</strong> tool, <br/> Which implements Neighbour-Join algorithm followed by gradual Maximum-Likelihood opotimization.
+               Select to build the tree with the <strong>FastTree</strong> tool, <br/> Which implements Neighbour-Join algorithm followed by gradual Maximum-Likelihood optimization.
             </Tooltip>
         );
 
@@ -33,7 +33,7 @@ var DoBuildTree = React.createClass({
             <div>
 
               <Checkbox className="cbox-treetime" id="cbox-treetime-build_tree"
-                checked={this.props.AppConfig.do_build_tree}
+                checked={this.props.AppConfig.build_tree}
                 onChange={this.handleChange}>
                 <OverlayTrigger placement="bottom" overlay={tooltip}>
                     <div> Build tree from alignment </div>
@@ -89,7 +89,7 @@ var DoReRoot = React.createClass({
     getInitialState(){
         return (
         {
-            checked:this.props.AppConfig.reroot
+            checked:this.props.AppConfig.reroot == 'best'
         }
         );
     },
@@ -98,7 +98,7 @@ var DoReRoot = React.createClass({
         var chk = this.props.AppConfig.reroot
         this.state.checked = !chk;
         //console.log("doReRoot Checkbox state changed to: " + this.state.checked);
-        this.props.SetAppConfig({"reroot":this.state.checked});
+        this.props.SetAppConfig({reroot:this.state.checked ? 'best' : null});
     },
 
 
@@ -130,9 +130,9 @@ var GTRmodel = React.createClass({
         console.log(value.target.value)
         var val = value.target.value
         if (val == "InferFromTree"){
-            this.props.SetAppConfig({"gtr":"jukes_cantor", "infer_gtr":true})
+            this.props.SetAppConfig({"gtr":"infer"})
         }else{
-            this.props.SetAppConfig({"gtr":val, "infer_gtr":false})
+            this.props.SetAppConfig({"gtr":"Jukes_Cantor"})
         }
     },
 
@@ -312,7 +312,7 @@ var DoCoalescent = React.createClass({
         return (
         {
             Tc: this.props.AppConfig.Tc,
-            coalescent:this.props.AppConfig.coalescent
+            coalescent:this.props.AppConfig.model_coalescent
         }
         );
     },
@@ -322,10 +322,10 @@ var DoCoalescent = React.createClass({
     },
 
     handleCBChange(){
-        var  chk = this.props.AppConfig.coalescent
-        this.props.SetAppConfig({"coalescent": !chk})
+        var  chk = this.props.AppConfig.model_coalescent
+        this.props.SetAppConfig({model_coalescent: !chk})
         if (chk){
-            this.props.SetAppConfig({"Tc": 0.0})
+            this.props.SetAppConfig({Tc: 0.0})
         }
     },
 
@@ -335,7 +335,7 @@ var DoCoalescent = React.createClass({
         if (!this.validate(text)){
             text = 0.0
         }
-        this.props.SetAppConfig({"Tc":text});
+        this.props.SetAppConfig({Tc:text});
     },
 
     render(){
@@ -344,7 +344,7 @@ var DoCoalescent = React.createClass({
             <div className="config-entry" id="welcome_panel_config-div_coalescent">
 
                     <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_coalescent"
-                           checked={this.props.AppConfig.coalescent}
+                           checked={this.props.AppConfig.model_coalescent}
                            onChange={this.handleCBChange}>
 
                         Model coalescent process.
@@ -356,7 +356,7 @@ var DoCoalescent = React.createClass({
                         <span className="treetime-span-input" id="welcome_panel_config_tc" > Tc = </span>
 
                         <FormControl  type="text" className="treetime-input-number"
-                            disabled={!this.props.AppConfig.coalescent}
+                            disabled={!this.props.AppConfig.model_coalescent}
                             onChange={this.handleTextChange}
                             value={this.props.AppConfig.Tc}/>
 
@@ -375,9 +375,9 @@ var DoRelaxedClock = React.createClass({
     getInitialState(){
         return (
         {
-            relax_mu: this.props.AppConfig.relax_mu,
-            slack: this.props.AppConfig.slack,
-            coupling: this.props.AppConfig.coupling,
+            do_relaxed_clock: this.props.AppConfig.do_relaxed_clock,
+            slack: this.props.AppConfig.relax_clock.slack,
+            coupling: this.props.AppConfig.relax_clock.coupling,
         }
         );
     },
@@ -387,14 +387,14 @@ var DoRelaxedClock = React.createClass({
     },
 
     handleCBChange(){
-        var chk = this.props.AppConfig.relax_mu
+        var chk = this.props.AppConfig.do_relaxed_clock
         if (chk){
             this.props.SetAppConfig({
-                relax_mu:!chk,
+                do_relaxed_clock:!chk,
                 coupling:0.0,
                 slack:0.0})
         }else{
-            this.props.SetAppConfig({relax_mu:!chk})
+            this.props.SetAppConfig({do_relaxed_clock:!chk})
         }
     },
 
@@ -404,7 +404,13 @@ var DoRelaxedClock = React.createClass({
         if (!this.validate(text)){
             text = 0.0
         }
-        this.props.SetAppConfig({"slack":text})
+        this.setState({slack:text})
+        this.props.SetAppConfig({relax_clock:
+            {
+                slack:this.state.slack,
+                coupling:this.state.coupling
+            }
+        })
     },
 
     handleAChange(e){
@@ -413,7 +419,13 @@ var DoRelaxedClock = React.createClass({
         if (!this.validate(text)){
             text = 0.0
         }
-        this.props.SetAppConfig({"coupling":text})
+        this.setState({coupling:text})
+        this.props.SetAppConfig({relax_clock:
+            {
+                slack:this.state.slack,
+                coupling:this.state.coupling
+            }
+        })
 
     },
 
@@ -430,7 +442,7 @@ var DoRelaxedClock = React.createClass({
             <div className="config-entry"  id="welcome_panel_config-div_relaxed" >
 
                 <Checkbox className="cbox-treetime" id="welcome_panel_config-cbox_relaxed"
-                checked={this.props.AppConfig.relax_mu}
+                checked={this.props.AppConfig.do_relaxed_clock}
                 onChange={this.handleCBChange}>
                     <OverlayTrigger placement="top" overlay={tooltip}>
                     <div>Relax molecular clock</div>
@@ -443,9 +455,9 @@ var DoRelaxedClock = React.createClass({
                     Slack(&alpha;) =
                 </span>
 
-                 <FormControl className="treetime-input-number" id="welcome_panel_config-bval_relaxed"
+                 <FormControl className="treetime-input-text" id="welcome_panel_config-bval_relaxed"
                         type= "text"
-                        disabled={!this.props.AppConfig.relax_mu}
+                        disabled={!this.props.AppConfig.do_relaxed_clock}
                         onChange={this.handleBChange}
                         value={this.props.AppConfig.slack}/>
                 </div>
@@ -458,7 +470,7 @@ var DoRelaxedClock = React.createClass({
 
                     <FormControl className="treetime-input-number"
                         type= "number"
-                        disabled={!this.props.AppConfig.relax_mu}
+                        disabled={!this.props.AppConfig.do_relaxed_clock}
                         onChange={this.handleAChange}
                         value={this.props.AppConfig.coupling}/>
                 </div>
@@ -513,12 +525,13 @@ var TreeTimeForm = React.createClass({
       return {
         UID: "JHG",
         config: {
-            do_build_tree:false,
+            build_tree:false,
             reuse_branch_len:false,
-            reroot:false,
+            reroot:'best',
             use_mu:false,
-            coalescent:false,
-            relax_mu:false,
+            model_coalescent:false,
+            do_relaxed_clock:false,
+            relax_clock:{slack:1, coupling:1},
             mu:0.0
         },
         tree_file:false,
@@ -532,9 +545,9 @@ var TreeTimeForm = React.createClass({
 
     handle_run: function(){
         //console.log("APP:: RUN button pressed");
-        if ((!this.state.tree_file & !this.state.config.do_build_tree) || ! this.state.aln_file || !this.state.meta_file){
+        if ((!this.state.tree_file & !this.state.config.build_tree) || ! this.state.aln_file || !this.state.meta_file){
           var msg = "Cannot proceed with TreeTime: one or more file not loaded.\n\n"
-          if ((!this.state.tree_file & !this.state.config.do_build_tree)){
+          if ((!this.state.tree_file & !this.state.config.build_tree)){
             msg += "Phylogenetic tree file is missing.\n\n";
           }
           if (!this.state.aln_file){
@@ -583,7 +596,7 @@ var TreeTimeForm = React.createClass({
 
     uploadTreeFile :function(evt){
 
-        this.SetAppConfig({"do_build_tree":false})
+        this.SetAppConfig({"build_tree":false})
 
         if (evt.target.files.length == 0){
             console.log("Resetting treefile")
@@ -689,7 +702,7 @@ var TreeTimeForm = React.createClass({
 
     runExample : function(example){
         console.log("run example requested:  " + example)
-        this.SetAppConfig({"do_build_tree":false})
+        this.SetAppConfig({"build_tree":false})
         request.post("/" + this.state.UID + "/example")
           .set('Content-Type', 'application/json')
           .send({example:example})
@@ -710,7 +723,7 @@ var TreeTimeForm = React.createClass({
         var new_config = this.state.config
         for (var key in cfg) {
             new_config[key] = cfg[key];
-            if (key == "do_build_tree" ){
+            if (key == "build_tree" ){
                 if (cfg[key]){
                     this.setState({
                     tree_filename: "Will be built from alignment",

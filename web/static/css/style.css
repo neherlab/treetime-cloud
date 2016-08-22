@@ -1,6 +1,6 @@
 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 16px;
+  font-size: 16pt;
   text-align: center;
 }
 
@@ -35,6 +35,19 @@ h3{
 * Header definition
 * Header is present on the top of all pages of the application
 */
+
+.navbar-header-treetime {
+    float: left;
+    margin-top:10px;
+    padding: 1px;
+    text-align: center;
+    width: 100%;
+    height:90px;
+    font-size: 3.6em !important;
+
+}
+.navbar-brand {float:none;}
+
 #header{
   float:center;
   position:relative;

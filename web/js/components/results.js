@@ -171,13 +171,13 @@ var TreeLeftPane = React.createClass({
 
                 <h3>Color by: </h3>
                 <div id="results-section_tree-left_pane-select_colorscheme" >
-                <FormControl componentClass="select" placeholder="numdate_given" className="select-treetime" id="results-section_tree-left_pane-select_colorval"
+                <FormControl componentClass="select" placeholder="numdate" className="select-treetime" id="results-section_tree-left_pane-select_colorval"
                         onChange={this.scaleChanged}>
-                    <option value="numdate_given">numdate_given</option>
+                    <option value="numdate">Numdate</option>
                     <option value="N">Nucleotide</option>
                     {
                         this.props.appState.terminal_colorby.map(function(d) {
-                            if (d!="numdate_given")return <option key={d} value={d}>{d}</option>;
+                            if (d!="numdate")return <option key={d} value={d}>{d}</option>;
                         })
                     }
                 </FormControl>
@@ -234,7 +234,7 @@ var TreeLeftPane = React.createClass({
             }
             var tips = []
             PhyloTree.gatherAllNodes(this.props.root, tips)
-            var all_values = tips.map(cValFunc)
+            var all_values = tips.map(cValFunc).filter(function(d){return d;})
             console.log(all_values)
             // get all types of the metadata entries
             all_values = all_values.filter(function(d, index){return all_values.indexOf(d) == index})
@@ -744,10 +744,11 @@ var Results = React.createClass({
         })
         var merged = Array.from(new Set([].concat.apply([], all_metas)));
         this.setState({terminal_colorby:merged})
+        console.warn(merged)
 
         // create initial legend
         var cValFunc = function(d){
-            var md = d.metadata.filter(function(d){return d.name=="numdate_given"})
+            var md = d.metadata.filter(function(d){return d.name=="numdate"})
             if (md.length == 0) return null;
             return md[0].value;
         }
@@ -804,8 +805,7 @@ var Results = React.createClass({
         var UID = (parentNode.attributes.userid.value);
         this.state.UID = UID;
         d3.json("/sessions/" + this.state.UID + "/out_tree.json", this.on_root);
-        d3.json("/sessions/" + this.state.UID + "/out_tips.json", this.on_mu);
-        d3.json("/sessions/" + this.state.UID + "/out_root_lh.json", this.on_root_lh);
+        d3.json("/sessions/" + this.state.UID + "/out_likelihoods.json", this.on_root_lh);
         window.addEventListener("resize", this.setAppState);
     },
 

@@ -1,19 +1,20 @@
 config_dic = {
-    #  set the configuration parameters
-    "do_build_tree":True,
-    "reuse_branch_len":True,  # Do we trust the branch lengths of the tree given? 
-    "infer_gtr":True,  # Infer GTR model from the data given (Use default if False)?
-    "gtr":"jukes_cantor",
-    "reroot": True,  # Find the root node which maximizes the molecular clock correlation?
-    "use_mu":False,  # Should we use the mutation rate (if False, it will be inferred from the molecular clock)? 
-    "mu":None,  #  #mutations per years per position
-    "resolve_poly":True,  # Try to resolve multiple mergers
-    "coalescent": False,  # Run the coalescent model (takes care about polytomies resolution)
-    "Tc":0.00,  #  coalescent distance (%difference )
-    "relax_mu":False,  #  Relax mutation rate? 
-    "slack":0.01,  # How much we allow for variation between parents and children 
-    "coupling":0.002
-}
+    "use_mu":False,
+    "mu": 1e-3,
+    "gtr": "infer", # possible values: infer, Jukes-Cantor
+    "resolve_poly": False,
+    "build_tree": False,
+    "model_coalescent":False,
+    "Tc": 0.01, # Coalescent model Tc=0 switches the option off, otherwise use t
+                # his value as coalescence timescale
+    "reroot": "best",
+    "do_relaxed_clock" : False,
+    "relax_clock": {"slack": 0, "coupling": 0}, # slack=0 && coupling==0 switch the
+                                                # option to compute relaxed clock OFF.
+                                                # otherwise, their values are used to
+                                                # relax the molecular clock
+    "reuse_branch_len": True
+    }
 
 if __name__ == "__main__":
     pass

@@ -18,6 +18,7 @@ sys.path.append(os.path.join(dn, "static/py"))
 
 import main as main
 from tree_time_config import config_dic as TREETIME_DEFAULT_CONFIG
+from tree_time_web import TreeTimeWeb
 from tree_time_process import process as TREETIME_PROCESS
 
 def make_id():
@@ -35,21 +36,24 @@ def index_session(userid):
     if request.method == 'GET':
         cfg = StringIO.StringIO()
         json.dump(TREETIME_DEFAULT_CONFIG, cfg)
+        print (TREETIME_DEFAULT_CONFIG)
         return render_template('flask.html', UserId=userid, Config=TREETIME_DEFAULT_CONFIG)
+
     elif request.method == 'POST':
         # save settings
         root = os.path.join(sessions_root, userid)
         if not os.path.exists(root):
             os.makedirs(root)
-        
+
         if 'config' in request.get_json():
             ss = request.get_json()['config']
             with open(os.path.join(root, "config.json"), 'w') as of:
                 json.dump(ss, of, True)
 
-            app.threads[userid] = threading.Thread(target = TREETIME_PROCESS, args = (root, ss))
+            tt_web = TreeTimeWeb (root)
+            tt_web.init_session_state()
+            app.threads[userid] = threading.Thread(target = tt_web.run)
             app.threads[userid].start()
-            #app.wait_time[userid] = 1
             return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
 
         else:
@@ -57,14 +61,13 @@ def index_session(userid):
             return jsonify({'res':'error',
                 'message': 'Client-server error: server cannot find proper '
                             'config in the request'})
-        
         #return redirect('/'+userid+'/progress')
     else:
         pass
 
 @app.route('/<userid>/example', methods=['GET', 'POST'])
 def run_example(userid):
-    
+
     def copy_files(name, root):
         res = {}
         examples = os.path.join(os.path.join(dn, "examples") , name)
@@ -81,16 +84,16 @@ def run_example(userid):
 
     if request.method != 'POST':
         abort(404)
-    
+
     root = os.path.join(sessions_root, userid)
     if not os.path.exists(root):
             os.makedirs(root)
     req_data = request.get_json()
     if 'example' not in req_data:
-        abort(404)    
-    
+        abort(404)
+
     res = {}
-    
+
     if req_data['example'] == 'H3N2_NA_20':
         name = 'H3N2_NA_20'
         res = copy_files(name, root)
@@ -110,7 +113,7 @@ def progress(userid):
 
 @app.route('/<userid>/session_state', methods=['GET', 'POST'])
 def get_session_state(userid):
-    
+
     root = os.path.join (sessions_root, userid)
     inf = os.path.join(root, "session_state.json")
     if not os.path.exists(inf):
@@ -120,10 +123,10 @@ def get_session_state(userid):
         print (json_data)
     #return Response(json.dumps(json_data),  mimetype='application/json')
     return jsonify(**{"steps": json_data})
-    
+
 @app.route("/upload/<userid>/file", methods=['GET', 'POST'])
 def upload(userid):
-    
+
     folder = os.path.join(sessions_root, userid)
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -143,11 +146,11 @@ def upload(userid):
             metafile = request.files['metafile']
             metafile.save(os.path.join(folder, "in_meta.csv"))
             res['MetaFile'] = metafile.filename
-        
+
         res["UploadFile"] = "OK"
-        
+
         return jsonify(**res)
-            
+
     #return render_template('results.html', username=username)
     #return "Hello World!"
 
@@ -163,7 +166,7 @@ def send_file(userid, filename):
     #    json_data = json.load(inf)
     #print (json_data)
     #return jsonify(**json_data)
-    
+
 @app.route('/terms.html/')
 def send_terms():
     return render_template('terms.html')
@@ -172,4 +175,4 @@ if __name__ == "__main__":
     app.wait_time = {};
     app.threads = {};
     app.debug=True
-    app.run(port=3000)
+    app.run(port=4100)

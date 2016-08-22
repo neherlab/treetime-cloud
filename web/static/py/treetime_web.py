@@ -1,5 +1,10 @@
 from treetime.treetime import TreeTime
 import os, json
+from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
+import numpy as np
+from treetime import utils
+import pandas
+import zipfile
 
 available_gtrs = ['Jukes-Cantor']
 
@@ -10,6 +15,14 @@ in_aln = "in_aln.fasta"
 in_meta = "in_meta.csv"
 in_cfg = "config.json"
 
+out_tree_json = "out_tree.json"
+out_likelihoods_json = "out_likelihoods.json"
+out_tree_nwk = "out_tree.nwk"
+out_aln_fasta = "out_aln.fasta"
+out_metadata_csv = "out_metadata.csv"
+out_mol_clock_csv = 'molecular_clock.csv'
+out_gtr = "out_GTR.txt"
+zipname = 'treetime_results.zip'
 
 class TreeTimeWeb(TreeTime):
     """
@@ -26,6 +39,7 @@ class TreeTimeWeb(TreeTime):
         self._infer_gtr = True
         self._root = None
         self._mutation_rate = None
+        self._relaxed_clock = None
         self._Tc = None
 
         # set the directory, containing files for the session
@@ -34,6 +48,10 @@ class TreeTimeWeb(TreeTime):
         self._aln =  os.path.join(self._root_dir,in_aln)
         self._meta = os.path.join(self._root_dir,in_meta)
         self._cfg  = os.path.join(self._root_dir,in_cfg)
+
+        tree = Phylo.read(self._nwk, 'newick')
+        aln = AlignIO.read(self._aln, 'fasta')
+
         #  read the metadata
         dates, metadata = self._read_metadata_from_file(self._meta)
 
@@ -59,7 +77,7 @@ class TreeTimeWeb(TreeTime):
             self._infer_gtr = False
             gtr = "Jukes-Cantor"
 
-        super(TreeTime, self).__init__(dates=dates, tree=self._nwk, aln=self._aln, gtr=gtr, *args, **kwargs)
+        super(TreeTime, self).__init__(dates=dates, tree=tree, aln=aln, gtr=gtr, *args, **kwargs)
         self._init_session_state(config_dic)
         self._metadata = metadata
 
@@ -88,18 +106,22 @@ class TreeTimeWeb(TreeTime):
             session_state['todo'].append('Find better root for the input tree')
             self._root = config_dic['reroot']
 
-
-        if 'mu' in config_dic and config_dic['mu']!=0 and config_dic['mu'] is not None:
+        if 'use_mu' in config_dic and config_dic['use_mu'] == True:
             try:
                 self._mutation_rate=float(config_dic['mu'])
             except:
                 self.logger("Cannot parse mutation rate from the configuration dictionary!", 1, warn=True)
                 self._mutation_rate = None
 
+            if self._mutation_rate == 0:
+                self.logger("TreeTimeWeb got configuration 'use_mu'= True , nut the mutation rate is set to ZERO", 1, warn=True)
+                self._mutation_rate = None
+
             if self._mutation_rate is not None and self._root == 'best' :
                 self.logger("Warning! the mutation rate cannot be used together "
                     "with the tree rooting to optimize molecular clock! Setting mutation rate to None", 1, warn=True)
                 self._mutation_rate = None
+
 
         # in any case, we set the make time tree as todo
         session_state['todo'].append('Make time tree')
@@ -111,30 +133,34 @@ class TreeTimeWeb(TreeTime):
             self._resolve_polytomies = False
 
 
-        if 'coalescent' in config_dic:
-            if config_dic['coalescent'] == 0:
-                self._Tc = None
-            else:
-                try:
-                    self._Tc = float(config_dic['coalescent'])
-                    session_state['todo'].append("Model coalescent process")
-                except:
-                    self.logger("Cannot parse coalescent timescale from the config dictionary!", 1, warn=True)
+        if 'model_coalescent' in config_dic and config_dic['model_coalescent']==True:
+            try:
+                self._Tc = float(config_dic['coalescent'])
+                if self._Tc == 0:
+                    self.logger("TreeTimeWeb got configuration 'model_coalescence'= True , "
+                        "but the coalescence timescale is set to ZERO", 1, warn=True)
                     self._Tc = None
+                else:
+                    session_state['todo'].append("Model coalescent process")
+            except:
+                self.logger("Cannot parse coalescent timescale from the config dictionary!", 1, warn=True)
+                self._Tc = None
 
-
-        if 'relax_clock' in config_dic:
+        if 'do_relax_clock' in config_dic and config_dic['do_relax_clock']==True:
             try:
                 rc = config_dic['relax_clock']
                 slack, coupling = float(rc['slack']), float(rc['coupling'])
-                if slack == 0. and coupling == 0.:
+                if slack == 0 and coupling == 0:
                     self._relaxed_clock = None
-                    session_state['todo'].append('Relax molecular clock')
                 else:
                     self._relaxed_clock = (slack, coupling)
+                    session_state['todo'].append('Relax molecular clock')
             except:
                 self.logger("Cannot parse relaxed clock parameters from the config dict!", 1, warn=True)
                 self._relaxed_clock = None
+
+
+        session_state['todo'].append('Save results')
 
         self._session_state = session_state
 
@@ -162,23 +188,23 @@ class TreeTimeWeb(TreeTime):
             json.dump(self._session_state, outf)
 
     def run(self, max_iter=1):
+        self._advance_session_progress()
 
         if self._build_tree:
-            self._advance_session_progress()
             tree_builder(self._in_aln)
+            self._advance_session_progress()
 
-        self._advance_session_progress()
         self.optimize_seq_and_branch_len(infer_gtr=self._infer_gtr, prune_short=True)
+        self._advance_session_progress()
 
         if self._root is not None:
-            self._advance_session_progress()
             self.reroot(root=self._root)
+            self._advance_session_progress()
 
-        self._advance_session_progress()
         self.make_time_tree(slope=self._mutation_rate)
+        self._advance_session_progress()
 
         if self._resolve_polytomies:
-            self._advance_session_progress()
             # if polytomies are found, rerun the entire procedure
             if self.resolve_polytomies():
                 self.prepare_tree()
@@ -186,6 +212,7 @@ class TreeTimeWeb(TreeTime):
                 if self._root == 'best':
                     self.reroot(root=self._root)
                 self.make_time_tree()
+            self._advance_session_progress()
 
         # set root.gamma bc root doesn't have a branch_length_interpolator but gamma is needed
         if not hasattr(self.tree.root, 'gamma'):
@@ -193,14 +220,13 @@ class TreeTimeWeb(TreeTime):
 
         # add coalescent prior
         if self._Tc is not None:
-            self._advance_session_progress()
             from merger_models import coalescent
             self.logger('TreeTime.run: adding coalescent prior',2)
             coalescent(self.tree, Tc=self._Tc)
             self.make_time_tree()
+            self._advance_session_progress()
 
         if self._relaxed_clock  and len(self._relaxed_clock)==2:
-            self._advance_session_progress()
             slack, coupling = self._relaxed_clock
             # iteratively reconstruct ancestral sequences and re-infer
             # time tree to ensure convergence.
@@ -215,6 +241,10 @@ class TreeTimeWeb(TreeTime):
                     break
                 self.make_time_tree()
                 niter+=1
+            self._advance_session_progress()
+
+        self._save_results()
+        self._advance_session_progress()
 
     def _read_metadata_from_file(self, infile):
         """
@@ -226,8 +256,6 @@ class TreeTimeWeb(TreeTime):
         """
 
         try:
-
-            import pandas
             # read the metadata file into pandas dataframe.
             df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*')
 
@@ -281,13 +309,280 @@ class TreeTimeWeb(TreeTime):
 
             print ("Cannot read the metadata file. Exception caught")
 
+    def _save_results(self):
+
+        from Bio import Align
+        #  files to be displayed in the web interface
+        self._tree_to_json()
+        self._likelihoods_to_json()
+
+        # files to be downloaded as .zip archive
+        Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nwk), 'newick')
+        self._save_alignment()
+        self._save_metadata_to_csv()
+        self._save_molecular_clock_to_csv()
+        self._save_gtr()
+        # zip all results to one file
+        with zipfile.ZipFile(os.path.join(self._root_dir, zipname), 'w') as out_zip:
+            out_zip.write(os.path.join(self._root_dir, out_tree_nwk), arcname=out_tree_nwk)
+            out_zip.write(os.path.join(self._root_dir, out_aln_fasta), arcname=out_aln_fasta)
+            out_zip.write(os.path.join(self._root_dir, out_metadata_csv), arcname=out_metadata_csv)
+            out_zip.write(os.path.join(self._root_dir, out_tree_json), arcname=out_tree_json)
+            out_zip.write(os.path.join(self._root_dir, in_cfg), arcname=in_cfg)
+            out_zip.write(os.path.join(self._root_dir, out_mol_clock_csv), arcname=out_mol_clock_csv)
+            out_zip.write(os.path.join(self._root_dir, out_likelihoods_json), arcname=out_likelihoods_json)
+            out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
+
+    def _save_alignment(self):
+        aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence)), id=n.name, name=n.name, description="")
+            for n in self.tree.find_clades ()])
+        AlignIO.write(aln, os.path.join(self._root_dir, out_aln_fasta), "fasta")
+
+    def _save_metadata_to_csv(self):
+        meta = {node: self._node_metadata(node) for node in self.tree.find_clades()}
+        rows_dic = {key.name: {e['name'] : e['value']for e in meta[key]} for key in meta.keys()}
+        df = pandas.DataFrame(rows_dic).T
+        outf = os.path.join(self._root_dir, out_metadata_csv)
+        df.to_csv(outf)
+
+    def _save_molecular_clock_to_csv(self):
+        #save molecular clock in normal format
+        mclock = np.array([(tip.dist2root, tip.numdate_given)
+            for tip in self.tree.get_terminals()
+            if hasattr(tip, 'dist2root') and hasattr(tip, 'numdate_given')])
+        np.savetxt(os.path.join(self._root_dir, out_mol_clock_csv), mclock,
+            delimiter=',',
+            header='Distance_to_root,Sampling_date')
+
+    def _save_gtr(self):
+        with open (os.path.join(self._root_dir, out_gtr), 'w') as outf:
+            outf.write(str(self.gtr))
+
+    def _tree_to_json(self):
+        """
+        Add extra attributes to the tree, and save the tree in JSON format
+        """
+
+        def _node_to_json(node):
+            """
+            convert node data to dictionary
+            """
+
+            tree_json = {}
+            str_attr = ['clade','strain', 'date', 'muts', 'strseq']
+            num_attr = ['xvalue', 'yvalue', 'tvalue', 'numdate']
+
+            if hasattr(node, 'name'):
+                tree_json['strain'] = node.name
+                tree_json['name'] = node.name
+
+            for prop in str_attr:
+                if hasattr(node, prop):
+                    tree_json[prop] = node.__getattribute__(prop)
+            for prop in num_attr:
+                if hasattr(node, prop):
+                    try:
+                        tree_json[prop] = round(node.__getattribute__(prop),5)
+                    except:
+                        print "cannot round:", node.__getattribute__(prop), "assigned as is"
+                        tree_json[prop] = node.__getattribute__(prop)
+
+            if node.clades: # node is internal
+                tree_json["children"] = []
+                for ch in node.clades:
+                    tree_json["children"].append(_node_to_json(ch))
+
+            tree_json["metadata"] = self._node_metadata(node)
+
+            return tree_json
+
+        self._layout()
+        tree_json = _node_to_json(self.tree.root)
+
+        # save the result in the json file:
+        outf = os.path.join(self._root_dir, out_tree_json)
+        with open (outf,'w') as of:
+            json.dump(tree_json, of, indent=False)
+
+    def _layout(self):
+        """Add clade, xvalue, yvalue, mutation and trunk attributes to all nodes in tree"""
+        self.tree.root.branch_length = 0.001
+        clade = 0
+        yvalue = 0
+        for node in self.tree.find_clades(order="preorder"):
+            # set mutations
+            if node.up is not None:
+                node.muts = ', '.join([node.up.sequence[p] + str(p) + node.sequence[p]
+                    for p in np.where(node.up.sequence != node.sequence)[0]])
+
+            # set sequences
+            node.strseq = "".join(node.sequence)
+
+            # set clade No
+            node.clade = clade
+            clade += 1
+            if node.up is not None: #try:
+                # Set xValue, tValue, yValue
+                node.xvalue = node.up.xvalue + node.mutation_length
+                node.tvalue = node.numdate - self.tree.root.numdate
+            else:
+                node.xvalue = 0.0
+                node.tvalue = 0.0
+            if node.is_terminal():
+                node.yvalue = yvalue
+                yvalue += 1
+            # check numdate
+            if not hasattr(node, 'numdate'):
+                node.numdate = 0.0
+        for node in self.tree.get_nonterminals(order="postorder"):
+            node.yvalue = np.mean([x.yvalue for x in node.clades])
+
+    def _node_metadata(self, node):
+
+        meta = []
+        # if node has user-provided metadata, append it
+        if node.name in self._metadata:
+            node_meta = self._metadata[node.name]
+            meta += [{'name':k, 'value': node_meta[k]} for k in node_meta]
+
+        # append numdates to the metadata
+        if hasattr(node, 'numdate'):
+            meta.append({"name":"numdate", "value":node.numdate})
+
+        # append deviation of the branch length from average
+        meta.append({
+                "name": "Branch length stretch",
+                "value": (node.branch_length) / (node.mutation_length + 0.001)
+            })
+
+        if self._relaxed_clock:
+            # append mutation rate deviation from average
+            if hasattr(node, 'branch_length_interplator'):
+                meta.append({
+                    "name": "Relaxed mutation rate",
+                    "value": node.branch_length_interpolator.gamma
+                    })
+            else:
+                meta.append({"name": "Relaxed mutation rate", "value":1.0})
+
+        return meta
+
+    def _distribution_to_human_readable(self, dist):
+
+        if dist.is_delta:
+            date = utils.numeric_date() -  self.date2dist.get_date(dist.peak_pos)
+
+            return [date-0.5, date-1e-10, date, date + 1e-10, date + 0.5],[0,0,1.0,0,0]
+
+        peak_pos = dist.peak_pos
+        fwhm = dist.fwhm
+        raw_x = dist.x [(dist.x > peak_pos - 3*fwhm) & (dist.x < peak_pos + 3*fwhm)]
+        dates_x = utils.numeric_date() -  np.array(map(self.date2dist.get_date, raw_x))
+        y = dist.prob_relative(raw_x)
+        return dates_x, y
+
+    def _likelihoods_to_json(self):
+        """
+        Save the likelihoods fro the node positions in JSON format
+        """
+        out_dic = {}
+        for node in self.tree.find_clades():
+            x,y = self._distribution_to_human_readable(node.marginal_lh)
+            arr = [{"x":f, "y":b} for f, b in zip(x, y)]
+            out_dic[node.name] = arr
+
+        outfile = os.path.join(self._root_dir, out_likelihoods_json)
+        with open(outfile, 'w') as outf:
+            json.dump(out_dic, outf, indent=False)
+
+    def _tips_data_to_json(self):
+
+        if not hasattr(self.tree.get_terminals()[0], 'xvalue'):
+            self._layout()
+
+        arr = [
+        {
+            'name': k.name,
+            'strain':k.name,
+            'numdate_given': k.numdate_given if hasattr(k, 'numdate_given') else 0.0,
+            'numdate': k.numdate if hasattr(k, 'numdate') else 0.0,
+            'xValue': k.xvalue if hasattr(k, 'xvalue') else 0.0,
+
+        } for k in tt.tree.get_terminals()]
+
+        with open (outf,'w') as of:
+            json.dump(arr, of, indent=True)
 
 if __name__ == '__main__':
 
     import numpy as np
     import matplotlib.pyplot as plt
 
-    root_dir = '../../sessions/AFZGTFAIIOGI'
+    root_dir = '../../sessions/DDNQVDKLUHSA'
     myTree = TreeTimeWeb(root_dir, lambda x: None, verbose=4)
     myTree.run()
 
+
+
+
+
+
+
+
+#def root_lh_to_csv(tt, outf):
+#    """Save node position likelihood distribution to CSV file"""
+#    x,y = root_pos_lh_to_human_readable(tt, tt.tree.root)
+#    arr = np.zeros((x.shape[0], 2))
+#    arr[:, 0] = x[:]
+#    arr[:, 1] = y[:]
+#    np.savetxt(outf, arr, delimiter=",",header="#Numdate,Likelihood_normalized")
+#
+#
+#
+#def save_all_nodes_metadata(tt, outfile):
+#
+#    import pandas
+#    metadata = tt._metadata_names
+#    d = [[k.attr(n) for k in metadata] for n in tt.tree.find_clades()]
+#    df = pandas.DataFrame(d, index=[k.name for k in tt.tree.find_clades()], columns=[k.name for k in metadata])
+#    df.sort_index(inplace=True)
+#    df.to_csv(outfile)
+#
+#def save_timetree_results(tree, outfile_prefix):
+#    """
+#    First, it scans the tree and assigns the namesto every node with no name
+#    then, it saves the information as the csv table
+#    """
+#    import pandas
+#    df = pandas.DataFrame(columns=["Given_date", "Initial_root_dist", "Inferred_date"])
+#    aln = Align.MultipleSeqAlignment([])
+#
+#    i = 0
+#
+#    # save everything
+#    df.to_csv(outfile_prefix + ".meta.csv")
+#    #  TODO save variance to the metadata
+#    Phylo.write(tree.tree, outfile_prefix + ".tree.nwk", "newick")
+#    AlignIO.write(aln, outfile_prefix + ".aln.fasta", "fasta")
+#
+#    # save root distibution
+#    mtp = tree.tree.root.msg_to_parent
+#    threshold = mtp.y.min() + 1000
+#    idxs = [mtp.y < threshold]
+#    mtpy = mtp.y[idxs]
+#    mtpx = utils.numeric_date() -  np.array(map(tree.date2dist.get_date, mtp.x[idxs]))
+#    mtpy[0] = threshold
+#    mtpy[-1] = threshold
+#
+#    np.savetxt(outfile_prefix + ".root_dist.csv",
+#        np.hstack((mtpx[:, None], mtpy[:, None])),
+#        header="Root date,-log(LH)", delimiter=',')
+#
+#    # zip results to one file
+#    import zipfile
+#    outzip = outfile_prefix + ".zip"
+#    zipf = zipfile.ZipFile(outzip, 'w')
+#    zipf.write(outfile_prefix + ".meta.csv")
+#    zipf.write(outfile_prefix + ".aln.fasta")
+#    zipf.write(outfile_prefix + ".tree.nwk")
+#    zipf.write(outfile_prefix + ".root_dist.csv")
