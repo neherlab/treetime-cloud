@@ -7,10 +7,21 @@ var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 var getLeafNodes = function(leafNodes, obj){
         if(obj.children){
             obj.children.forEach(function(child){getLeafNodes(leafNodes,child)});
+            leafNodes.push(obj);
         } else{
             leafNodes.push(obj);
         }
 };
+
+var getInternalNodes = function(internalNodes, obj){
+
+    if(obj.children){
+        obj.children.forEach(function(child){getInternalNodes(internalNodes,child)});
+        internalNodes.push(obj);
+    }
+
+};
+
 
 var MuPlot = {};
 
@@ -39,15 +50,21 @@ MuPlot.create = function(el, props, state){
       .attr('class', 'd3_mu')
       .attr('width',  this.width)
       .attr('height', this.height);
-    
+
     this.svg.append('g')
       .attr('class', 'd3_mu_axis')
 
     this.svg.append('g')
       .attr('class', 'd3_mu_points')
 
+    this.legend = this.svg.append("g")
+      .attr("class","d3_mu_legend")
+      .attr("transform","translate(50,30)")
+      .style("font-size","12px")
+      //.call(d3.legend)
+
     var dispatcher = new EventEmitter();
-    //this.update(el, props.root, state, dispatcher);
+        //this.update(el, props.root, state, dispatcher);
     return dispatcher;
 
 };
@@ -58,14 +75,14 @@ MuPlot._set_points_from_root = function(dispatcher){
   if (!this.tree) {return ;}
   var tip_lhs = [];
   getLeafNodes(tip_lhs, this.tree);
-  
- 
   this.points = tip_lhs
       .map(function(d){
         return ({
           name: d.name,
           x: d.numdate,
-          y: d.xvalue
+          y: d.xvalue,
+          fill_color: d.children ? _internalFillColor() : _terminalFillColor(),
+          stroke_color: d.children ? _internalStrokeColor() : _terminalStrokeColor()
         });
       }).filter(function(d){
         return (
@@ -113,8 +130,8 @@ MuPlot._draw_regression = function(el, scales) {
   if (!this.regression) return;
   if (!this.points ) return;
   //console.log("MuPlot updating the molecular clock linear regression...")
-  var max_x = d3.max(this.points.map(function(d){return d.x}));
-  var min_x = d3.min(this.points.map(function(d){return d.x}));
+  var max_x = d3.max(scales.x.domain());
+  var min_x = d3.min(scales.x.domain());
 
   var max_y = this.regression.slope * max_x + this.regression.intercept
   var min_y = this.regression.slope * min_x + this.regression.intercept
@@ -127,8 +144,6 @@ MuPlot._draw_regression = function(el, scales) {
     .attr('y2', function(d){return scales.y(max_y)})
     .style("stroke", "#4D92BF")
     .style("stroke-width", '2px')
-
-  //console.log(svg);
 
 };
 
@@ -169,14 +184,16 @@ MuPlot.update = function(el, root, state, dispatcher){
 
     if(this.old_state.selected_tip != state.selected_tip){
         //console.log("MU: tip selection changed.")
-        var selected_tip = state.selected_tip
-            this.points.map(function(d){
+        var selected_tip = state.selected_tip;
+
+        this.points.map(function(d){
           if (selected_tip && d.name == selected_tip){
               d.selected = true;
           }else{
               d.selected = false;
           }
         });
+
         this._refresh_selected_tip(el);
     }
 
@@ -213,17 +230,59 @@ MuPlot._scales = function(el){
 
 MuPlot._draw_text = function(el, scales){
 
-  var g = d3.select(el).select('.d3_mu_axis').append("g")
-    .attr("class", "d3Mu_axis_coefftext");
-
   var text_x  = scales.x(0.1 * d3.max(scales.x.domain())  +  0.9 * d3.min(scales.x.domain()));
   var text_y  = scales.y(0.9 * d3.max(scales.y.domain()) - 0.1 * d3.min(scales.y.domain()));
 
-  var html = "<div> &mu; = " + this.regression.slope.toExponential(3) + "<br/> R<sup>2</sup> = " + Math.round(this.regression.r2 * 1000) / 1000 + "</div>"
-  console.log(html)
-  g.append('foreignObject')
+  var g = d3.select(el).select('.d3_mu_axis').append("g")
+    .attr("class", "d3_mu_legend")
     .attr("x", text_x)
     .attr("y", text_y)
+    .style("text-anchor", "left")
+
+  g.append("rect")
+    .attr("x", text_x-10)
+    .attr("y", text_y-10)
+    .attr("width", 150)
+    .attr("height", 85)
+    .attr("fill", "white")
+    .attr("stroke", "black")
+
+  var c1 = g.append("circle")
+    .attr("cx", text_x + 1)
+    .attr("cy", text_y + 0)
+    .attr("r", 6)
+    .attr("width", 10)
+    .attr("height", 10)
+    .style("fill", _internalFillColor)
+    .style("stroke", _internalStrokeColor)
+
+  var t1 = g.append("text")
+    .attr("x", text_x + 12)
+    .attr("y", text_y + 0)
+    .attr("dy", 6)
+    .text("Internal nodes")
+
+  g.append("circle")
+    .attr("cx", text_x + 1)
+    .attr("cy", text_y + 20)
+    .attr("r", 6)
+    .attr("width", 10)
+    .attr("height", 10)
+    .style("fill", _terminalFillColor)
+    .style("stroke", _terminalStrokeColor)
+
+  g.append("text")
+    .attr("x", text_x + 12)
+    .attr("y", text_y + 20)
+    .attr("dy", 6)
+    .text("Terminal nodes")
+
+  var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  var html = "<span> &mu; = " + this.regression.slope.toExponential(3) + " </br> R" + superscript[2] +" = " + Math.round(this.regression.r2 * 1000) / 1000 + "</span>"
+  console.log(html)
+  g.append('foreignObject')
+    .attr("x", text_x + 12)
+    .attr("y", text_y + 30)
     .attr('width', 100)
     .attr('height', 50)
     .append("xhtml:body")
@@ -234,6 +293,23 @@ MuPlot._draw_text = function(el, scales){
 MuPlot._tipRadius = function(d){
     return d.selected ? 10.0 : 6.0;
 };
+
+var _internalStrokeColor = function(){
+  return 'red';
+}
+
+var _terminalStrokeColor = function(){
+  return 'blue';
+}
+
+var _internalFillColor = function(){
+  return 'orange';
+}
+
+var _terminalFillColor = function(){
+  return 'blue';
+}
+
 
 MuPlot._draw_axis = function(el, scales){
 
@@ -246,7 +322,7 @@ MuPlot._draw_axis = function(el, scales){
          .ticks(5)
          .tickSize(-height + this.padding_top, 0, 0)
          .tickFormat(d3.format("d"))
-    
+
     var yAxis = d3.svg.axis()
         .scale(scales.y)
         .orient("left")
@@ -267,7 +343,7 @@ MuPlot._draw_axis = function(el, scales){
         .attr("y", height - this.padding_text )
         .style("text-anchor", "middle")
         .text("Sampling date");
-    
+
     svg.append("g")
         .attr("class", "d3_mu_y_axis")
         .attr("transform", "translate(" + (this.padding_left) + ",0)")
@@ -290,7 +366,6 @@ MuPlot._draw_points = function(el, scales, dispatcher){
     //console.log("MU DRAW POINTS...")
     var g = d3.select(el).selectAll('.d3_mu_points');
 
-
     var tip = g.selectAll('.d3_mu_point')
         .data(this.points);
 
@@ -305,8 +380,8 @@ MuPlot._draw_points = function(el, scales, dispatcher){
       .attr("cx", function(d){return scales.x(d.x)})
       .attr("cy", function(d){return scales.y(d.y)})
       .attr("r", this._tipRadius)
-      .style("fill", "#4D92BF")
-      .style('stroke',"blue")
+      .style("fill", function(d){return d.fill_color;})
+      .style('stroke',function(d){return d.stroke_color;})
       .style('stroke-width',"2")
 
       .on('mouseover', function(d) {
@@ -315,6 +390,10 @@ MuPlot._draw_points = function(el, scales, dispatcher){
       .on('mouseout', function(d) {
           dispatcher.emit('point:point_mouseout', d);
       })
+
+        var tip = g.selectAll('.d3_mu_point')
+        .data(this.points);
+
 };
 
 export default MuPlot;
