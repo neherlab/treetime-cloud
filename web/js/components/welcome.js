@@ -700,6 +700,10 @@ var TreeTimeForm = React.createClass({
         this.runExample("H3N2_NA_500");
     },
 
+    on_example_zika_65 : function(){
+        this.runExample("zika_65");
+    },
+
     runExample : function(example){
         console.log("run example requested:  " + example)
         this.SetAppConfig({"build_tree":false})
@@ -770,8 +774,34 @@ var TreeTimeForm = React.createClass({
 
             <div>
                 <Header/>
-                <div className="hugespacer"></div>
+
+
                 <div className="page_container">
+                <div id="welcome_description">
+                <h4>Overview</h4>
+
+                TreeTime provides routines for ancestral sequence reconstruction and the inference of molecular-clock phylogenies, i.e., a tree where all branches are scaled such that the locations of terminal nodes correspond to their sampling times and internal nodes are placed at the most likely time of divergence.
+
+TreeTime aims at being a compromise between sophisticated probabilistic models of evolution and fast heuristics. It implements GTR models of ancestral inference and branch length optimization, but takes the tree topology as given. The only topology optimization are resolution of polytomies in a way that is most (approximately) consistent with the sampling time constraints on the tree. The package is designed to be used as a stand-alone tool as well as a module plugged in a bigger phylogenetic tool.
+
+                <h4>Features</h4>
+
+<li>ancestral sequence reconstruction (marginal and joint maximum likelihood)</li>
+<li>molecular clock tree inference (marginal and joint maximum likelihood)</li>
+<li>inference of GTR models</li>
+<li>rerooting to obtain best root-to-tip regression</li>
+<li>auto-correlated relaxed molecular clock (with normal prior)</li>
+
+                <h4>Source code</h4>
+
+                To get the source code, please visit our <a href='https://github.com/neherlab/treetime'>Gihub page.</a>
+                <br/>
+                Or, use the web interface below to run TreeTime on our server.
+
+                </div>
+
+                <div className="bigspacer"/>
+
                         <Panel collapsible defaultExpanded header="Upload data" className="panel-treetime" id="welcome_panel_files">
                             <Grid id="welcome_upload_grid">
 
@@ -823,25 +853,49 @@ var TreeTimeForm = React.createClass({
                         </Panel>
 
                         <Panel collapsible defaultCollapsed header="Example datasets" className="panel-treetime" id="welcome_panel_examples">
-                            <Row>
-                            <Col xs={6} md={4} className="grid-treetime-col-right">
-                                <button className="link_button" onClick={this.on_example_H3N2_NA_20}>Influenza H3N2 NA, 20 sequences</button>
-                            </Col>
-                            <Col xs={6} md={4} className="grid-treetime-col-right">
-                            </Col>
-                            </Row>
+                            <Table striped condensed hove>
+                            <thead>
+                              <tr>
+                                <th>Specie</th>
+                                <th>Region</th>
+                                <th>Seq Len</th>
+                                <th>#Seq</th>
+                                <th>Dates range</th>
+                                <th>Load</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                              <th>Influenza H3N2</th>
+                              <th>NA</th>
+                              <th>1409</th>
+                              <th>20</th>
+                              <th>2000-2013</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.on_example_H3N2_NA_20}>Load</Button></th>
+                            </tr>
+                            <tr className="info-treetime">
+                              <th>Influenza H3N2</th>
+                              <th>NA</th>
+                              <th>1409</th>
+                              <th>500</th>
+                              <th>1968-2010</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.on_example_H3N2_NA_500}>Load</Button></th>
+                            </tr>
+                            <tr>
+                              <th>Zika</th>
+                              <th>Full genome</th>
+                              <th>10617</th>
+                              <th>65</th>
+                              <th>2013-2016</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.on_example_zika_65}>Load</Button></th>
+                            </tr>
+                            </tbody>
+                            </Table>
 
-                            <Row>
-
-                            <Col xs={6} md={4} className="grid-treetime-col-right">
-                                <button className="link_button" onClick={this.on_example_H3N2_NA_500}>Influenza H3N2 NA, 500 sequences</button>
-                            </Col>
-
-                            <Col xs={6} md={4} className="grid-treetime-col-right">
-                            </Col>
-
-                            </Row>
                         </Panel>
+
+
+
 
                     <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
 

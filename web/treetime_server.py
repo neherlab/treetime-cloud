@@ -98,6 +98,9 @@ def run_example(userid):
     elif req_data['example'] == 'H3N2_NA_500':
         name = 'H3N2_NA_500'
         res = copy_files(name, root)
+    elif req_data['example'] == 'zika_65':
+        name = 'zika_65'
+        res = copy_files(name, root)
     else:
         abort(404)
 

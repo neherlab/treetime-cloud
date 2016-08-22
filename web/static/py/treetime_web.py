@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+from __future__ import  print_function
 from treetime.treetime import TreeTime
 import os, json
 from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
@@ -29,6 +29,7 @@ out_mol_clock_csv = 'molecular_clock.csv'
 out_gtr = "out_GTR.txt"
 zipname = 'treetime_results.zip'
 
+bug_detector = False
 
 def build_tree(root):
 
@@ -124,7 +125,7 @@ class TreeTimeWeb(TreeTime):
             "error" : "", #  no errors so far
             "todo" : [],
             "done" : [],
-            "progress":""
+            "progress":"Initialize TreeTime objects"
             }
 
         # Do we need to build the tree?
@@ -308,9 +309,13 @@ class TreeTimeWeb(TreeTime):
             self._advance_session_progress()
 
         except Exception as e:
+
             s = str(e)
             self._session_error("Exception caught in the treetime computations. "
                 " Exception description: " + s)
+
+            if bug_detector:
+                raise
 
     def _read_metadata_from_file(self, infile):
         """
@@ -362,8 +367,9 @@ class TreeTimeWeb(TreeTime):
                 # NOTE as the 0th column is the index, we should parse the dates
                 # for the column idx + 1
                 df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', parse_dates=[1+idx])
-
                 dates = {k: utils.numeric_date(df.loc[k, name]) for k in df.index}
+
+                df.loc[:, name] = map(lambda x: str(x.date()), df.loc[:, name])
 
             else:
                 print ("Metadata file has no column which looks like a sampling date!")
@@ -608,8 +614,8 @@ if __name__ == '__main__':
 
     import numpy as np
     import matplotlib.pyplot as plt
-
-    root_dir = '../../sessions/YVGFQBWREHHH'
+    bug_detector = True
+    root_dir = '../../sessions/QONLLTYIBRTW'
     myTree = TreeTimeWeb(root_dir, verbose=4)
     myTree.run()
 
