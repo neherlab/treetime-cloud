@@ -329,11 +329,6 @@ PhyloTree._update_node_colors = function(state){
         }
     });
 
-
-
-    var  _drawVirusToolTip = this._drawVirusToolTip
-    var _hideVirusToolTip = this._hideVirusToolTip
-
     var g = d3.selectAll('.d3-tips');
     var tip = g.selectAll('.d3-tip')
     tip
@@ -384,8 +379,6 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
 
 
     if (typeof this.vis_tips == 'undefined' || this.vis_tips.length < 2) return;
-    var  _drawVirusToolTip = this._drawVirusToolTip
-    var _hideVirusToolTip = this._hideVirusToolTip
     var xpos = this._x_pos;
     var ypos = this._y_pos;
 

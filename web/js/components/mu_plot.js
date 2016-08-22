@@ -1,8 +1,19 @@
 var EventEmitter = require('events').EventEmitter;
 var d3 = require('d3');
+var d3tip = require('d3-tip');
 var Globals = require('./globals.js')
 var ANIMATION_DURATION = Globals.ANIMATION_DURATION;
 
+
+var nodeTooltip = d3tip()
+  .direction('n')
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d){
+    var string = "";
+    string += "<h4>" + d.name +"</h4>";
+    return string;
+  });
 
 var getLeafNodes = function(leafNodes, obj){
         if(obj.children){
@@ -21,6 +32,22 @@ var getInternalNodes = function(internalNodes, obj){
     }
 
 };
+
+var _internalStrokeColor = function(){
+  return '#bc5a45';
+}
+
+var _terminalStrokeColor = function(){
+  return '#034f84';
+}
+
+var _internalFillColor = function(){
+  return "#f18973"
+}
+
+var _terminalFillColor = function(){
+  return '#92a8d1';
+}
 
 
 var MuPlot = {};
@@ -62,6 +89,8 @@ MuPlot.create = function(el, props, state){
       .attr("transform","translate(50,30)")
       .style("font-size","12px")
       //.call(d3.legend)
+
+    this.svg.call(nodeTooltip);
 
     var dispatcher = new EventEmitter();
         //this.update(el, props.root, state, dispatcher);
@@ -294,22 +323,6 @@ MuPlot._tipRadius = function(d){
     return d.selected ? 10.0 : 6.0;
 };
 
-var _internalStrokeColor = function(){
-  return 'red';
-}
-
-var _terminalStrokeColor = function(){
-  return 'blue';
-}
-
-var _internalFillColor = function(){
-  return 'orange';
-}
-
-var _terminalFillColor = function(){
-  return 'blue';
-}
-
 
 MuPlot._draw_axis = function(el, scales){
 
@@ -382,12 +395,15 @@ MuPlot._draw_points = function(el, scales, dispatcher){
       .attr("r", this._tipRadius)
       .style("fill", function(d){return d.fill_color;})
       .style('stroke',function(d){return d.stroke_color;})
-      .style('stroke-width',"2")
+      .style('stroke-width',"1")
 
       .on('mouseover', function(d) {
+          console.log(nodeTooltip)
+          nodeTooltip.show(d);
           dispatcher.emit('point:point_mouseover', d);
       })
       .on('mouseout', function(d) {
+          nodeTooltip.hide();
           dispatcher.emit('point:point_mouseout', d);
       })
 
