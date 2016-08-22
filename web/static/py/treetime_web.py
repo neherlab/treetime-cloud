@@ -37,7 +37,7 @@ def build_tree(root):
     tree_filename = os.path.join(root, "in_tree.nwk")
     call = [os.path.join(myDir, 'fasttree'),
             '-nt','-quiet', aln_filename, ' > ', tree_filename]
-    os.system(' '.join(call))
+    return os.system(' '.join(call))
 
 class TreeTimeWeb(TreeTime):
     """
@@ -78,21 +78,44 @@ class TreeTimeWeb(TreeTime):
         # # save this as dictionary to session_state.json file (used to update
         # web browser state)
         self._init_session_state(config_dic)
+        #  build tree if necessary
 
         #  build tree if necessary
         if self._build_tree:
-            self.logger ("Building phylogenetic tree...", 1)
-            build_tree(self._root_dir)
-            self._advance_session_progress()
 
-        tree = Phylo.read(self._nwk, 'newick')
-        aln = AlignIO.read(self._aln, 'fasta')
-        #  read the metadata
-        dates, metadata = self._read_metadata_from_file(self._meta)
-        super(TreeTime, self).__init__(dates=dates, tree=tree, aln=aln,
-            gtr=self._gtr, *args, **kwargs)
+            try:
+                self.logger ("Building phylogenetic tree...", 1)
+                self._advance_session_progress()
+                res = build_tree(self._root_dir)
+                if (res != 0):
+                    raise RuntimeError("Error in tree builder FastTree. The method returned: " + str(res))
+
+            except Exception as e:
+                s = str(e)
+                self._session_error("Error occurred when building phylogenetic tree."
+                    " Exception description: " + s)
+                raise
+
+        try:
+
+            tree = Phylo.read(self._nwk, 'newick')
+            aln = AlignIO.read(self._aln, 'fasta')
+            #  read the metadata
+            dates, metadata = self._read_metadata_from_file(self._meta)
+            super(TreeTime, self).__init__(dates=dates, tree=tree, aln=aln,
+                gtr=self._gtr, *args, **kwargs)
+
+        except Exception as e:
+            s = str(e)
+            self._session_error("Error in TreeTime object initialization. "
+                " Exception description: " + s)
+            raise
 
         self._metadata = metadata
+
+    def _session_error(self, err):
+        self._session_state['error'] = err
+        self._save_session_state()
 
     def _init_session_state(self, config_dic):
 
@@ -226,60 +249,68 @@ class TreeTimeWeb(TreeTime):
             json.dump(self._session_state, outf)
 
     def run(self, max_iter=1):
-        self._advance_session_progress()
 
-        self.optimize_seq_and_branch_len(infer_gtr=self._infer_gtr, prune_short=True)
-        self._advance_session_progress()
+        try:
 
-        if self._root is not None:
-            self.reroot(root=self._root)
             self._advance_session_progress()
 
-        self.make_time_tree(slope=self._mutation_rate)
-        self._advance_session_progress()
+            self.optimize_seq_and_branch_len(infer_gtr=self._infer_gtr, prune_short=True)
+            self._advance_session_progress()
 
-        if self._resolve_polytomies:
-            # if polytomies are found, rerun the entire procedure
-            if self.resolve_polytomies():
-                self.prepare_tree()
-                self.optimize_seq_and_branch_len(prune_short=False)
-                if self._root == 'best':
-                    self.reroot(root=self._root)
+            if self._root is not None:
+                self.reroot(root=self._root)
+                self._advance_session_progress()
+
+            self.make_time_tree(slope=self._mutation_rate)
+            self._advance_session_progress()
+
+            if self._resolve_polytomies:
+                # if polytomies are found, rerun the entire procedure
+                if self.resolve_polytomies():
+                    self.prepare_tree()
+                    self.optimize_seq_and_branch_len(prune_short=False)
+                    if self._root == 'best':
+                        self.reroot(root=self._root)
+                    self.make_time_tree()
+                self._advance_session_progress()
+
+            # set root.gamma bc root doesn't have a branch_length_interpolator but gamma is needed
+            if not hasattr(self.tree.root, 'gamma'):
+                self.tree.root.gamma = 1.0
+
+            # add coalescent prior
+            if self._Tc is not None:
+                from merger_models import coalescent
+                self.logger('TreeTime.run: adding coalescent prior',2)
+                coalescent(self.tree, Tc=self._Tc)
                 self.make_time_tree()
+                self._advance_session_progress()
+
+            if self._relaxed_clock  and len(self._relaxed_clock)==2:
+                import ipdb; ipdb.set_trace()
+                slack, coupling = self._relaxed_clock
+                # iteratively reconstruct ancestral sequences and re-infer
+                # time tree to ensure convergence.
+                niter = 0
+                while niter<max_iter:
+                    # estimate a relaxed molecular clock
+                    self.relaxed_clock(slack=slack, coupling=coupling)
+
+                    ndiff = self.reconstruct_anc('ml')
+                    if ndiff==0:
+                        break
+                    self.make_time_tree()
+                    niter+=1
+
+                self._advance_session_progress()
+
+            self._save_results()
             self._advance_session_progress()
 
-        # set root.gamma bc root doesn't have a branch_length_interpolator but gamma is needed
-        if not hasattr(self.tree.root, 'gamma'):
-            self.tree.root.gamma = 1.0
-
-        # add coalescent prior
-        if self._Tc is not None:
-            from merger_models import coalescent
-            self.logger('TreeTime.run: adding coalescent prior',2)
-            coalescent(self.tree, Tc=self._Tc)
-            self.make_time_tree()
-            self._advance_session_progress()
-
-        if self._relaxed_clock  and len(self._relaxed_clock)==2:
-            import ipdb; ipdb.set_trace()
-            slack, coupling = self._relaxed_clock
-            # iteratively reconstruct ancestral sequences and re-infer
-            # time tree to ensure convergence.
-            niter = 0
-            while niter<max_iter:
-                # estimate a relaxed molecular clock
-                self.relaxed_clock(slack=slack, coupling=coupling)
-
-                ndiff = self.reconstruct_anc('ml')
-                if ndiff==0:
-                    break
-                self.make_time_tree()
-                niter+=1
-
-            self._advance_session_progress()
-
-        self._save_results()
-        self._advance_session_progress()
+        except Exception as e:
+            s = str(e)
+            self._session_error("Exception caught in the treetime computations. "
+                " Exception description: " + s)
 
     def _read_metadata_from_file(self, infile):
         """
@@ -548,7 +579,6 @@ class TreeTimeWeb(TreeTime):
         with open (outf,'w') as of:
             json.dump(arr, of, indent=True)
 
-
     def logger(self, msg, level, warn=False):
         """
         @brief      Overriding the basic logger functionality to enable possibility to
@@ -569,6 +599,10 @@ class TreeTimeWeb(TreeTime):
             outstr+=msg
             with open(self._log_file, 'a') as logf:
                 print(outstr,file=logf)
+
+def run(root):
+    tt_web = TreeTimeWeb (root)
+    tt_web.run()
 
 if __name__ == '__main__':
 
