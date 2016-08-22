@@ -6,6 +6,8 @@ from treetime import utils
 import pandas
 import zipfile
 
+myDir = os.path.dirname(os.path.abspath(__file__))
+
 available_gtrs = ['Jukes-Cantor']
 
 # file names, uniform across the sessions
@@ -24,6 +26,16 @@ out_mol_clock_csv = 'molecular_clock.csv'
 out_gtr = "out_GTR.txt"
 zipname = 'treetime_results.zip'
 
+
+def build_tree(root):
+
+
+    aln_filename = os.path.join(root, "in_aln.fasta")
+    tree_filename = os.path.join(root, "in_tree.nwk")
+    call = [os.path.join(myDir, 'fasttree'),
+            '-nt','-quiet', aln_filename, ' > ', tree_filename]
+    os.system(' '.join(call))
+
 class TreeTimeWeb(TreeTime):
     """
     TreeTime class extension to be used with web interface.
@@ -32,7 +44,7 @@ class TreeTimeWeb(TreeTime):
 
     """
 
-    def __init__(self, root_dir, tree_builder, *args,**kwargs):
+    def __init__(self, root_dir, *args,**kwargs):
 
         # set the default configurations
         self._build_tree = False
@@ -44,41 +56,33 @@ class TreeTimeWeb(TreeTime):
 
         # set the directory, containing files for the session
         self._root_dir = root_dir
-        self._nwk =  os.path.join(self._root_dir,in_tree)
-        self._aln =  os.path.join(self._root_dir,in_aln)
-        self._meta = os.path.join(self._root_dir,in_meta)
-        self._cfg  = os.path.join(self._root_dir,in_cfg)
-
-        tree = Phylo.read(self._nwk, 'newick')
-        aln = AlignIO.read(self._aln, 'fasta')
-
-        #  read the metadata
-        dates, metadata = self._read_metadata_from_file(self._meta)
+        self._nwk =  os.path.join(self._root_dir, in_tree)
+        self._aln =  os.path.join(self._root_dir, in_aln)
+        self._meta = os.path.join(self._root_dir, in_meta)
+        self._cfg  = os.path.join(self._root_dir, in_cfg)
 
         # read the JSON configuration file
         with open(self._cfg) as ff:
             config_dic = json.load(ff)
 
-        if 'gtr' in config_dic:
-            if config_dic['gtr'] == 'infer':
-                self._infer_gtr = True
-                gtr = "Jukes-Cantor"
-            elif config_dic['gtr'] in available_gtrs:
-                self._infer_gtr = False
-                gtr = config_dic['gtr']
-            else:
-                # NOTE cannot use the logger class before the super.__init__ is called
-                # therefore, just use plain print
-                print ("Configuration contains unknown GTR type. Ignoring, will use Jukes-Cantor.")
-                self._infer_gtr = False
-                gtr = "Jukes-Cantor"
-        else:
-            print ("Configuration has no gtr model set. Will use default (Jukes-Cantor)")
-            self._infer_gtr = False
-            gtr = "Jukes-Cantor"
-
-        super(TreeTime, self).__init__(dates=dates, tree=tree, aln=aln, gtr=gtr, *args, **kwargs)
+        # Compose the list of steps to perform,
+        # # save this as dictionary to session_state.json file (used to update
+        # web browser state)
         self._init_session_state(config_dic)
+
+        #  build tree if necessary
+        if self._build_tree:
+            print ("Building phylogenetic tree...")
+            build_tree(self._root_dir)
+            self._advance_session_progress()
+
+        tree = Phylo.read(self._nwk, 'newick')
+        aln = AlignIO.read(self._aln, 'fasta')
+        #  read the metadata
+        dates, metadata = self._read_metadata_from_file(self._meta)
+        super(TreeTime, self).__init__(dates=dates, tree=tree, aln=aln,
+            gtr=self._gtr, *args, **kwargs)
+
         self._metadata = metadata
 
     def _init_session_state(self, config_dic):
@@ -91,17 +95,39 @@ class TreeTimeWeb(TreeTime):
             "progress":""
             }
 
+        # Do we need to build the tree?
         if 'build_tree' in config_dic and config_dic['build_tree']:
             session_state['todo'].append('Build phylogenetic tree')
             self._build_tree = True
 
 
-        if self._infer_gtr: # the GTR configuration has been read in the __init__
-            session_state['todo'].append('Reconstruct ancestral states, infer evolutionary model')
+        # set the GTR model
+        if 'gtr' in config_dic:
+            if config_dic['gtr'] == 'infer':
+                self._infer_gtr = True
+                self._gtr = "Jukes-Cantor"
+                session_state['todo'].append('Reconstruct ancestral states, infer evolutionary model')
+
+            elif config_dic['gtr'] in available_gtrs:
+                self._infer_gtr = False
+                self._gtr = config_dic['gtr']
+                session_state['todo'].append('Reconstruct ancestral states')
+
+            else:
+                # NOTE cannot use the logger class before the super.__init__ is called
+                # therefore, just use plain print
+                print ("Configuration contains unknown GTR type. Ignoring, will use Jukes-Cantor.")
+                self._infer_gtr = False
+                self._gtr = "Jukes-Cantor"
+                session_state['todo'].append('Reconstruct ancestral states')
+
         else:
+            print ("Configuration has no gtr model set. Will use default (Jukes-Cantor)")
+            self._infer_gtr = False
+            self._gtr = "Jukes-Cantor"
             session_state['todo'].append('Reconstruct ancestral states')
 
-
+        # Find best root
         if 'reroot' in config_dic and 'reroot' is not None:
             session_state['todo'].append('Find better root for the input tree')
             self._root = config_dic['reroot']
@@ -126,13 +152,14 @@ class TreeTimeWeb(TreeTime):
         # in any case, we set the make time tree as todo
         session_state['todo'].append('Make time tree')
 
+        # Resolve polytomies
         if 'resolve_poly' in config_dic and config_dic['resolve_poly']:
             self._resolve_polytomies = True
             session_state['todo'].append("Resolve multiple mergers")
         else:
             self._resolve_polytomies = False
 
-
+        # Model coalescent process
         if 'model_coalescent' in config_dic and config_dic['model_coalescent']==True:
             try:
                 self._Tc = float(config_dic['coalescent'])
@@ -146,6 +173,7 @@ class TreeTimeWeb(TreeTime):
                 self.logger("Cannot parse coalescent timescale from the config dictionary!", 1, warn=True)
                 self._Tc = None
 
+        # Relax molecular clock
         if 'do_relax_clock' in config_dic and config_dic['do_relax_clock']==True:
             try:
                 rc = config_dic['relax_clock']
@@ -163,6 +191,7 @@ class TreeTimeWeb(TreeTime):
         session_state['todo'].append('Save results')
 
         self._session_state = session_state
+        self._save_session_state()
 
     def _advance_session_progress(self):
 
@@ -189,10 +218,6 @@ class TreeTimeWeb(TreeTime):
 
     def run(self, max_iter=1):
         self._advance_session_progress()
-
-        if self._build_tree:
-            tree_builder(self._in_aln)
-            self._advance_session_progress()
 
         self.optimize_seq_and_branch_len(infer_gtr=self._infer_gtr, prune_short=True)
         self._advance_session_progress()
@@ -227,20 +252,21 @@ class TreeTimeWeb(TreeTime):
             self._advance_session_progress()
 
         if self._relaxed_clock  and len(self._relaxed_clock)==2:
+            import ipdb; ipdb.set_trace()
             slack, coupling = self._relaxed_clock
             # iteratively reconstruct ancestral sequences and re-infer
             # time tree to ensure convergence.
             niter = 0
             while niter<max_iter:
-                if self._relaxed_clock:
-                    # estimate a relaxed molecular clock
-                    self.relaxed_clock(slack=slack, coupling=coupling)
+                # estimate a relaxed molecular clock
+                self.relaxed_clock(slack=slack, coupling=coupling)
 
                 ndiff = self.reconstruct_anc('ml')
                 if ndiff==0:
                     break
                 self.make_time_tree()
                 niter+=1
+
             self._advance_session_progress()
 
         self._save_results()
@@ -518,71 +544,7 @@ if __name__ == '__main__':
     import numpy as np
     import matplotlib.pyplot as plt
 
-    root_dir = '../../sessions/DDNQVDKLUHSA'
-    myTree = TreeTimeWeb(root_dir, lambda x: None, verbose=4)
+    root_dir = '../../sessions/YVGFQBWREHHH'
+    myTree = TreeTimeWeb(root_dir, verbose=4)
     myTree.run()
 
-
-
-
-
-
-
-
-#def root_lh_to_csv(tt, outf):
-#    """Save node position likelihood distribution to CSV file"""
-#    x,y = root_pos_lh_to_human_readable(tt, tt.tree.root)
-#    arr = np.zeros((x.shape[0], 2))
-#    arr[:, 0] = x[:]
-#    arr[:, 1] = y[:]
-#    np.savetxt(outf, arr, delimiter=",",header="#Numdate,Likelihood_normalized")
-#
-#
-#
-#def save_all_nodes_metadata(tt, outfile):
-#
-#    import pandas
-#    metadata = tt._metadata_names
-#    d = [[k.attr(n) for k in metadata] for n in tt.tree.find_clades()]
-#    df = pandas.DataFrame(d, index=[k.name for k in tt.tree.find_clades()], columns=[k.name for k in metadata])
-#    df.sort_index(inplace=True)
-#    df.to_csv(outfile)
-#
-#def save_timetree_results(tree, outfile_prefix):
-#    """
-#    First, it scans the tree and assigns the namesto every node with no name
-#    then, it saves the information as the csv table
-#    """
-#    import pandas
-#    df = pandas.DataFrame(columns=["Given_date", "Initial_root_dist", "Inferred_date"])
-#    aln = Align.MultipleSeqAlignment([])
-#
-#    i = 0
-#
-#    # save everything
-#    df.to_csv(outfile_prefix + ".meta.csv")
-#    #  TODO save variance to the metadata
-#    Phylo.write(tree.tree, outfile_prefix + ".tree.nwk", "newick")
-#    AlignIO.write(aln, outfile_prefix + ".aln.fasta", "fasta")
-#
-#    # save root distibution
-#    mtp = tree.tree.root.msg_to_parent
-#    threshold = mtp.y.min() + 1000
-#    idxs = [mtp.y < threshold]
-#    mtpy = mtp.y[idxs]
-#    mtpx = utils.numeric_date() -  np.array(map(tree.date2dist.get_date, mtp.x[idxs]))
-#    mtpy[0] = threshold
-#    mtpy[-1] = threshold
-#
-#    np.savetxt(outfile_prefix + ".root_dist.csv",
-#        np.hstack((mtpx[:, None], mtpy[:, None])),
-#        header="Root date,-log(LH)", delimiter=',')
-#
-#    # zip results to one file
-#    import zipfile
-#    outzip = outfile_prefix + ".zip"
-#    zipf = zipfile.ZipFile(outzip, 'w')
-#    zipf.write(outfile_prefix + ".meta.csv")
-#    zipf.write(outfile_prefix + ".aln.fasta")
-#    zipf.write(outfile_prefix + ".tree.nwk")
-#    zipf.write(outfile_prefix + ".root_dist.csv")

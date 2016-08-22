@@ -18,7 +18,7 @@ sys.path.append(os.path.join(dn, "static/py"))
 
 import main as main
 from tree_time_config import config_dic as TREETIME_DEFAULT_CONFIG
-from tree_time_web import TreeTimeWeb
+from treetime_web import TreeTimeWeb
 from tree_time_process import process as TREETIME_PROCESS
 
 def make_id():
@@ -51,7 +51,6 @@ def index_session(userid):
                 json.dump(ss, of, True)
 
             tt_web = TreeTimeWeb (root)
-            tt_web.init_session_state()
             app.threads[userid] = threading.Thread(target = tt_web.run)
             app.threads[userid].start()
             return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
