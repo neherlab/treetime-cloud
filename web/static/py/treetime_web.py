@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 from treetime.treetime import TreeTime
 import os, json
 from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
@@ -5,6 +6,7 @@ import numpy as np
 from treetime import utils
 import pandas
 import zipfile
+import time
 
 myDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,6 +19,7 @@ in_aln = "in_aln.fasta"
 in_meta = "in_meta.csv"
 in_cfg = "config.json"
 
+log_filename = "log.txt"
 out_tree_json = "out_tree.json"
 out_likelihoods_json = "out_likelihoods.json"
 out_tree_nwk = "out_tree.nwk"
@@ -61,6 +64,12 @@ class TreeTimeWeb(TreeTime):
         self._meta = os.path.join(self._root_dir, in_meta)
         self._cfg  = os.path.join(self._root_dir, in_cfg)
 
+        # some parameters for the logger function should be set explicitly,
+        # because we might need them before super.__init__(...) is called
+        self.verbose = 5
+        self.t_start = time.time()
+        self._log_file = os.path.join(self._root_dir, log_filename)
+
         # read the JSON configuration file
         with open(self._cfg) as ff:
             config_dic = json.load(ff)
@@ -72,7 +81,7 @@ class TreeTimeWeb(TreeTime):
 
         #  build tree if necessary
         if self._build_tree:
-            print ("Building phylogenetic tree...")
+            self.logger ("Building phylogenetic tree...", 1)
             build_tree(self._root_dir)
             self._advance_session_progress()
 
@@ -410,7 +419,7 @@ class TreeTimeWeb(TreeTime):
                     try:
                         tree_json[prop] = round(node.__getattribute__(prop),5)
                     except:
-                        print "cannot round:", node.__getattribute__(prop), "assigned as is"
+                        self.logger("cannot round:", node.__getattribute__(prop), "assigned as is", 1, warn=True)
                         tree_json[prop] = node.__getattribute__(prop)
 
             if node.clades: # node is internal
@@ -538,6 +547,28 @@ class TreeTimeWeb(TreeTime):
 
         with open (outf,'w') as of:
             json.dump(arr, of, indent=True)
+
+
+    def logger(self, msg, level, warn=False):
+        """
+        @brief      Overriding the basic logger functionality to enable possibility to
+                    redirect the output to the file
+
+        @param      self   The object
+        @param      msg    The message
+        @param      level  The verbosity level (1-highest, 10-lowest)
+        @param      warn   Warning flag. If set to True, the message will be printed
+                            regardless the verbosity with Warn mark
+
+        """
+        if level<self.verbose or warn:
+            dt = time.time() - self.t_start
+            outstr = '\n' if level<2 else ''
+            outstr+= format(dt, '4.2f')+'\t'
+            outstr+= level*'-'
+            outstr+=msg
+            with open(self._log_file, 'a') as logf:
+                print(outstr,file=logf)
 
 if __name__ == '__main__':
 
