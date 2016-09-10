@@ -249,13 +249,14 @@ class TreeTimeWeb(TreeTime):
         with open(os.path.join(self._root_dir, session_state_file), 'w') as outf:
             json.dump(self._session_state, outf)
 
-    def run(self, max_iter=1):
+    def run(self, max_iter=2, sample_from_profile='root'):
 
         try:
 
             self._advance_session_progress()
 
-            self.optimize_seq_and_branch_len(infer_gtr=self._infer_gtr, prune_short=True)
+            self.optimize_seq_and_branch_len(infer_gtr=self._infer_gtr,
+                sample_from_profile='root', prune_short=True)
             self._advance_session_progress()
 
             if self._root is not None:
@@ -267,9 +268,10 @@ class TreeTimeWeb(TreeTime):
 
             if self._resolve_polytomies:
                 # if polytomies are found, rerun the entire procedure
-                if self.resolve_polytomies():
+                n_resolved = self.resolve_polytomies()
+                if n_resolved:
                     self.prepare_tree()
-                    self.optimize_seq_and_branch_len(prune_short=False)
+                    self.optimize_seq_and_branch_len(prune_short=False, sample_from_profile='root')
                     if self._root == 'best':
                         self.reroot(root=self._root)
                     self.make_time_tree()
@@ -297,7 +299,7 @@ class TreeTimeWeb(TreeTime):
                     # estimate a relaxed molecular clock
                     self.relaxed_clock(slack=slack, coupling=coupling)
 
-                    ndiff = self.reconstruct_anc('ml')
+                    ndiff = self.reconstruct_anc('ml', sample_from_profile='root')
                     if ndiff==0:
                         break
                     self.make_time_tree()
