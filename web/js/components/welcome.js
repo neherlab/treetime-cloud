@@ -25,7 +25,8 @@ var DoBuildTree = React.createClass({
     render(){
         const tooltip = (
             <Tooltip id="tooltip">
-               Select to build the tree with the <strong>FastTree</strong> tool, <br/> Which implements Neighbour-Join algorithm followed by gradual Maximum-Likelihood optimization.
+               Select to build a tree using <strong>FastTree</strong>.
+               If more sophisticated methods are needed, provide your own tree.
             </Tooltip>
         );
 
@@ -105,8 +106,7 @@ var DoReRoot = React.createClass({
     render(){
         const tooltip = (
             <Tooltip id="tooltip">
-                Attempt to find the root position in the tree, which maximizes the
-                correlation coefficient of the molecular clock regression.
+                Re-root tree to optimal root-to-tip regression.
             </Tooltip>
         );
         return (
@@ -246,7 +246,7 @@ var UseSlope = React.createClass({
 
         const tooltip = (
             <Tooltip id="tooltip">
-                Use the mutation rate value, assessed elsewhere.
+                Use fixed mutation rate instead of inferred clock rate.
             </Tooltip>
         );
 
@@ -257,7 +257,7 @@ var UseSlope = React.createClass({
                     onChange={this.handleCBChange}>
 
                     <OverlayTrigger placement="top" overlay={tooltip}>
-                        <div>Mutation rate (&mu;) =</div>
+                        <div>Fix the mutation rate. &mu; =</div>
                     </OverlayTrigger>
 
               </Checkbox>
@@ -299,7 +299,7 @@ var DoResolvePoly = React.createClass({
                <Checkbox className="cbox-treetime"
                 checked={this.props.AppConfig.resolve_poly}
                 onChange={this.handleChange}>
-                    Resolve polytomies
+                    Resolve polytomies using temporal constraints
                 </Checkbox>
             </div>
         );
@@ -347,13 +347,13 @@ var DoCoalescent = React.createClass({
                            checked={this.props.AppConfig.model_coalescent}
                            onChange={this.handleCBChange}>
 
-                        Model coalescent process.
+                        Use coalescent prior. T<sub>c</sub> =
 
                     </Checkbox>
 
                     <div id="div-block">
 
-                        <span className="treetime-span-input" id="welcome_panel_config_tc" > Tc = </span>
+                        <span className="treetime-span-input" id="welcome_panel_config_tc" >  </span>
 
                         <FormControl  type="text" className="treetime-input-number"
                             disabled={!this.props.AppConfig.model_coalescent}
@@ -452,7 +452,7 @@ var DoRelaxedClock = React.createClass({
                 <div className="div-block">
 
                 <span className="treetime-span-input" id="welcome_panel_config-beta_relaxed">
-                    Slack(&alpha;) =
+                    Slack: &alpha; =
                 </span>
 
                  <FormControl className="treetime-input-text" id="welcome_panel_config-bval_relaxed"
@@ -465,7 +465,7 @@ var DoRelaxedClock = React.createClass({
                 <div className="div-block">
 
                     <span className="treetime-span-input">
-                        Coupling(&beta;) =
+                        Coupling: &beta; =
                     </span>
 
                     <FormControl className="treetime-input-number"
@@ -749,22 +749,45 @@ var TreeTimeForm = React.createClass({
         //console.log(this.state.settings)
         const csv_tooltip = (
             <Tooltip className="csv_tooltip">
-                Upload comma-separated file with additional metadata to run  TreeTime.
-                The format of the file should be as folows:
-                <li>The first row of the file contains the <strong>names</strong> of the columns. All other rows only contain data</li>
 
-                <li>The first colunm of the file hsould contain the <strong>names</strong> of the tips/sequences.
-                Its name should de either <strong>names</strong> or <strong>#names</strong></li>
+                Upload comma-separated file with sampling dates and additional metadata.
+                The format of the file should be as follows:
 
-                <li>Preferrably, the second column should contain the sampling dates for (all) tree leaves.
-                The column should be referred to as "sampling_date" or similar. The data format should be either numerical date (YYYY.F), or
-                the human-readable dates. In the latter case, the server will try to parse the input dates and convert them to the
-                numerical date format. If the server fails to find the dates in the second column, it will try to
-                scan the rest of the csv until it finds any suitable column, which then will
-                be treated as the sampling dates.</li>
+                    <div className='spacer'/>
 
-                <li>The other columns may contain arbuitrary data of any format and have arbitrary names. The server will try
-                to parse the data and show it in the results section.</li>
+                    <table>
+                    <tr>
+                        <th>
+                        name,date,location,...
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>
+                        A/Oregon/15/2009,2009.4,Oregon,... <br/>
+                        A/New_York/182/2000,2000.1,New_York,...
+                        </td>
+                    </tr>
+                    </table>
+
+                    <div className='spacer'/>
+
+
+                <ul className="scriptFont">
+                <li>A single header row with column names is required. "name" and "date" are required fields.</li>
+
+                <li>The first column should contain the <strong>name</strong> of the sequences.</li>
+
+                <li>The first column with "date" in the name is used as tip dates.
+                Admissible formats are: (i) numeric date as "2015.7", (ii) date string, e.g. "YYYY-MM-DD".
+                </li>
+
+                <li>Other columns may contain arbitrary data of any format and have arbitrary names.
+                The server will try to parse these columns and show it in the results section.</li>
+                </ul>
+
+
+
+
 
             </Tooltip>
         );
@@ -778,25 +801,18 @@ var TreeTimeForm = React.createClass({
 
                 <div className="page_container">
                 <div id="welcome_description">
-                <h4>Overview</h4>
-
-                TreeTime provides routines for ancestral sequence reconstruction and the inference of molecular-clock phylogenies, i.e., a tree where all branches are scaled such that the locations of terminal nodes correspond to their sampling times and internal nodes are placed at the most likely time of divergence.
-
-TreeTime aims at being a compromise between sophisticated probabilistic models of evolution and fast heuristics. It implements GTR models of ancestral inference and branch length optimization, but takes the tree topology as given. The only topology optimization are resolution of polytomies in a way that is most (approximately) consistent with the sampling time constraints on the tree. The package is designed to be used as a stand-alone tool as well as a module plugged in a bigger phylogenetic tool.
 
                 <h4>Features</h4>
+                    <ul>
+                        <li>Ancestral sequence reconstruction</li>
+                        <li>Molecular clock tree inference</li>
+                        <li>Inference of GTR models</li>
+                        <li>Rerooting to obtain best root-to-tip regression</li>
+                        <li>Auto-correlated relaxed molecular clock (with normal prior)</li>
+                    </ul>
 
-<li>ancestral sequence reconstruction (marginal and joint maximum likelihood)</li>
-<li>molecular clock tree inference (marginal and joint maximum likelihood)</li>
-<li>inference of GTR models</li>
-<li>rerooting to obtain best root-to-tip regression</li>
-<li>auto-correlated relaxed molecular clock (with normal prior)</li>
+                TreeTime source code is available on <a href='https://github.com/neherlab/treetime'>Github</a>.
 
-                <h4>Source code</h4>
-
-                To get the source code, please visit our <a href='https://github.com/neherlab/treetime'>Gihub page.</a>
-                <br/>
-                Or, use the web interface below to run TreeTime on our server.
 
                 </div>
 
@@ -899,10 +915,6 @@ TreeTime aims at being a compromise between sophisticated probabilistic models o
 
                     <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
 
-
-                        <ShouldReuseBranchLength
-                            AppConfig={this.state.config}
-                            SetAppConfig={this.SetAppConfig}/>
 
 
                         <DoReRoot

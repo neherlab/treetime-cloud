@@ -183,12 +183,12 @@ class TreeTimeWeb(TreeTime):
 
 
         # in any case, we set the make time tree as todo
-        session_state['todo'].append('Make time tree')
+        session_state['todo'].append('Make time-tree')
 
         # Resolve polytomies
         if 'resolve_poly' in config_dic and config_dic['resolve_poly']:
             self._resolve_polytomies = True
-            session_state['todo'].append("Resolve multiple mergers")
+            session_state['todo'].append("Resolve polytomies")
         else:
             self._resolve_polytomies = False
 
@@ -263,7 +263,7 @@ class TreeTimeWeb(TreeTime):
                 self.reroot(root=self._root)
                 self._advance_session_progress()
 
-            self.make_time_tree(slope=self._mutation_rate)
+            self.make_time_tree(slope=None)
             self._advance_session_progress()
 
             if self._resolve_polytomies:
@@ -272,8 +272,7 @@ class TreeTimeWeb(TreeTime):
                 if n_resolved:
                     self.prepare_tree()
                     self.optimize_seq_and_branch_len(prune_short=False, sample_from_profile='root')
-                    if self._root == 'best':
-                        self.reroot(root=self._root)
+
                     self.make_time_tree()
                 self._advance_session_progress()
 
@@ -617,7 +616,7 @@ if __name__ == '__main__':
     import numpy as np
     import matplotlib.pyplot as plt
     bug_detector = True
-    root_dir = '../../sessions/QONLLTYIBRTW'
+    root_dir = '../../sessions/HHVODNIVLHZL'
     myTree = TreeTimeWeb(root_dir, verbose=4)
     myTree.run()
 

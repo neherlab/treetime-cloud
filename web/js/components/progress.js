@@ -247,7 +247,7 @@ var Body = React.createClass({
         var render_step = this.render_step
         return (
             <div className="page_container">
-                <Banner/>
+
                 <div className="bigspacer"></div>
                 <Panel header="Progress...">
                 {(this.props.appState.done).map(function(d){

@@ -158,7 +158,9 @@ Footer definition (bottom for all pages of the application) **/
   max-width: 1100px;
   padding-left: 50px;
 }
-
+.scriptFont{
+  font-size:10pt;
+}
 .page_wide{
   width:100%;
   float:center;
