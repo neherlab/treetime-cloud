@@ -24,7 +24,9 @@ if __name__ == "__main__":
         os.mkdir(work_dir)
     fname_format = "H3N2_HA_1980_2015_NA_{}_{}.nwk".format(N_leaves, filename_suffix)
     filename = os.path.join(work_dir, fname_format)
-    tree = analysis.subtree_with_same_root(treename, N_leaves, filename)
+
+    #  Sample subtree
+    tree = analysis.subtree_year_vol(treename, N_leaves, filename)
 
     failed = []
     try:

@@ -7,6 +7,8 @@ import datetime
 import os, copy
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
+from collections import Counter
+
 plt.ion()
 plt.show()
 
@@ -115,6 +117,39 @@ def subtree_with_same_root(tree, Nleaves, outfile):
 
     Phylo.write(treecopy, outfile, 'newick')
     return treecopy
+
+def subtree_year_vol(tree, N_per_year, outfile):
+
+    if isinstance(tree, str):
+        treecopy = Phylo.read(tree, 'newick')
+    else:
+        treecopy = copy.deepcopy(tree)
+
+    remove_polytomies(treecopy)
+
+    dates = dates_from_flu_tree(treecopy)
+    sample = []
+
+    cntr = Counter(map (int, dates.values()))
+    years = cntr.keys()
+    for year in years:
+        all_names = [k for k in dates if int(dates[k]) == year]
+        if len(all_names) <= N_per_year:
+            sample += all_names
+        else:
+            sample += list(np.random.choice(all_names, size=N_per_year))
+
+
+    for leaf in treecopy.get_terminals():
+        if leaf.name not in sample:
+            treecopy.prune(leaf)
+        else:
+            pass
+            #print ("leaving leaf {} in the tree".format(leaf.name))
+
+    Phylo.write(treecopy, outfile, 'newick')
+    return treecopy
+
 
 def dates_from_flu_tree(tree):
 

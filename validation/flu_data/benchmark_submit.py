@@ -7,7 +7,8 @@ if __name__ =="__main__":
 
     work_dir = "./subtrees"
 
-    N_leaves_array = [20, 50, 100, 150, 200, 250, 500, 1000, 1500, 2000, 3000, 4000, 5000]
+    # leaves per year
+    N_leaves_array = [1, 2, 3, 5, 10, 20, 30, 50, 100, 200] #[20, 50, 100, 150, 200, 250, 500, 1000, 1500, 2000, 3000, 4000, 5000]
     treename = "./H3N2_HA_1980_2015_NA.nwk"
     res_file = "H3N2_HA_1980_2015_RES_treetime.csv"
     lsd_res_file = "H3N2_HA_1980_2015_RES_lsd.csv"
