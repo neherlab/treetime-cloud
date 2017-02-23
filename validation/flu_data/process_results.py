@@ -52,7 +52,6 @@ if __name__ == "__main__":
         Runtime_mean_tt.append((N, tt_df[Nidx_tt]["Runtime"].mean()))
         Runtime_err_tt .append((N, tt_df[Nidx_tt]["Runtime"].std()))
 
-
         Nidx_lsd = lsd_df["N"] == N
         Tmrca_mean_lsd.append((N, lsd_df[Nidx_lsd]["Tmrca_sim"].mean()))
         Tmrca_err_lsd.append((N, lsd_df[Nidx_lsd]["Tmrca_sim"].std()))
