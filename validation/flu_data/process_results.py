@@ -83,8 +83,8 @@ if __name__ == "__main__":
     plt.grid()
     plt.legend()
     plt.ylabel("Tmrca")
-    plt.title("Estimated Tmrca as function of sample size\nInitial sample size: 5500")
-    plt.xlabel("Sample size")
+    plt.title("Estimated Tmrca as function of sample size")
+    plt.xlabel("Sample size, MAX # sequences per year")
 
 
     plt.figure()
@@ -93,8 +93,8 @@ if __name__ == "__main__":
     plt.grid()
     plt.legend()
     plt.ylabel("Mutation rate")
-    plt.title("Estimated Mutation rate as function of sample size\nInitial sample size: 5500")
-    plt.xlabel("Sample size")
+    plt.title("Estimated Mutation rate as function of sample size")
+    plt.xlabel("Sample size, MAX # sequences per year")
 
 
     plt.figure()
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.ylabel("Runtime, arb.u.")
     plt.title("Estimated Runtime as function of sample size")
-    plt.xlabel("Sample size")
+    plt.xlabel("Sample size, MAX # sequences per year")
 
 
 
