@@ -2,6 +2,8 @@ import pandas
 import numpy as np
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
+import os, sys
+import shutil
 plt.ion()
 
 def read_lsd_dataset(fname):
@@ -20,6 +22,10 @@ def read_treetime_dataset(fname):
 
 
 if __name__ == "__main__":
+
+
+    suffix = sys.argv[1]
+
 
     tt_df = read_treetime_dataset('./H3N2_HA_1980_2015_RES_treetime.csv')
     lsd_df = read_lsd_dataset('./H3N2_HA_1980_2015_RES_lsd.csv')
@@ -83,8 +89,11 @@ if __name__ == "__main__":
     plt.grid()
     plt.legend()
     plt.ylabel("Tmrca")
-    plt.title("Estimated Tmrca as function of sample size")
-    plt.xlabel("Sample size, MAX # sequences per year")
+    plt.title("Estimated Tmrca as function of sample size\nLSD params: -{}".format(suffix))
+    plt.xlabel("Tree size, #sequences")
+    plt.xscale("log")
+    plt.savefig("./figs/Tmrca_LSD_{}.svg".format(suffix))
+    plt.savefig("./figs/Tmrca_LSD_{}.jpg".format(suffix))
 
 
     plt.figure()
@@ -93,8 +102,12 @@ if __name__ == "__main__":
     plt.grid()
     plt.legend()
     plt.ylabel("Mutation rate")
-    plt.title("Estimated Mutation rate as function of sample size")
-    plt.xlabel("Sample size, MAX # sequences per year")
+    plt.title("Estimated Mutation rate as function of sample size\nLSD params: -{}".format(suffix))
+    plt.xlabel("Tree size, #sequences")
+    plt.xscale("log")
+    plt.savefig("./figs/Mu_LSD_{}.svg".format(suffix))
+    plt.savefig("./figs/Mu_LSD_{}.jpg".format(suffix))
+
 
 
     plt.figure()
@@ -105,6 +118,10 @@ if __name__ == "__main__":
     plt.ylabel("Runtime, arb.u.")
     plt.title("Estimated Runtime as function of sample size")
     plt.xlabel("Sample size, MAX # sequences per year")
+
+
+    ft  = "./LSD/H3N2_HA_1980_2015_NA_20_23.txt.newick"
+    shutil.copyfile(ft, "./figs/tree_LSD_{}.nwk".format(suffix))
 
 
 

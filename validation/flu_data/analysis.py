@@ -76,7 +76,7 @@ def remove_polytomies(tree):
 
     return tree
 
-def subtree_with_same_root(tree, Nleaves, outfile):
+def subtree_with_same_root(tree, Nleaves, outfile, optimize=False):
 
     if isinstance(tree, str):
         treecopy = Phylo.read(tree, 'newick')
@@ -132,12 +132,13 @@ def subtree_year_vol(tree, N_per_year, outfile):
 
     cntr = Counter(map (int, dates.values()))
     years = cntr.keys()
+    min_year = np.min(years)
     for year in years:
         all_names = [k for k in dates if int(dates[k]) == year]
-        if len(all_names) <= N_per_year:
+        if len(all_names) <= N_per_year or year == min_year:
             sample += all_names
         else:
-            sample += list(np.random.choice(all_names, size=N_per_year))
+            sample += list(np.random.choice(all_names, size=N_per_year, replace=False))
 
 
     for leaf in treecopy.get_terminals():
