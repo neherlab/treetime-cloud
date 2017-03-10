@@ -37,11 +37,12 @@ if __name__ == "__main__":
         myTree = treetime.TreeTime(gtr='Jukes-Cantor',
             tree=tree, aln=aln_name, dates=dates,
             debug=False, verbose=4)
-        myTree.infer_ancestral_sequences(method='fitch')
-        myTree.optimize_branch_len()
+
+        myTree.optimize_seq_and_branch_len(self,reuse_branch_len=True, prune_short=True, max_iter=5, infer_gtr=False)
+
         start = datetime.datetime.now()
         #
-        myTree.run(root='best', relaxed_clock=False, max_iter=1, resolve_polytomies=False, do_marginal=False)
+        myTree.run(root='best', relaxed_clock=False, max_iter=1, resolve_polytomies=True, do_marginal=False)
         #
         end = datetime.datetime.now()
         with open(res_file, 'a') as of:
@@ -66,6 +67,7 @@ if __name__ == "__main__":
         os.mkdir(lsd_outdir)
 
     lsd_outfile = os.path.join(lsd_outdir, fname_format.replace(".nwk", ".txt"))
+    lsd_tree = filename.replace(".nwk", ".opt.nwk")
     datesfile = os.path.join(lsd_outdir, fname_format.replace(".nwk", ".lsd_dates.txt"))
     analysis.LSD_dates_file_from_tree(filename, datesfile)
     #import ipdb; ipdb.set_trace()

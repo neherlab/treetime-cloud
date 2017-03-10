@@ -13,13 +13,14 @@ The examples of the dataset generation can be found in a separate file.
 
 from __future__ import print_function, division
 
-from Bio import Phylo, Seq, SeqRecord, Align, AlignIO
+from Bio import Phylo, Align, AlignIO
 import os, sys
+import xml.etree.ElementTree as XML
 import subprocess
 import numpy as np
 import treetime
 from scipy.stats import linregress
-
+import StringIO
 FFPOPSIM_BIN = "/ebio/ag-neher/share/users/psagulenko/Programming/FFPopSim/FFpopSim_exe/FFpopSim_exe" #"/home/psagulenko/PHD/prog/FFpopSim-QT/build-FFpopSim-Desktop-Debug/FFpopSim"
 FAST_TREE_BIN = "/ebio/ag-neher/share/users/psagulenko/programs/fast_tree/fasttree" #"/home/psagulenko/PHD/programs/fast_tree/fasttree"
 LSD_BIN = "/ebio/ag-neher/share/users/psagulenko/programs/LSD/lsd"
@@ -122,7 +123,7 @@ def _ffpopsim_tree_aln_postprocess(basename, optimize_branch_len=False, prefix='
         if clade.name is None:
             continue
         if t_counter[clade] > 1 :
-            name_suffix += t_counter[clade]
+            name_suffix = t_counter[clade]
             clade.name += "/"+str(name_suffix)
             t_counter[clade] -= 1
 
@@ -207,11 +208,11 @@ def reconstruct_fasttree(basename, optimize_branch_len=False):
         #import treetime
         ffpopsim_treefile = basename + ".nwk"
         treefile = basename + ".ft.nwk"
-        alnfile = basename + ".nuc.fasta"
+        #alnfile = basename + ".nuc.fasta"
         tree = Phylo.read(treefile, 'newick')
         tree = _remove_polytomies(tree)
         tree.ladderize()
-        Tmrca,dates = _dates_from_ffpopsim_tree(ffpopsim_treefile)
+        Tmrca,dates = dates_from_ffpopsim_tree(ffpopsim_treefile)
         tree.root.name = "FFPOPsim_Tmrca_DATE_" + str(Tmrca)
         return tree
         ## optimize branch lengths (mainly, to remove the fasttree zero-lengths artefacts)
@@ -232,7 +233,7 @@ def reconstruct_fasttree(basename, optimize_branch_len=False):
     os.remove(outfile)
     Phylo.write(tree, outfile, 'newick')
 
-def _dates_from_ffpopsim_tree(t):
+def dates_from_ffpopsim_tree(t):
     """
     Args:
      - t: tree filename or BioPyhton tree object
@@ -292,7 +293,7 @@ def _create_date_file_from_ffpopsim_tree(treefile, datesfile):
     Read dates of the terminal nodes in the simulated tree, and save them into the
     dates file in LSD format
     """
-    Tmrca, dates = _dates_from_ffpopsim_tree(treefile)
+    Tmrca, dates = dates_from_ffpopsim_tree(treefile)
     with open(datesfile, 'w') as df:
         df.write(str(len(dates)) + "\n")
         df.write("\n".join([str(k) + "\t" + str(dates[k]) for k in dates]))
@@ -322,7 +323,7 @@ def run_treetime(basename, outfile, fasttree=False, failed=None):
         else:
             treefile = basename + ".opt.nwk"
         aln = basename+'.nuc.fasta'
-        Tmrca, dates = _dates_from_ffpopsim_tree(Phylo.read(treefile, "newick"))
+        Tmrca, dates = dates_from_ffpopsim_tree(Phylo.read(treefile, "newick"))
         myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = treefile,
             aln = aln, verbose = 4, dates = dates, debug=False)
         if not fasttree:
@@ -358,10 +359,8 @@ def evolve_seq(treefile, basename, mu=0.0001, L=1000, mygtr = treetime.GTR.stand
      - mygtr: GTR model for sequence evolution
 
     """
-    from treetime import TreeAnc, GTR
     from treetime import seq_utils
     from Bio import Phylo, AlignIO
-    from StringIO import StringIO
     import numpy as np
     from itertools import izip
 
@@ -405,6 +404,222 @@ def evolve_seq(treefile, basename, mu=0.0001, L=1000, mygtr = treetime.GTR.stand
     AlignIO.write(full_aln, basename+'.aln.ev_full.fasta', 'fasta')
 
     return aln, full_aln, mu_real
+
+
+def create_beast_xml(tree, aln, dates, log_file, template_file='../beast/template.xml'):
+
+    def _set_taxa_dates(xml_root, tree, dates):
+
+        def _create_taxon(name, date):
+
+            """
+            create XML structure, which holds taxon info: id, date, etc
+            Args:
+
+             - date: numeric date (e.g. 2013.7243) as float or string
+
+             - name: name of the sequence/tree leaf. The name should match exactly
+
+            Returns:
+             - xml_taxon: Taxon data as XML structure ready to be plugged to the BEAST xml
+            """
+
+            xml_date = XML.Element("date")
+            xml_date.attrib = {"value": str(date), "direction" : "forward", "units":"years"}
+
+            xml_taxon = XML.Element('taxon')
+            xml_taxon.attrib = {"id" : name}
+            xml_taxon.append(xml_date)
+
+            return xml_taxon
+
+        xml_taxa = xml_root.find('taxa')
+        for leaf in tree.get_terminals():
+            name = leaf.name
+            if name not in dates:
+                continue
+            date = dates[name]
+            xml_taxa.append(_create_taxon(name, date))
+
+
+    def _set_aln(xml_root, aln, tree=None):
+        xml_aln = xml_root.find('alignment')
+
+        if tree is not None:
+            leaf_names = [k.name for k in tree.get_terminals()]
+        else:
+            leaf_names = None
+
+        for seq in aln:
+            if leaf_names is not None and seq.name not in leaf_names:
+                continue
+
+            xml_taxon = XML.Element("taxon")
+            xml_taxon.attrib = {"idref" : seq.name}
+
+            xml_seq = XML.Element("sequence")
+            xml_seq.append(xml_taxon)
+            xml_seq.text = str(seq.seq)
+
+            xml_aln.append(xml_seq)
+
+    def _set_newick(xml_root, tree):
+        xml_nwk = xml_root.find('newick')
+        st_io = StringIO.StringIO()
+        Phylo.write(tree, st_io, 'newick')
+        xml_nwk.text = st_io.getvalue()
+
+    def _set_log_output(xml_root, log_file):
+
+        xml_filelog = XML.Element("log")
+
+        xml_filelog.attrib = {"id" : "filelog",
+                "fileName" : log_file + ".log.xml",
+                "overwrite" : "true",
+                "logEvery": "1000"}
+
+        posterior = XML.Element("posterior")
+        posterior.attrib = {"idref" : "posterior"}
+        xml_filelog.append(posterior)
+
+        prior = XML.Element("prior")
+        prior.attrib = {"idref" : "prior"}
+        xml_filelog.append(prior)
+
+        likelihood = XML.Element("likelihood")
+        likelihood.attrib = {"idref" : "likelihood"}
+        xml_filelog.append(likelihood)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "treeModel.rootHeight"}
+        xml_filelog.append(parameter)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "constant.popSize"}
+        xml_filelog.append(parameter)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "kappa"}
+        xml_filelog.append(parameter)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "frequencies"}
+        xml_filelog.append(parameter)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "alpha"}
+        xml_filelog.append(parameter)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "ucld.mean"}
+        xml_filelog.append(parameter)
+
+        parameter = XML.Element("parameter")
+        parameter.attrib = {"idref" : "ucld.stdev"}
+        xml_filelog.append(parameter)
+
+        rateStatistic = XML.Element("rateStatistic")
+        rateStatistic.attrib = {"idref" : "meanRate"}
+        xml_filelog.append(rateStatistic)
+
+        rateStatistic = XML.Element("rateStatistic")
+        rateStatistic.attrib = {"idref" : "coefficientOfVariation"}
+        xml_filelog.append(rateStatistic)
+
+        rateCovarianceStatistic = XML.Element("rateCovarianceStatistic")
+        rateCovarianceStatistic.attrib = {"idref" : "covariance"}
+        xml_filelog.append(rateCovarianceStatistic)
+
+        treeLikelihood = XML.Element("treeLikelihood")
+        treeLikelihood.attrib = {"idref" : "treeLikelihood"}
+        xml_filelog.append(treeLikelihood)
+
+        coalescentLikelihood = XML.Element("coalescentLikelihood")
+        coalescentLikelihood.attrib = {"idref" : "coalescent"}
+        xml_filelog.append(coalescentLikelihood)
+
+        tmrcaStatistic = XML.Element("tmrcaStatistic")
+        tmrcaStatistic.attrib = {"idref" : "Tmrca_stat"}
+        xml_filelog.append(tmrcaStatistic)
+
+        xml_root.append(xml_filelog)
+
+        xml_logtree = XML.Element("logTree")
+        xml_logtree.attrib = {"id" : "treeFileLog",
+                    "logEvery" : "10000",
+                    "nexusFormat" : "true",
+                    "fileName" : log_file + ".trees.txt",
+                    "sortTranslationTable": "true"}
+
+
+        treeModel = XML.Element("treeModel")
+        treeModel.attrib = {"idref" : "treeModel"}
+        xml_logtree.append(treeModel)
+
+        posterior = XML.Element("posterior")
+        posterior.attrib = {"idref" : "posterior"}
+        xml_logtree.append(posterior)
+
+        discretizedBranchRates = XML.Element("discretizedBranchRates")
+        discretizedBranchRates.attrib = {"idref" :"branchRates"}
+        trait = XML.Element("trait")
+        trait.attrib = {"name" : "rate",
+                        "tag" : "rate"}
+        trait.append(discretizedBranchRates)
+        xml_logtree.append(trait)
+
+        xml_root.append(xml_logtree)
+
+        return
+
+    # prepare input data
+    if isinstance(tree, str):
+        tree = Phylo.read(tree, 'newick')
+
+    if isinstance(aln, str):
+        aln = AlignIO.read(aln, 'fasta')
+
+    # read template
+    xml = XML.parse(template_file)
+    xml_root = xml.getroot()
+
+    # set data to the template
+    _set_taxa_dates(xml_root, tree, dates)
+    _set_aln(xml_root, aln, tree)
+    _set_newick(xml_root, tree)
+
+    _set_log_output(xml_root.find("mcmc"), log_file)
+
+    return xml
+
+def run_beast(subtree_file, out_dir, aln="./H3N2_HA_1980_2015_NA.fasta"):
+
+    assert(subtree_file.endswith('.opt.nwk'))
+    BEAST_BIN = "/ebio/ag-neher/share/programs/bundles/BEASTv1.8.4/lib/beast.jar"
+
+    print ("Running beast for tree: " + subtree_file)
+
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+
+    basename = subtree_file[:-8]
+    out_basename = os.path.join(out_dir, os.path.split(basename)[-1])
+
+    tt = Phylo.read(subtree_file, 'newick')
+    alnfile = basename + '.nuc.fasta'
+    aln = AlignIO.read(alnfile, 'fasta')
+    Tmrca,dates = dates_from_ffpopsim_tree(tt)
+
+    #import ipdb; ipdb.set_trace();
+    config = create_beast_xml(tt, aln, dates, out_basename)
+
+    config_name = out_basename + ".config.xml"
+    print (out_basename, config_name)
+    config.write(config_name)
+
+    call = ["java", "-jar", BEAST_BIN, "-beagle_off", "-overwrite",  config_name]
+    subprocess.call(call)
 
 if __name__=="__main__":
 

@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as mplcm
 import matplotlib.colors as colors
-
+import os
 import pandas
+import generate_dataset as gds
+from Bio import Phylo
 
 def read_treetime_results_file(fname):
     """
@@ -17,9 +19,7 @@ def read_treetime_results_file(fname):
     """
 
     columns = ['File', 'Sim_Tmrca', 'Tmrca', 'mu', 'R', 'R2_int']
-
     df = pandas.read_csv(fname, names=columns)
-    df = df[len(df["File"]) > 10]
 
     #filter obviously failed simulations
     df = df[[len(str(k)) > 10 for k in df.File]]
@@ -129,6 +129,53 @@ def plot_mutation_rate_distributions(df, TN_min=3, TN_max=10, plot_title=""):
     ax.set_title(plot_title)
     plt.legend()
 
+def data_stat_tt_lsd(df, TN_min=3, TN_max=10, mean_or_median='mean'):
+
+    DF = df[ (df['T']/df['N'] > TN_min) & (df['T']/df['N'] < TN_max) ]
+
+    MUS = np.unique(DF.Nmu)
+    MUS_idxs = np.ones(MUS.shape, dtype=bool)
+
+    mu_mean = []
+    mu_err = []
+    tmrca_mean = []
+    tmrca_err = []
+
+    for idx,MU  in enumerate(MUS):
+        idxs = DF.Nmu == MU
+        if idxs.sum() == 0:
+            MUS_idxs[idx] = False
+            continue
+
+        dMu = (DF.Sim_mu[idxs] - DF.mu[idxs])/DF.Sim_mu[idxs]
+        if mean_or_median == "mean":
+            mu_mean.append(np.mean(dMu))
+            mu_err.append(np.std(dMu))
+        else:
+            q75, q25 = np.percentile(dMu, [75 ,25])
+            mu_err.append((q75 - q25)) #np.std(DF.dTmrca[idxs])
+            mu_mean.append(np.median(dMu))
+
+        dTmrca = DF.dTmrca[idxs]/DF.N[idxs]
+        if mean_or_median == "mean":
+            tmrca_mean.append(np.mean(dTmrca))
+            tmrca_err.append(np.std(dTmrca))
+        else:
+            q75, q25 = np.percentile(dTmrca, [75 ,25])
+            tmrca_err.append((q75 - q25)) #np.std(DF.dTmrca[idxs])
+            tmrca_mean.append(np.median(dTmrca))
+
+    res = pandas.DataFrame({
+        "Nmu" : MUS[MUS_idxs],
+        "dMu_mean" : mu_mean,
+        "dMu_err" : mu_err,
+        "dTmrca_mean" : tmrca_mean,
+        "dTmrca_err" : tmrca_err,
+        })
+    res = res.sort_values(by='Nmu')
+    return res
+
+
 def plot_mutation_rate_comparison(treetime, lsd,
                         treetime_fasttree=None, lsd_fasttree=None,
                         TN_min=3, TN_max=10,
@@ -157,6 +204,7 @@ def plot_mutation_rate_comparison(treetime, lsd,
         mu_means = np.zeros((len(MUS), 2))
 
         for idx,MU  in enumerate(MUS):
+
             idxs = DF.Nmu == MU
             print (MU, np.sum(idxs))
             if idxs.sum() == 0:
@@ -208,24 +256,174 @@ def plot_mutation_rate_comparison(treetime, lsd,
     plt.legend()
     plt.grid()
 
+def read_beast_log(logfile, nearest_leaf_date):
+    df = pandas.read_csv(logfile, delimiter='\t', skiprows=3)
+    df['Tmrca_stat']  = nearest_leaf_date  - df['Tmrca_stat']
+    if df.shape[0] < 500 :
+        return None
+    else:
+        return df.iloc[-200:]
+
+
+def beast_logs_stat(logsdir='./beast_out_cluster', treedir='./accuracy_5'):
+
+    File = []
+    LH_mean = []
+    LH_err = []
+    Tmrca = []
+    Tmrca_mean = []
+    Tmrca_err = []
+    dTmrca = []
+    Mu = []
+    Mu_mean = []
+    Mu_err = []
+    N = []
+    T = []
+    Nmu = []
+
+
+    logsfiles = [k for k in os.listdir(logsdir) if k.endswith('.log.xml')]
+
+    for log in logsfiles:
+
+        treename = os.path.split(log)[-1][:-8] + '.nwk'
+        treepath = os.path.join(treedir, treename)
+        logpath = os.path.join(logsdir, log)
+        Tmrca_,dates = gds.dates_from_ffpopsim_tree(treepath)
+        df = read_beast_log(logpath, np.max(dates.values()))
+        if df is None:
+            continue
+
+        if df.shape[0] < 200 :
+            continue
+
+        File.append(treename[:-4])
+
+        LH_mean.append(df['likelihood'].mean())
+        LH_err.append(df['likelihood'].std())
+
+        Mu.append(float(treename.split("/")[-1].split('_')[6][2:]))
+        Mu_mean.append( (df['meanRate'].mean() - Mu[-1] ) / Mu[-1] )
+        Mu_err.append(df['meanRate'].std() / Mu[-1] )
+
+        Tmrca.append(Tmrca_)
+        Tmrca_mean.append(df['Tmrca_stat'].mean())
+        Tmrca_err.append(df['Tmrca_stat'].std())
+        dTmrca.append((df['Tmrca_stat'].mean() - Tmrca_) / Tmrca_)
+
+        N.append( int(treename.split('_')[2][1:]) )
+
+        Nmu.append( N[-1] * Mu[-1])
+        print (Mu[-1], N[-1], File[-1], Nmu[-1])
+        T.append(int(treename.split('_')[4][2:]) * int(treename.split('_')[3][2:]))
+
+
+
+
+    res = pandas.DataFrame({
+            "File" : File,
+            "LH_mean" : LH_mean,
+            "LH_err" : LH_err,
+            "Tmrca" : Tmrca,
+            "dTmrca_mean" : Tmrca_mean,
+            "dTmrca_err" : Tmrca_err,
+            "Tmrca" : dTmrca,
+            "Mu" : Mu,
+            "dMu_mean" : Mu_mean,
+            "dMu_err" : Mu_err,
+            "N" : N,
+            "T" : T,
+            "Nmu" : Nmu,
+        })
+
+    res = res.sort_values(by='Nmu')
+
+    return res
+
+def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=None):
+
+    if what == 'Mu':
+        mean = 'dMu_mean'
+        err = 'dMu_err'
+        title = "Mutation rate deviation"
+        ylabel = "Relative mutation rate error $\Delta\mu / \mu$'"
+
+    elif what == 'Tmrca':
+        mean = 'dTmrca_mean'
+        err = 'dTmrca_err'
+        title = "Accuracy of Tmrca prediction"
+        ylabel = "Relative deviation of Tmrca $\Delta Tmrca / N$'"
+
+    if beast is not None:
+        Nmus = beast["Nmu"].unique()
+        Ms = []
+        Nmus = Nmus[( Nmus < 1e-2 + 1e-5 )]
+        for Nmu in Nmus:
+            Ms.append(beast[beast["Nmu"] == Nmu]["Nmu"].mean())
+        axes.plot( Nmus, Ms, 'o-', c = 'r', label='BEAST', markersize=10)
+
+    if tt is not None:
+        axes.errorbar(tt["Nmu"], tt[mean], tt[err], marker='o', c='b', label="TreeTime, original tree")
+
+    if tt_f is not None:
+        axes.errorbar(tt_f["Nmu"], tt_f[mean], tt_f[err],
+            fmt='--', marker='o',
+            markerfacecolor='w',
+            markeredgecolor='b',
+            mew=1.3,
+            c='b', label="TreeTime, FastTree")
+
+    if lsd is not None:
+        axes.errorbar(lsd["Nmu"], lsd[mean], lsd[err], marker='o', c='g', label="LSd, original tree")
+
+    if lsd_f is not None:
+        axes.errorbar(lsd_f["Nmu"], lsd_f[mean], lsd_f[err],
+            fmt='--', marker='o',
+            markerfacecolor='w',
+            markeredgecolor='g',
+            mew=1.3,
+            c='g', label="LSD, FastTree")
+
+    axes.grid()
+    axes.set_xscale('log')
+    plt.hlines(0, 0, 1)
+    axes.legend()
+    axes.set_title(title)
+    axes.set_ylabel(ylabel)
+    axes.set_xlabel('N$\cdot\mu$')
+
+
+
+
 
 if __name__ == '__main__':
 
-    res_lsd = read_lsd_results_file('./accuracy_5__lsd_res.csv')
-    res_tt = read_treetime_results_file('./accuracy_5__treetime_res.csv')
-    res_lsd_f = read_lsd_results_file('./accuracy_5__lsd_fasttree_res.csv')
-    res_tt_f = read_treetime_results_file('./accuracy_5__treetime_fasttree_res.csv')
+    res_lsd = data_stat_tt_lsd(read_lsd_results_file('./accuracy_5__lsd_res.csv'))
+    res_tt = data_stat_tt_lsd(read_treetime_results_file('./accuracy_5__treetime_res.csv'))
+    res_lsd_f = data_stat_tt_lsd(read_lsd_results_file('./accuracy_5__lsd_fasttree_res.csv'))
+    res_tt_f =  data_stat_tt_lsd(read_treetime_results_file('./accuracy_5__treetime_fasttree_res.csv'))
 
-    plot_raw_data(res_tt)
-    plot_raw_data(res_lsd)
+    beast = beast_logs_stat()
 
-    plot_mutation_rate_distributions(res_tt, plot_title="Mutation rate distribution, TreeTime")
-    plot_mutation_rate_distributions(res_lsd, plot_title="Mutation rate distribution, LSD")
+    fig = plt.figure()
+    axes = fig.add_subplot(111)
+    plot_data_stat('Mu', axes, beast, res_tt, res_tt_f, res_lsd, res_lsd_f)
 
-    plot_mutation_rate_comparison(res_tt, res_lsd, res_tt_f, res_lsd_f,
-        mu_or_Tmrca='Tmrca', mean_or_median='median', plot_title="Tmrca inferrence by TreeTime and LSD")
 
-    plot_mutation_rate_comparison(res_tt, res_lsd, res_tt_f, res_lsd_f,
-        mu_or_Tmrca='mu', mean_or_median='median', plot_title="Mutation rate inferrence by TreeTime and LSD")
+    fig = plt.figure()
+    axes = fig.add_subplot(111)
+    plot_data_stat('Tmrca', axes, beast, res_tt, res_tt_f, res_lsd, res_lsd_f)
+
+#    plot_raw_data(res_tt)
+#    plot_raw_data(res_lsd)
+#
+#    plot_mutation_rate_distributions(res_tt, plot_title="Mutation rate distribution, TreeTime")
+#    plot_mutation_rate_distributions(res_lsd, plot_title="Mutation rate distribution, LSD")
+#
+    #plot_mutation_rate_comparison(res_tt, res_lsd, res_tt_f, res_lsd_f,
+     #   mu_or_Tmrca='Tmrca', mean_or_median='median', plot_title="Tmrca inferrence by TreeTime and LSD")
+#
+#    plot_mutation_rate_comparison(res_tt, res_lsd, res_tt_f, res_lsd_f,
+#        mu_or_Tmrca='mu', mean_or_median='median', plot_title="Mutation rate inferrence by TreeTime and LSD")
 
 
