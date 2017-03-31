@@ -1,3 +1,5 @@
+//g++ FFpopSim.cpp --std=c++11 -lFFPopSim -lgsl -lgslcblas -lm -o treetime_simulations
+
 /* Include directives */
 #include "ffpopsim_highd.h"
 #include "multi_population.h"
@@ -41,6 +43,10 @@ int main(int argc, char  *argv[]){
     ////
     //// ############################################
     //int SELECTIVE = atof(argv[1]); //MIGRATION_RATE = atof(argv[1]);
+    if (argc<7){
+        std::cout <<"please specify arguments\n";
+        return 0;
+    }
 
     int SEQ_LEN = atoi(argv[1]);
     int POPULATION_SIZE = atoi(argv[2]);
@@ -49,6 +55,18 @@ int main(int argc, char  *argv[]){
     int SAMPLE_VOL = atoi(argv[5]);
     double MU = atof(argv[6]);
     std::string base_name = argv[7];
+    double period, amplitude, freq;
+    double twoPi = 6.283185307179586;
+    // if additional arguments are provided, interpret them as amplitude and period
+    // of population size oscillations. Period is measured in units of N
+    if (argc==10){
+        amplitude = atof(argv[8]);
+        period = atof(argv[9]);
+        freq = 1.0/period;
+    }else{
+        amplitude = 0.0;
+        freq = 0.0;
+    }
 
     std::cout << "SEQ_LEN = "  <<  SEQ_LEN   << std::endl;
     std::cout << "POPULATION_SIZE = " << POPULATION_SIZE << std::endl;
@@ -81,16 +99,20 @@ int main(int argc, char  *argv[]){
     pop.set_wildtype(POPULATION_SIZE);		// start with a population of the right size
 
     std::cout << "EQUILIBRATING POPULATION..." << std::endl;
-    pop.set_mutation_rate(1e-2);
-    pop.evolve(5*POPULATION_SIZE);
     // every site mutates ~5 times -> equilibrium
     pop.set_mutation_rate(MU);
-    pop.evolve(5*POPULATION_SIZE);
-
+    pop.evolve(10*POPULATION_SIZE);
+    for (int gi=0; gi<5*POPULATION_SIZE; gi++){
+        pop.carrying_capacity = POPULATION_SIZE + amplitude*POPULATION_SIZE*cos(twoPi*pop.get_generation()/POPULATION_SIZE*freq);
+        pop.evolve(1);
+    }
     std::cout << "GENERATING TIME-RESOLVED SAMPLING..." << std::endl;
     for (int n=0; n<SAMPLE_NUM; n++){
         std::cout << n << " out of " << SAMPLE_NUM << std::endl;
-        pop.evolve(SAMPLE_FREQ);
+        for (int j=0; j<SAMPLE_FREQ; j++){
+            pop.carrying_capacity = POPULATION_SIZE + amplitude*POPULATION_SIZE*cos(twoPi*pop.get_generation()/POPULATION_SIZE*freq);
+            pop.evolve(1);
+        }
         pop.genealogy.trees[0].check_tree_integrity();
         pop.tree_sample=SAMPLE_VOL;
         pop.evolve(1); // take sample
