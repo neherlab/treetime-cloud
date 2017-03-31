@@ -6,11 +6,12 @@ from treetime import TreeTime
 from treetime import io
 from generate_dataset import dates_from_ffpopsim_tree
 from matplotlib import pyplot as plt
+import seaborn as sns
 
-
+cols = sns.color_palette(n_colors=6)
 
 def run_ffpopsim_simulation_skyline(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, amplitude,
-							period, res_dir, res_suffix, failed=None, **kwargs):
+                            period, res_dir, res_suffix, failed=None, **kwargs):
     """
     Run simulation with FFPopSim package and perform the data preprocessing.
     The FFpopSim produces phylogenetic tree and alignment in the binary (0-1) form.
@@ -45,7 +46,7 @@ def run_ffpopsim_simulation_skyline(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, M
     return basename
 
 def _run_ffpopsim_skyline(L=100, N=100, SAMPLE_NUM=10, SAMPLE_FREQ=5, SAMPLE_VOL=15, MU=5e-5,
-						  amp=0.9, period = 1.0, res_dir="./", res_suffix=""):
+                          amp=0.9, period = 1.0, res_dir="./", res_suffix=""):
     """
     Simple wrapper function to call FFpopSim binary in a separate subprocess
     """
@@ -65,51 +66,53 @@ def _run_ffpopsim_skyline(L=100, N=100, SAMPLE_NUM=10, SAMPLE_FREQ=5, SAMPLE_VOL
 
 
 def estimate_skyline(base_name):
-	tree_file = "out/%s.opt.nwk"%base_name
-	aln_file  = "out/%s.nuc.fasta"%base_name
-	params = base_name.split('_')
-	print(params)
-	period = float(params[-2][6:])
-	amp = float(params[-3][3:])
-	N = float(params[2][1:])
+    tree_file = "out/%s.opt.nwk"%base_name
+    aln_file  = "out/%s.nuc.fasta"%base_name
+    params = base_name.split('_')
+    print(params)
+    period = float(params[-2][6:])
+    amp = float(params[-3][3:])
+    N = float(params[2][1:])
 
-	T = TreeTime(tree=tree_file, aln=aln_file, dates = dates_from_ffpopsim_tree(tree_file)[1], gtr="JC69")
+    T = TreeTime(tree=tree_file, aln=aln_file, dates = dates_from_ffpopsim_tree(tree_file)[1], gtr="JC69")
 
-	T.run(Tc="skyline",max_iter=3, fixed_slope=0.0001)
+    T.run(Tc="skyline",max_iter=3, fixed_slope=0.0001)
 
-	skyline = T.merger_model.skyline_inferred()
-	skyline_em = T.merger_model.skyline_empirical()
+    skyline = T.merger_model.skyline_inferred()
+    skyline_em = T.merger_model.skyline_empirical()
 
-	plt.figure()
-	x = skyline.x
-	truePopSize = N*(1.0 + amp*np.cos(2.0*np.pi*x/N/period))
+    plt.figure()
+    x = skyline.x
+    truePopSize = N*(1.0 + amp*np.cos(2.0*np.pi*x/N/period))
 
-	plt.plot(x, skyline.y)
-	plt.plot(skyline_em.x, skyline_em.y)
-	plt.plot(x, truePopSize)
+    plt.plot(x, skyline.y)
+    plt.plot(skyline_em.x, skyline_em.y)
+    plt.plot(x, truePopSize)
+    informative_range = x.searchsorted(np.min([n.numdate for n in T.tree.root]))
 
-	return period, amp, skyline.y, truePopSize
+    return period, amp, x[informative_range:], skyline.y[informative_range:], truePopSize[informative_range:]
 
 
 if __name__=="__main__":
-	N=300
-	mu = 1e-4
-	L=1000
-	Nsamples = 20
-	DeltaT = N/20
-	SampleSize = 20
-	for period in [0.5, 1.0, 2.0]:
-		for amp in [0.5, 0.8, 0.9]:
-			pass
-			#run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, './out', 'fluct')
+    N=300
+    mu = 1e-4
+    L=1000
+    Nsamples = 20
+    DeltaT = N/20
+    SampleSize = 20
+    for period in [0.5, 1.0, 2.0]:
+        for amp in [0.5, 0.8, 0.9]:
+            pass
+            #run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, './out', 'fluct')
 
-	fnames = glob.glob('out/FF*fluct.nwk')
-	res = []
-	for fname in fnames:
-		tmp = estimate_skyline('.'.join(fname.split('/')[-1].split('.')[:-1]))
-		res.append(tmp)
+    fnames = glob.glob('out/FF*fluct.nwk')
+    res = []
+    for fname in fnames:
+        tmp = estimate_skyline('.'.join(fname.split('/')[-1].split('.')[:-1]))
+        res.append(tmp)
 
-	plt.figure()
-	for p, amp, s, t in res:
-		plt.plot(np.arange(len(s)), s, ls='--')
-		plt.plot(np.arange(len(t)), t, ls='-')
+    plt.figure()
+    for ri, (p, amp, x, s, t) in enumerate(res):
+        print(p,amp, np.corrcoef(s,t)[0,1])
+        plt.plot(x, s*0.5, c=cols[ri%len(cols)], ls='--')
+        plt.plot(x, t, c=cols[ri%len(cols)], ls='-')
