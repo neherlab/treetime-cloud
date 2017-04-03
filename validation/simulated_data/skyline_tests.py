@@ -65,7 +65,7 @@ def _run_ffpopsim_skyline(L=100, N=100, SAMPLE_NUM=10, SAMPLE_FREQ=5, SAMPLE_VOL
     return basename
 
 
-def estimate_skyline(base_name):
+def estimate_skyline(base_name, plot=False):
     tree_file = "out/%s.opt.nwk"%base_name
     aln_file  = "out/%s.nuc.fasta"%base_name
     params = base_name.split('_')
@@ -74,45 +74,48 @@ def estimate_skyline(base_name):
     amp = float(params[-3][3:])
     N = float(params[2][1:])
 
-    T = TreeTime(tree=tree_file, aln=aln_file, dates = dates_from_ffpopsim_tree(tree_file)[1], gtr="JC69")
+    T = TreeTime(tree=tree_file, aln=aln_file, dates = dates_from_ffpopsim_tree(tree_file)[1], gtr="JC69", real_dates=False)
 
-    T.run(Tc="skyline",max_iter=3, fixed_slope=0.0001)
-
+    T.run(Tc="skyline",max_iter=3, long_branch=False, resolve_polytomies=True, infer_gtr=True) #, fixed_slope=0.0001)
+    print(T.gtr)
     skyline = T.merger_model.skyline_inferred()
     skyline_em = T.merger_model.skyline_empirical()
 
-    plt.figure()
+
     x = skyline.x
     truePopSize = N*(1.0 + amp*np.cos(2.0*np.pi*x/N/period))
+    if plot:
+        plt.figure()
+        plt.plot(x, skyline.y)
+        plt.plot(skyline_em.x, skyline_em.y)
+        plt.plot(x, truePopSize)
 
-    plt.plot(x, skyline.y)
-    plt.plot(skyline_em.x, skyline_em.y)
-    plt.plot(x, truePopSize)
     informative_range = x.searchsorted(np.min([n.numdate for n in T.tree.root]))
-
     return period, amp, x[informative_range:], skyline.y[informative_range:], truePopSize[informative_range:]
 
 
 if __name__=="__main__":
     N=300
-    mu = 1e-4
+    mu = 1e-3
     L=1000
-    Nsamples = 20
-    DeltaT = N/20
+    Nsamples = 40
+    DeltaT = N/40
     SampleSize = 20
-    for period in [0.5, 1.0, 2.0]:
+    periods = [0.5, 1.0, 2.0]
+    for period in periods:
         for amp in [0.5, 0.8, 0.9]:
             pass
             #run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, './out', 'fluct')
 
-    fnames = glob.glob('out/FF*fluct.nwk')
+    fnames = glob.glob('out/FF*Mu0.0001*fluct.nwk')
     res = []
     for fname in fnames:
         tmp = estimate_skyline('.'.join(fname.split('/')[-1].split('.')[:-1]))
         res.append(tmp)
 
-    plt.figure()
+    fig, axs = plt.subplots(3,1)
     for ri, (p, amp, x, s, t) in enumerate(res):
+        ax = axs[periods.index(p)]
         print(p,amp, np.corrcoef(s,t)[0,1])
-        plt.plot(x, s*0.5, c=cols[ri%len(cols)], ls='--')
-        plt.plot(x, t, c=cols[ri%len(cols)], ls='-')
+        ax.plot(x, s, c=cols[ri%len(cols)], ls='--')
+        ax.plot(x, t, c=cols[ri%len(cols)], ls='-')
