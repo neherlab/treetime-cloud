@@ -76,7 +76,7 @@ def estimate_skyline(base_name, plot=False):
 
     T = TreeTime(tree=tree_file, aln=aln_file, dates = dates_from_ffpopsim_tree(tree_file)[1], gtr="JC69", real_dates=False)
 
-    T.run(Tc="skyline",max_iter=3, long_branch=False, resolve_polytomies=True, infer_gtr=True) #, fixed_slope=0.0001)
+    T.run(Tc="skyline",max_iter=3, long_branch=True, resolve_polytomies=True, infer_gtr=True, root='best') #, fixed_slope=0.0001)
     print(T.gtr)
     skyline = T.merger_model.skyline_inferred()
     skyline_em = T.merger_model.skyline_empirical()
@@ -107,7 +107,7 @@ if __name__=="__main__":
             pass
             #run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, './out', 'fluct')
 
-    fnames = glob.glob('out/FF*Mu0.0001*fluct.nwk')
+    fnames = glob.glob('out/FF*Mu0.001*fluct.nwk')
     res = []
     for fname in fnames:
         tmp = estimate_skyline('.'.join(fname.split('/')[-1].split('.')[:-1]))
@@ -119,3 +119,5 @@ if __name__=="__main__":
         print(p,amp, np.corrcoef(s,t)[0,1])
         ax.plot(x, s, c=cols[ri%len(cols)], ls='--')
         ax.plot(x, t, c=cols[ri%len(cols)], ls='-')
+
+
