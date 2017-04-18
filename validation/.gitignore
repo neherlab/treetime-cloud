@@ -9,13 +9,23 @@ __pycache__/
 
 
 # Data and text files
-*.csv
+#*.csv
 *.txt
 *.nwk
 *.fasta
+*.xml
 
 # cluster output 
 *.py.o*
 *.py.e*
+
+# datasets
+simulated_data/*
+flu_H3N2/missing_dates/*
+flu_H3N2/subtree_samples/*
+figs/
+
+# results are placed in the datasets in the results branch:
+#!simulated_data/*.csv
 
 
