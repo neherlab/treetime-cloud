@@ -287,12 +287,20 @@ def _ffpopsim_tree_aln_postprocess(basename, optimize_branch_len=False, prefix='
             ss = inf.readlines()
 
         with open(basename + ".nuc.fasta", 'w') as of:
+            conversion = None
             for s in ss:
                 if s.startswith(">"):
                     of.write(s)
                 else:
-                    s = s.replace('0', "A").replace('1', "C")
-                    of.write(s)
+                    s_array = np.fromstring(s.strip(), 'S1')
+                    if conversion is None:
+                        conversion = np.random.randint(2, size=s_array.shape)
+                    if (len(s_array)):
+                        nuc_seq = np.zeros_like(s_array, dtype='S1')
+                        nuc_seq[:]='A'
+                        replace_ind = np.array(((s_array=='1')&(conversion))|((s_array=='0')&(~conversion)), 'bool')
+                        nuc_seq[replace_ind] = 'C'
+                        of.write("".join(nuc_seq)+'\n')
 
     def generation_from_node_name(name):
         try:
@@ -304,6 +312,8 @@ def _ffpopsim_tree_aln_postprocess(basename, optimize_branch_len=False, prefix='
     from collections import Counter
 
     t = Phylo.read(basename + ".nwk", "newick")
+    if len(t.root.clades)==1:
+        t.root = t.root.clades[0]
     t = remove_polytomies(t)
     cs = [k for k in t.find_clades() if len(k.clades)==1]
     for clade in cs:
@@ -330,7 +340,7 @@ def _ffpopsim_tree_aln_postprocess(basename, optimize_branch_len=False, prefix='
     for clade in t.find_clades():
         node_gen = generation_from_node_name(clade.name)
         if clade.name is not None and not '_DATE_' in clade.name and node_gen != -1:
-
+            #clade.name += "_DATE_%d"%node_gen # + str(2016.5 - (max_generation - node_gen))
             clade.name += "_DATE_" + str(NEAREST_DATE - (max_generation - node_gen))
 
 
