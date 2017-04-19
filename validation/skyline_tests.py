@@ -1,4 +1,6 @@
-from generate_dataset import _ffpopsim_tree_aln_postprocess, FFPOPSIM_BIN
+from external_binaries import FFPOPSIM_SKYLINE_BIN
+
+from generate_dataset import _ffpopsim_tree_aln_postprocess,
 import sys,os, glob
 
 import numpy as np
@@ -96,7 +98,7 @@ def estimate_skyline(base_name, plot=False):
 
 if __name__=="__main__":
 
-    out_folder = './skyline/simulated_data/'
+    res_dir = './skyline/simulated_data/'
     N=300
     mu = 1e-3
     L=1000
@@ -106,9 +108,9 @@ if __name__=="__main__":
     periods = [0.5, 1.0, 2.0]
     for period in periods:
         for amp in [0.5, 0.8, 0.9]:
-            run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, './out', 'fluct')
+            run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, res_dir, 'fluct')
 
-    fnames = glob.glob(os.path.join(out_folder,'FF*Mu0.001*fluct.nwk'))
+    fnames = glob.glob(os.path.join(res_dir,'FF*Mu0.001*fluct.nwk'))
     res = []
     for fname in fnames:
         tmp = estimate_skyline('.'.join(fname.split('/')[-1].split('.')[:-1]))
