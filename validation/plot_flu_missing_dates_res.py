@@ -12,6 +12,7 @@ import treetime
 import pandas
 from plot_defaults import *
 from scipy.interpolate import interp1d
+from plot_defaults import shift_point_by_markersize
 
 def read_results_dataframe(inf):
     cols = ['File', 'Frac', 'Tmrca', 'Mu', 'Mu_R2', 'Internal_R2', 'Runtime']
@@ -51,7 +52,7 @@ def make_results_pivot(df):
          'R2_err': R2_err})
     return res
 
-def plot_results(df, what, label="", axes=None):
+def plot_results(df, what, label="", axes=None,shift_points=None):
     if what == 'Tmrca':
         ylabel = r'$\mathrm{T}_{mrca}, [year]$'
         title = 'Dependence of $\mathrm{T}_{mrca}$ prediction on the fraction of the known dates'
@@ -66,16 +67,21 @@ def plot_results(df, what, label="", axes=None):
         fig = plt.figure(figsize=onecolumn_figsize)
         axes = fig.add_subplot(111)
 
+    if shift_points is not None:
+        x, y = shift_point_by_markersize(axes, df.Frac, df[what], shift_points)
+    else:
+        x, y = df.Frac, df[what]
+
     axes.ticklabel_format(useOffset=False)
-    axes.errorbar(df.Frac, df[what], df[what + '_err'], fmt='o-', label=label,markersize=markersize)
+    axes.errorbar(x, y, df[what + '_err'], fmt='o-', label=label,markersize=markersize)
     axes.set_xlabel('Fraction of known dates', fontsize = label_fs)
     axes.set_ylabel(ylabel, fontsize=label_fs)
     axes.set_title(title)
     axes.grid('on')
     axes.legend(loc=0)
-    for label in axes.get_xticklabels(): 
-            label.set_fontsize(tick_fs) 
-    for label in axes.get_yticklabels(): 
+    for label in axes.get_xticklabels():
+            label.set_fontsize(tick_fs)
+    for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
 
 def read_dates_stat(inf):
@@ -84,7 +90,7 @@ def read_dates_stat(inf):
     return df
 
 def make_dates_pivot(df):
-    res = pandas.DataFrame() 
+    res = pandas.DataFrame()
     fracs = np.unique(df['known_frac'])
     for frac in fracs:
         idxs = df['known_frac'] == frac
@@ -94,8 +100,8 @@ def make_dates_pivot(df):
     return res
 
 def plot_date_dists(res, label="", axes=None):
-    
-    ## Define FwHM: 
+
+    ## Define FwHM:
     def _fwhm(x, y, points=100):
         interp = interp1d(x, y)
         new_x = np.linspace(interp.x.min(), interp.x.max(), points)
@@ -103,7 +109,7 @@ def plot_date_dists(res, label="", axes=None):
         if upper.shape[0]==0:
             return 0
         return new_x[upper[-1]] - new_x[upper[0]]
-        
+
     if axes is None:
         fig = plt.figure(figsize=onecolumn_figsize)
         axes = fig.add_subplot(111)
@@ -114,15 +120,15 @@ def plot_date_dists(res, label="", axes=None):
     for frac in fracs:
         even += 1
         if even % 2 != 0:
-            continue 
+            continue
         numfrac=float(frac[2:])
         x = frac + "_x"
         y = frac + "_y"
         plt.plot(res[x], res[y], label="{}% Dates known".format(numfrac*100))
 
     s_x, s_y = [float(k[2:]) for k in fracs], [_fwhm(res[k+"_x"], res[k+"_y"]) for k in fracs]
-    #import ipdb; ipdb.set_trace()   
-    
+    #import ipdb; ipdb.set_trace()
+
     # this is an inset axes over the main axes
     a = plt.axes([.65, .65, .22, .22], axisbg='lightgray',frameon=True)
     a.plot(s_x, s_y, 'o')
@@ -131,9 +137,9 @@ def plot_date_dists(res, label="", axes=None):
     a.set_ylabel("Leaf date error, $[\mathrm{years}]$",fontsize=label_fs*.6)
     a.get_xaxis().set_ticks([0.1,0.5,0.9])
     a.get_yaxis().set_ticks([0.4,0.7,1.])
-    for label in a.get_xticklabels(): 
-            label.set_fontsize(tick_fs*.6) 
-    for label in a.get_yticklabels(): 
+    for label in a.get_xticklabels():
+            label.set_fontsize(tick_fs*.6)
+    for label in a.get_yticklabels():
             label.set_fontsize(tick_fs*.6)
 
     #plt.xticks([])
@@ -144,9 +150,9 @@ def plot_date_dists(res, label="", axes=None):
     axes.legend(loc=2,fontsize=legend_fs)
     axes.set_xlabel(r"Error in $\mathrm{T}_{mrca}$ estimation, $[\mathrm{years}]$", fontsize=label_fs)
 
-    for label in axes.get_xticklabels(): 
-            label.set_fontsize(tick_fs) 
-    for label in axes.get_yticklabels(): 
+    for label in axes.get_xticklabels():
+            label.set_fontsize(tick_fs)
+    for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
 
 
@@ -161,9 +167,9 @@ if __name__ == '__main__':
 
     df_100 = make_results_pivot(read_results_dataframe(os.path.join(work_dir, fname_format.format(100))))
     df_500 = make_results_pivot(read_results_dataframe(os.path.join(work_dir, fname_format.format(500))))
-    
+
     dates_100 = make_dates_pivot(read_dates_stat( os.path.join(work_dir, fname_dates_format.format(100))))
-    
+
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_dates = fig.add_subplot(111)
     plot_date_dists(dates_100,axes=ax_dates)
@@ -173,8 +179,8 @@ if __name__ == '__main__':
 
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_tmrca = fig.add_subplot(111)
-    plot_results(df_100, 'Tmrca', label='100 nodes tree', axes=ax_tmrca)
-    plot_results(df_500, 'Tmrca', label='500 nodes tree', axes=ax_tmrca)
+    plot_results(df_100, 'Tmrca', label='100 nodes tree', axes=ax_tmrca, shift_points=+markersize/2)
+    plot_results(df_500, 'Tmrca', label='500 nodes tree', axes=ax_tmrca, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_Tmrca.svg")
         fig.savefig("./figs/fluH3N2_missingDates_Tmrca.jpg")
@@ -182,16 +188,16 @@ if __name__ == '__main__':
 
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_mu = fig.add_subplot(111)
-    plot_results(df_100, 'Mu', label='100 nodes tree', axes=ax_mu)
-    plot_results(df_500, 'Mu', label='500 nodes tree', axes=ax_mu)
+    plot_results(df_100, 'Mu', label='100 nodes tree', axes=ax_mu, shift_points=+markersize/2)
+    plot_results(df_500, 'Mu', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_Mu.svg")
         fig.savefig("./figs/fluH3N2_missingDates_Mu.jpg")
 
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_mu = fig.add_subplot(111)
-    plot_results(df_100, 'R2', label='100 nodes tree', axes=ax_mu)
-    plot_results(df_500, 'R2', label='500 nodes tree', axes=ax_mu)
+    plot_results(df_100, 'R2', label='100 nodes tree', axes=ax_mu, shift_points=+markersize/2)
+    plot_results(df_500, 'R2', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.svg")
         fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.jpg")
