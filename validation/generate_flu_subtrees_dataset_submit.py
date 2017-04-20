@@ -12,10 +12,9 @@ if __name__ =="__main__":
     work_dir = "./flu_H3N2/subtree_samples"
 
     #sub-directories and file names
-    subtrees_dir = os.path.join(work_dir, "subtrees")
-    lsd_data_dir = os.path.join(work_dir, "LSD_resources")
-    treetime_res_file = os.path.join(work_dir, "treetime_res.csv")
-    lsd_res_file = os.path.join(work_dir, "lsd_res.csv")
+    out_dir = os.path.join(work_dir, "2017-04-20")
+    treetime_res_file = os.path.join(work_dir, "2017-04-20_treetime_res.csv")
+    lsd_res_file = os.path.join(work_dir, "2017-04-20_lsd_res.csv")
 
     # LSD run configuration
     lsd_parameters = ['-c', '-r', 'a', '-v']
@@ -29,22 +28,23 @@ if __name__ =="__main__":
 
             if CLUSTER:
                 call = ['qsub', '-cwd', '-b','y',
-                        '-l', 'h_rt=1:59:0',
+                        '-l', 'h_rt=23:59:0',
                         #'-o', './stdout.txt',
                         #'-e', './stderr.txt',
-                        '-l', 'h_vmem=3G',
+                        '-l', 'h_vmem=50G',
                         './generate_flu_subtrees_dataset_run.py']
 
             else:
                 call = ['./generate_flu_subtrees_dataset_run.py']
 
 
-            arguments = [str(N_leaves),
-            subtrees_dir,
-            subtree_fname_suffix,
-            treetime_res_file,
-            lsd_res_file,
-            lsd_data_dir]
+            arguments = [
+                str(N_leaves),
+                out_dir,
+                subtree_fname_suffix,
+                treetime_res_file,
+                lsd_res_file
+            ]
 
             call.extend(arguments)
             sp.call(call)

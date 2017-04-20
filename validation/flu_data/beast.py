@@ -11,6 +11,7 @@ from collections import Counter
 import xml.etree.ElementTree as XML
 import StringIO
 import pandas
+from external_binaries import BEAST_BIN
 
 plt.ion()
 plt.show()
@@ -288,8 +289,6 @@ def create_beast_xml(tree, aln, dates, log_file, template_file='../beast/templat
     return xml
 
 def run_beast(subtree_file, out_dir, aln="./H3N2_HA_1980_2015_NA.fasta"):
-
-    BEAST_BIN = "/ebio/ag-neher/share/programs/bundles/BEASTv1.8.4/lib/beast.jar"
 
     print ("Running beast for tree: " + subtree_file)
 

@@ -6,6 +6,8 @@ import os, sys
 import subprocess
 from Bio import AlignIO, Phylo
 import StringIO
+from external_binaries import BEAST_BIN
+
 def read_beast_log(logfile, nearest_leaf_date, take_last_lines=500):
     """
     """
