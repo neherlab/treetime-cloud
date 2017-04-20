@@ -328,12 +328,7 @@ def create_beast_log_pivot(df, T_over_N=None):
 
 def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=None, plot_idxs=None):
 
-    def shift_point_by_markersize(axes,x,y,markersize):
-        inv = axes.transData.inverted()
-        points = [(i,j) for i,j in zip(x,y)]
-        pixels = axes.transData.transform(points)
-        res = inv.transform(pixels+(markersize/2,0))
-        return res[:,0], res[:, 1]
+    from plot_defaults import shift_point_by_markersize
 
     axes.grid('on')
     axes.set_xscale('log')
