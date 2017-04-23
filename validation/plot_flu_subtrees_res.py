@@ -43,7 +43,7 @@ def beast_logs_stat(logsdir, treedir):
     Mu_mean = []
     Mu_err = []
 
-    logsfiles = [k for k in os.listdir(logsdir) if k.endswith('.log.xml')]
+    logsfiles = [k for k in os.listdir(logsdir) if k.endswith('.log.txt')]
 
     for log in logsfiles:
 
@@ -55,7 +55,8 @@ def beast_logs_stat(logsdir, treedir):
         df = beast_utils.read_beast_log(logpath, np.max(dates.values()))
         if df is None or df.shape[0] < 300:
             continue
-        new_Ns = Phylo.read(treepath, 'newick').count_terminals()
+        new_Ns = int(treename.split('_')[-2])
+        #new_Ns = Phylo.read(treepath, 'newick').count_terminals()
         if new_Ns > 1e3:
             continue
         Ns.append(new_Ns)
@@ -81,6 +82,25 @@ def beast_logs_stat(logsdir, treedir):
 
     res = res.sort('Ns')
     return res
+
+def make_beast_pivot(beast_res):
+    out_Ns = np.unique(beast_res['Ns'])
+    out = pandas.DataFrame({
+        "Ns" : out_Ns,
+        "Tmrca_mean" : [np.mean(beast_res[beast_res['Ns'] == x]['Tmrca_mean'])
+                            for x in out_Ns],
+        "Tmrca_err" : [np.std(beast_res[beast_res['Ns'] == x]['Tmrca_mean'])
+                            for x in out_Ns],
+        "Mu_mean" : [np.mean(beast_res[beast_res['Ns'] == x]['Mu_mean'])
+                            for x in out_Ns],
+        "Mu_err" : [np.std(beast_res[beast_res['Ns'] == x]['Mu_mean'])
+                            for x in out_Ns],
+        "LH_mean" : [np.mean(beast_res[beast_res['Ns'] == x]['LH_mean'])
+                            for x in out_Ns],
+        "LH_err" : [np.std(beast_res[beast_res['Ns'] == x]['LH_mean'])
+                            for x in out_Ns],
+        })
+    return out
 
 def treetime_dataset_stat(df):
 
@@ -155,7 +175,7 @@ def lsd_dataset_stat(df):
     return res
 
 ## Plot statistics
-def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, **kwargs):
+def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatter_points=True, **kwargs):
 
     if what == 'Tmrca':
         mean = 'Tmrca_mean'
@@ -174,27 +194,41 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, **kwar
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
     axes.ticklabel_format(useOffset=False)
+    axes.set_xscale('log')
 
     if tt is not None:
-        axes.errorbar(tt['Ns'], tt[mean], tt[err]/2, markersize=markersize, marker='o', c='b', label='TreeTime')
+        if scatter_points:
+            x, y = shift_point_by_markersize (axes, tt['Ns'], tt[mean], markersize/2.0)
+        else:
+            x, y = tt['Ns'], tt[mean]
+        axes.errorbar(x, y, tt[err]/2, markersize=markersize, marker='o', c='b', label='TreeTime')
 
     if lsd is not None:
-        axes.errorbar(lsd['Ns'], lsd[mean], lsd[err]/2, markersize=markersize, marker='o', c='g', label='LSD')
+        if scatter_points:
+            x, y = shift_point_by_markersize (axes, lsd['Ns'], lsd[mean], -1.*markersize/2.0)
+        else:
+            x, y = lsd['Ns'], lsd[mean]
+        axes.errorbar(x, y, lsd[err]/2, markersize=markersize, marker='o', c='g', label='LSD')
 
     if beast is not None:
-        axes.errorbar(beast['Ns'], beast[mean], beast[err]/2, markersize=markersize, marker='o', c='r', label='BEAST')
+        #  beast points stay in the center
+        x, y = beast['Ns'], beast[mean]
+        # if scatter_points:
+        #     shift_point_by_markersize (axes, beast['Ns'], beast[mean], -1.*markersize/2.0)
+        # else:
+        #     x, y = beast['Ns'], beast[mean]
+        axes.errorbar(x, y, beast[err]/2, markersize=markersize, marker='o', c='r', label='BEAST')
 
     axes.grid('on')
     axes.legend(loc=0)
-    axes.set_xscale('log')
 
     axes.set_ylabel(ylabel, fontsize=label_fs)
     axes.set_xlabel("Tree size, #sequences",fontsize=label_fs)
     #axes.set_title(title)
 
-    for label in axes.get_xticklabels(): 
-            label.set_fontsize(tick_fs) 
-    for label in axes.get_yticklabels(): 
+    for label in axes.get_xticklabels():
+            label.set_fontsize(tick_fs)
+    for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
 
     if save:
@@ -205,27 +239,28 @@ if __name__ == "__main__":
 
     #  directory to search for the result tables:
     res_dir = './flu_H3N2/subtree_samples/'
-    treetime_res = os.path.join(res_dir, 'treetime_res.csv')
-    lsd_res = os.path.join(res_dir, 'lsd_res.csv')
-    beast_log_dir = os.path.join(res_dir, 'beast_out_cluster_2')
-    beast_tree_dir = os.path.join(res_dir, 'subtrees')
-
+    treetime_res = os.path.join(res_dir, '2017-04-20_treetime_res.csv')
+    lsd_res = os.path.join(res_dir, '2017-04-20_lsd_res.csv')
+    beast_log_dir = os.path.join(res_dir, '2017-04-20/beast_out')
+    beast_tree_dir = os.path.join(res_dir, '2017-04-20/subtrees')
 
     PLOT_TREETIME = True
-    PLOT_LSD = False
+    PLOT_LSD = True
     PLOT_BEAST = True
-
 
     if PLOT_TREETIME:
         tt_df = treetime_dataset_stat(read_treetime_dataset(treetime_res))
+        tt_df = tt_df.sort(columns='Ns')
     else:
         tt_df = None
     if PLOT_LSD:
         lsd_df = lsd_dataset_stat(read_lsd_dataset(lsd_res))
+        lsd_df = lsd_df.sort(columns='Ns')
     else:
         lsd_df = None
     if PLOT_BEAST:
         beast = beast_logs_stat(beast_log_dir, beast_tree_dir)
+        beast = make_beast_pivot(beast)
     else:
         beast=None
 

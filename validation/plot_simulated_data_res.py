@@ -357,28 +357,22 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             label="Beast")
 
     if tt is not None:
-
         x, y = shift_point_by_markersize(axes, tt["Nmu"], tt[mean], -markersize/4)
-
         if plot_idxs is None:
             plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-
         axes.errorbar(x[plot_idxs], y[plot_idxs], tt[err]/2,
+            fmt='--',
             marker='o',
             markersize=markersize,
             c=tt_col,
             label="TreeTime, original tree")
 
     if tt_f is not None:
-
         x, y = shift_point_by_markersize(axes, tt_f["Nmu"], tt_f[mean], +markersize*.75)
-
-
         if plot_idxs is None:
             plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-
         axes.errorbar(x[plot_idxs], y[plot_idxs], (tt_f[err].values/2)[plot_idxs],
-            fmt='--', marker='o',
+            marker='o',
             markersize=markersize,
             markerfacecolor='w',
             markeredgecolor=tt_col,
@@ -386,29 +380,22 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             c=tt_col, label="TreeTime, FastTree")
 
     if lsd is not None:
-
         x, y = shift_point_by_markersize(axes, lsd["Nmu"], lsd[mean], +markersize/2)
-
-
         if plot_idxs is None:
             plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-
         axes.errorbar(x[plot_idxs], y[plot_idxs], (lsd[err].values/2)[plot_idxs],
+            fmt='--',
             marker='o',
             markersize=markersize,
             c=lsd_col,
             label="LSd, original tree")
 
     if lsd_f is not None:
-
         x, y = shift_point_by_markersize(axes, lsd_f["Nmu"], lsd_f[mean], -markersize*.75)
-
-
         if plot_idxs is None:
             plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-
         axes.errorbar(x[plot_idxs], y[plot_idxs], (lsd_f[err].values/2)[plot_idxs],
-            fmt='--', marker='o',
+            marker='o',
             markersize=markersize,
             markerfacecolor='w',
             markeredgecolor=lsd_col,
@@ -429,27 +416,23 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
 
 if __name__ == '__main__':
 
-
-    T_over_N = 2.
+    T_over_N = 10.
     mean_or_median = 'median'
     PLOT_TREETIME = True
-    PLOT_LSD = False
-    PLOT_BEAST = False
+    PLOT_LSD = True
+    PLOT_BEAST = True
     save_fig = False
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
     res_dir = "./simulated_data"
-    res_lsd = read_lsd_results_dataset('./simulated_data/acc8_lsd_res.csv')
-    res_lsd_f = read_lsd_results_dataset('./simulated_data/acc8_lsd_fasttree_res.csv')
+    res_lsd = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_res.csv')
+    res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_fasttree_res.csv')
 
-    res_tt = read_treetime_results_dataset('./simulated_data/acc8_short_treetime_res.csv')
-    res_tt_f =  read_treetime_results_dataset('./simulated_data/acc8_short_treetime_fasttree_res.csv')
+    res_tt = read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_res.csv')
+    res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_fasttree_res.csv')
 
-    res_tt_long = read_treetime_results_dataset('./simulated_data/acc8_long_treetime_res.csv')
-    res_tt_f_long =  read_treetime_results_dataset('./simulated_data/acc8_long_treetime_fasttree_res.csv')
-
-    beast_logs_dir = os.path.join(res_dir, 'acc8_beast')
-    beast_trees_dir = os.path.join(res_dir, 'acc8')
+    beast_logs_dir = os.path.join(res_dir, '2017-04-19_beast')
+    beast_trees_dir = os.path.join(res_dir, 'dataset')
 
 
     if PLOT_LSD:
@@ -460,12 +443,8 @@ if __name__ == '__main__':
         pivot_lsd_f = None
 
     if PLOT_TREETIME:
-        pivot_tt = create_lsd_tt_pivot(res_tt, T_over_N=T_over_N, mean_or_median=mean_or_median)
+        pivot_tt = None #create_lsd_tt_pivot(res_tt, T_over_N=T_over_N, mean_or_median=mean_or_median)
         pivot_tt_f =  create_lsd_tt_pivot(res_tt_f, T_over_N=T_over_N, mean_or_median=mean_or_median)
-
-        pivot_tt_long = create_lsd_tt_pivot(res_tt_long, T_over_N=T_over_N, mean_or_median=mean_or_median)
-        pivot_tt_f_long =  create_lsd_tt_pivot(res_tt_f_long, T_over_N=T_over_N, mean_or_median=mean_or_median)
-
     else:
         pivot_tt = None
         pivot_tt_f = None
@@ -478,19 +457,16 @@ if __name__ == '__main__':
 
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
-    plot_data_stat('Mu', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_long, lsd=pivot_lsd, lsd_f=pivot_lsd_f)
+    plot_data_stat('Mu', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
 
     if save_fig:
         fig.savefig("./figs/simdata_Mu_TN{}_{}.svg".format(T_over_N, mean_or_median))
         fig.savefig("./figs/simdata_Mu_TN{}_{}.jpg".format(T_over_N, mean_or_median))
-#
+
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
-    plot_data_stat('Tmrca', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_long, lsd=pivot_lsd, lsd_f=pivot_lsd_f)
-#
+    plot_data_stat('Tmrca', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
+
     if save_fig:
         fig.savefig("./figs/simdata_Tmrca_TN{}_{}.svg".format(T_over_N, mean_or_median))
         fig.savefig("./figs/simdata_Tmrca_TN{}_{}.jpg".format(T_over_N, mean_or_median))
-
-
-
