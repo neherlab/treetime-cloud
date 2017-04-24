@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+"""
+This module defines functions to facilitate operations with data specific
+to Flu trees and alignments.
+"""
+
 import numpy as np
 from Bio import AlignIO, Phylo
 from Bio.Align import  MultipleSeqAlignment
@@ -8,13 +14,22 @@ import os, copy
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 from collections import Counter
-import xml.etree.ElementTree as XML
 import StringIO
 import treetime
-
 from utility_functions_general import remove_polytomies
 
 def date_from_seq_name(name):
+    """
+    Parse flu sequence name to the date in numeric format (YYYY.F)
+
+    Args:
+
+     - name(str): name of the flu sequence.
+
+    Returns:
+
+     -  sequence sampling date if succeeded to parse. None otherwise.
+    """
     def str2date_time(instr):
         """
         Convert input string to datetime object.
@@ -51,11 +66,26 @@ def date_from_seq_name(name):
 
         return date
 
-    date = str2date_time(name.split('|')[3].strip())
-
-    return date.year + (date - datetime.datetime(date.year, 1, 1)).days / 365.25
+    try:
+        date = str2date_time(name.split('|')[3].strip())
+        return date.year + (date - datetime.datetime(date.year, 1, 1)).days / 365.25
+    except:
+        return None
 
 def dates_from_flu_tree(tree):
+    """
+    Iterate over the Flu tree, parse each leaf name and return dates for the
+    leaves as dictionary.
+
+    Args:
+
+     - tree(str or Biopython tree): Flu tree
+
+    Returns:
+
+     - dates(dict): dictionary of dates in format {seq_name: numdate}. Only the
+     entries which were parsed successfully are included.
+    """
 
     if isinstance(tree, str):
         tree = Phylo.read(tree, 'newick')
@@ -65,7 +95,23 @@ def dates_from_flu_tree(tree):
     return dates
 
 def subtree_with_same_root(tree, Nleaves, outfile, optimize=True):
+    """
+    Sample subtree of the given tree so that the root of the subtree is that of
+    the original tree.
 
+    Args:
+
+     - tree(str or Biopython tree): initial tree
+
+     - Nleaves(int): number of leaves in the target subtree
+
+     - outfile(str): path to save the resulting subtree
+
+     optimize(bool): perform branch length optimization for the subtree?
+
+    Returns:
+     - tree(Biopython tree): the subtree
+    """
     if isinstance(tree, str):
         treecopy = Phylo.read(tree, 'newick')
     else:
@@ -116,6 +162,25 @@ def subtree_with_same_root(tree, Nleaves, outfile, optimize=True):
         return treecopy
 
 def subtree_year_vol(tree, N_per_year, outfile):
+    """
+    Sample subtree of the given tree with equal number of samples per year.
+
+    Note:
+
+     - if there are not enough leaves sampled at a given year, all leaves for this
+     year will be included in the subtree.
+
+    Args:
+
+     - tree(str or Biopython object): Initial tree
+
+     - N_per_year(int): number of samples per year.
+
+     - outfile (str): path to save the subtree
+
+    Returns:
+     - tree(Biopython tree): the subtree
+    """
 
     if isinstance(tree, str):
         treecopy = Phylo.read(tree, 'newick')
@@ -149,6 +214,19 @@ def subtree_year_vol(tree, N_per_year, outfile):
     return treecopy
 
 def create_LSD_dates_file_from_flu_tree(tree, outfile):
+    """
+    Parse dates from the flu tree and write to the file in the LSD format.
+
+    Args:
+
+     - tree(str or Biopython object): Initial tree
+
+     - outfile(str): path to save the LSD dates file.
+
+    Returns:
+
+     - dates(dict): dates parsed from the tree as dictionary.
+    """
 
     dates = dates_from_flu_tree(tree)
 
@@ -159,7 +237,18 @@ def create_LSD_dates_file_from_flu_tree(tree, outfile):
 
 def create_treetime_with_missing_dates(alnfile, treefile, dates_known_fraction=1.0):
     """
-    Create TreeTime object with some dates information missing
+    Create TreeTime object with fraction of leaves having no sampling dates.
+    The leaves to earse sampling dates are chosen randomly.
+
+    Args:
+
+     - alnfile(str): path to the flu alignment
+
+     - treefiule(str): path to the Flu newixk tree
+
+     - dates_known_fraction(float): fraction of leaves, which should have
+     sampling date information.
+
     """
     aln = AlignIO.read(alnfile, 'fasta')
     tt = Phylo.read(treefile, 'newick')
