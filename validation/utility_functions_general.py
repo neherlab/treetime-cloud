@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+"""
+This module defines some general utility functions,
+which are used from elsewhere.
+"""
+
 import numpy as np
 from Bio import AlignIO, Phylo
 from Bio.Align import  MultipleSeqAlignment
@@ -5,18 +11,22 @@ import random
 import subprocess
 import datetime
 import os, copy
-#import matplotlib.pyplot as plt
 from scipy.stats import linregress
 from collections import Counter
 import StringIO
 
-#plt.ion()
-#plt.show()
 
 def remove_polytomies(tree):
     """
     Scan tree, and remove the polytomies (if any) by random merging
-    Returns: tree without polytomies
+
+    Args:
+
+     - tree(Biopython tree): initial tree
+
+    Returns:
+
+     - tree without polytomies
     """
     for clade in tree.find_clades():
         #if not hasattr(clade, "name") or clade.name is None:
@@ -37,6 +47,18 @@ def remove_polytomies(tree):
     return tree
 
 def internal_regress(myTree):
+    """
+    Build linear regression of the node  root-to-tip distance vs dates. The
+    regression is built for the internal nodes only.
+
+    Args:
+
+     - myTree(treetime object): the TreeTime tree.
+
+    Returns:
+
+     - linregress(tuple): the regression parameters in the scipy.linregress format
+    """
     resarr = []
     for node in myTree.tree.get_nonterminals():
         try:
@@ -50,7 +72,17 @@ def internal_regress(myTree):
         return linregress(resarr[:, 0], resarr[:, 1]).rvalue**2
 
 def parse_lsd_output(lsd_outfile):
+    """
+    Parse the LSD reults file for the LSD simulation results.
 
+    Args:
+     - lsd_outfile(str): path to the lsd results file
+
+    Returns:
+     - [tmrca, mu, objective] - Date of the most-recent-common ancestor, the
+     mutation  rate and the objective function value. If parsing failed, the
+     [-1, -1, 0] array is returned.
+    """
     # parse LSD results
     try:
         with open (lsd_outfile, 'r') as inf:
@@ -82,7 +114,24 @@ def parse_lsd_output(lsd_outfile):
     return tmrca, mu, objective
 
 def run_LSD(tree_filename, dates_filename, outfile, lsd_params = ['-r','a','-c','-v']):
+    """
+    Run LSD simulations given the tree and dates file.
 
+    Args:
+
+     - tree_filename(str): path to the input tree in newick format
+
+     - dates_filename(str): path to the dates file in LSD format.
+
+     - outfile(str): path to save results
+
+     - lsd_params(array): parameters of the LSD run.
+
+    Returns:
+
+     - runtime(float): runtime in seconds.
+
+    """
     from external_binaries import LSD_BIN
     call = [LSD_BIN, '-i', tree_filename, '-d', dates_filename, '-o', outfile]
     call.extend(lsd_params)
