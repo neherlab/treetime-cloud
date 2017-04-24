@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+"""
+This module defines functions used to facilitate the Beast run from other scripts
+and to parse the Beast output results.
+"""
 import pandas
 import xml.etree.ElementTree as XML
 import utility_functions_general as gen_utils
-from external_binaries import  *
 import os, sys
 import subprocess
 from Bio import AlignIO, Phylo
@@ -263,3 +267,5 @@ def run_beast(tree, aln, dates, out_filename_prefix, template_file):
     call = ["java", "-jar", BEAST_BIN, "-beagle_off", "-overwrite",  config_filename]
     subprocess.call(call)
 
+if __name__ == '__main__':
+    pass
