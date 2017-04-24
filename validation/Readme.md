@@ -7,10 +7,10 @@ This project comprises the boilerplate code for Treetime validation, tests and b
 
 * [Organization](#organization)
    * [Resources](#resources)
-      * [External binaries](external-binaries)
-      * [Initial data](initial-data)
+      * [External binaries](#external-binaries)
+      * [Initial data](#initial-data)
 * [Configuration and run](#configuration-and-run)
-   * [Simulated data](simulated-data)
+   * [Simulated data](#simulated-data)
    * [Influenza H3N2 - missing dates](#influenza-h3n2-reconstruction-with-missing-dates-information)
    * [Influenza H3N2 - subtrees](#influenza-h3n2-subtrees-of-a-single-big-tree)
 
@@ -42,13 +42,13 @@ Download the FFpopSim from [GiHub page](https://github.com/neherlab/ffpopsim), a
 NOTE: To compile FFpopsim, you should have gnu-scientific library installed
 
 ```bash
-$g++ g++ -o ffpopsim --std=c++11 FFpopSim.cpp -I <path-to-ffpopsim-headers> [-L <path-to-ffpopsim-lib>] -lFFPopSim -lgsl -lgslcblas
+$g++ -o ffpopsim --std=c++11 FFpopSim.cpp -I <path-to-ffpopsim-headers> [-L <path-to-ffpopsim-lib>] -lFFPopSim -lgsl -lgslcblas
 ```
 
 There is another version used to generate data for skyline validation:
 
 ```bash
-$g++ g++ -o ffpopsim_skyline --std=c++11 FFpopSim_skyline.cpp -I <path-to-ffpopsim-headers> [-L <path-to-ffpopsim-lib>] -lFFPopSim -lgsl -lgslcblas
+$g++ -o ffpopsim_skyline --std=c++11 FFpopSim_skyline.cpp -I <path-to-ffpopsim-headers> [-L <path-to-ffpopsim-lib>] -lFFPopSim -lgsl -lgslcblas
 ```
 
 Then, register the compiled binaries to the `external_binaries.py` file:
