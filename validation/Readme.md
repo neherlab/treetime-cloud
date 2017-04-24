@@ -1,11 +1,12 @@
 # TreeTime validation project
-This is the sumplementary project to the Treetime phylogeny package. If you are not yet familiar with the TreeTime itself, please read first about the main project ([GitHub page](https://github.com/neherlab/treetime)).
+This is the sumplementary project to the Treetime phylogeny package. If you are not yet familiar with the TreeTime itself, please read first about the main project ([GitHub page](https://github.com/neherlab/treetime)). You should also have the TreeTime package installed to run the code from this project.
 
 This project comprises the boilerplate code for Treetime validation, tests and benchmarking.
 
 # Table of Contents
 
-* [Organization](#organization)
+* [Prerequisites](#prerequisites)
+* [Overview](#overview)
    * [Resources](#resources)
       * [External binaries](#external-binaries)
       * [Initial data](#initial-data)
@@ -14,9 +15,23 @@ This project comprises the boilerplate code for Treetime validation, tests and b
    * [Influenza H3N2 - missing dates](#influenza-h3n2-reconstruction-with-missing-dates-information)
    * [Influenza H3N2 - subtrees](#influenza-h3n2-subtrees-of-a-single-big-tree)
 
+# Prerequisites
+To run the code, you need python-2.7 or later to be installed. You will also need `numpy, scipy, pandas, biopython` python libraries. To compare the Treetime against other phylogenetic packages ([LSD](http://www.atgc-montpellier.fr/LSD/), and [BEAST](http://beast.bio.ed.ac.uk/)), you need them to be installed in your system (refer the [External binaries](#external-binaries) section for more details). To generate dataset, we also use [FastTree](http://www.microbesonline.org/fasttree/) and [FFpopSim](http://webdav.tuebingen.mpg.de/ffpopsim/). The latter requires compilation, so if you decide to generate the whole datasets yourselves, you will need the compilation tools: `g++-4.8` or later, `gsl`, `boost`. See detailed instructions in the [External binaries](#external-binaries) section.
 
-#Organization
-Basically, the validation workflow is separated into two major parts: the dataset generation, and the processing the generated datasets followed by the results analysis and plotting. These two parts are intentionally implemented so that they can be run separately and independently.
+# Overview
+Basically, the validation workflow consists of the three independent parts:
+
+ - Validation of the TreeTime results on the simulated data.
+ - Validation of the results on the Influenza data (sampling subtrees).
+ - Validation of the results for the Influenza data (with only fraction of leaf dates known).
+
+Each part can be run independently. The code for the parts are separated into the files with common suffixes: `XXX_submit.py` and `XXX_run.py`. The files of first type create the parameter spaces for the simulations and for each set of the parameters, call the `XXX_run.py` files, which perform simulation for a given set of parameters.
+
+All common functions and variables are defined in files `utility_functions_XXX.py`.
+
+To plot the resutls, use the `plot_xxx_res.py` files. These files import the default plotting parameters from the `plot_defaults.py` to make all figures have the same style and colors.
+
+Since the project relies on many external binaries, for convenience, they all registered in the `external_binaries.py` file.
 
 ## Resources
 
@@ -60,7 +75,7 @@ FFPOPSIM_SKYLINE_BIN = "<path-to-ffpopsim_skyline binary>"
 ```
 
 ### Initial data
-The data usde for the simulation are located in the `resources` folder. Basically, the validation scripts need the Influenza tree and alignment with substantial number of leaves (ideally, around 5000 leaves). We have chosen the influenza sequences for the period 2011-2013 years, segment HA. The sequences were downloaded from [flu-DB](https://www.fludb.org), re-aligned. The tree for the alignment has been built using FastTree. In principle, any other tree can be used for the alignment. In case another tree is used, make sure you specify the name of the tree accordingly where needed.
+The data usde for the simulation are located in the `resources` folder. Basically, the validation scripts need the Influenza tree and alignment with substantial number of leaves (ideally, around 5000 leaves). We have chosen the influenza sequences for the period 2011-2013 years, segment HA. The sequences were downloaded from [Influenza Research Database](https://www.fludb.org), re-aligned. The tree for the alignment has been built using FastTree. In principle, any other tree can be used for the alignment. In case another tree is used, make sure you specify the name of the tree accordingly where needed.
 
 To run Beast, we need som configuration template. As we work with influenza trees, we use the previously tested and published configuration from the [Bedford, Russell, et al](http://www.nature.com/nature/journal/v523/n7559/full/nature14460.html?WT.ec_id=NATURE-20150709&spMailingID=49054266&spUserID=MjA1NjIyNTk4MQS2&spJobID=720986702&spReportId=NzIwOTg2NzAyS0). The file is located in the `resources` folder. Note that we use it only as a configuration template. Than means, in each simulation we specify the actual sequences, initial tree and leaf dates, whereas all the configurations stay the same accross simulations.
 
