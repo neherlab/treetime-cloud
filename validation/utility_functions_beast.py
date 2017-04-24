@@ -10,17 +10,60 @@ from external_binaries import BEAST_BIN
 
 def read_beast_log(logfile, nearest_leaf_date, take_last_lines=500):
     """
+    Reads the log file, produced by Beast. Note the column names are defined in
+    the Beast template file from the resources. If another template used, make
+    sure the  column names are the same.
+
+    Args:
+     - logfile(str): filename to be parsed
+
+     - nearest_leaf_date(float): the date of the youngest leaf in the tree. This
+     data is needed since Beast only outputs the height of the tree in years.
+     Additional conversion to the absolute date is needed.
+
+     - take_last_lines(int): Use the last lines from the log to estimate the convergence
+     and stability of the simulations. If the log file has less lines, no output is
+     possible. Hence, this is additional control of the Beast simulation finished.
+
+    Returns:
+
+     - LogFile parsed as pandas dataframe is there is enough data lines
+     (specified by take_last_lines). None otherwise.
     """
 
     with open(logfile) as inlog:
         ss = inlog.readlines()
-    if len(ss) < 100:
+    if len(ss) < take_last_lines:
         return None
     df = pandas.read_csv(logfile, delimiter='\t', skiprows=3)
     df['treeModel.rootHeight']  = nearest_leaf_date  - df['treeModel.rootHeight']
     return df.iloc[-take_last_lines:]
 
 def create_beast_xml(tree, aln, dates, log_file, template_file):
+    """
+    Take template XML configuration and create a valid Beast configuration.
+    Basically, the function adds the initial tree, alignment and leaf dates to
+    the corresponding sections of the template XML.
+
+    Args:
+
+     - tree(str or Biopython tree): initial tree for beast simulations. Tree
+     object of path to the tree file
+
+     - aln(str or Biopython multiple seq alignment object): alignment to set
+     sequences to the tree leaves.
+
+     - dates(dict): dictionary of the leaf dates.
+
+     - log_file(str): path to save the resulting configuration
+
+     - template_file(str):  path to the template XML to be used to produce
+     config.
+
+    Returns:
+
+     - config as ElementTree.Xml object
+    """
 
     def _set_taxa_dates(xml_root, tree, dates):
 
@@ -186,6 +229,33 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
     return xml
 
 def run_beast(tree, aln, dates, out_filename_prefix, template_file):
+    """
+    Run Beast for the specified tree, alignmentm, dates. It first prouces the
+    Beast template using the specified data, and then calls Beast binary in a
+    subprocess for the configuration produced.
+
+    Args:
+
+     - tree(str or Biopython tree): initial tree for beast simulations. Tree
+     object of path to the tree file
+
+     - aln(str or Biopython multiple seq alignment object): alignment to set
+     sequences to the tree leaves.
+
+     - dates(dict): dictionary of the leaf dates.
+
+     - out_file_prefix(str): path to save the resulting configuration. Beast
+     results and configuration will be saved to different files, which names will
+     share the same specified prefix. Configuration will be '<prefix>.config.txt'
+     the results will be saved under '<prefix>.log.txt' and '<prefix>.trees.txt'
+
+     - template_file(str):  path to the template XML to be used to produce
+     config.
+
+    Returns:
+     - None
+
+    """
 
     config_filename = out_filename_prefix + ".config.xml"
     config_xml = create_beast_xml(tree, aln, dates, out_filename_prefix, template_file)
