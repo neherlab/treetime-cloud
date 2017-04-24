@@ -8,9 +8,11 @@ import os, copy
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 from collections import Counter
+import xml.etree.ElementTree as XML
+import StringIO
+import treetime
 
-plt.ion()
-plt.show()
+from utility_functions_general import remove_polytomies
 
 def date_from_seq_name(name):
     def str2date_time(instr):
@@ -49,34 +51,20 @@ def date_from_seq_name(name):
 
         return date
 
-    date = str2date_time(name.split('|')[2].strip())
+    date = str2date_time(name.split('|')[3].strip())
 
     return date.year + (date - datetime.datetime(date.year, 1, 1)).days / 365.25
 
-def remove_polytomies(tree):
-    """
-    Scan tree, and remove the polytomies (if any) by random merging
-    Returns: tree without polytomies
-    """
-    for clade in tree.find_clades():
-        #if not hasattr(clade, "name") or clade.name is None:
-        #    clade.name = "None"
-        if len(clade.clades) < 3:
-            continue
-        clades = clade.clades
-        while len(clades) > 2:
-            c1 = clades.pop()
-            c2 = clades.pop()
-            new_node = Phylo.BaseTree.Clade()
-            new_node.name="None"
-            new_node.branch_length = 1e-5
-            new_node.clades = [c1,c2]
-            clades.append(new_node)
-        clade.clades = clades
+def dates_from_flu_tree(tree):
 
-    return tree
+    if isinstance(tree, str):
+        tree = Phylo.read(tree, 'newick')
 
-def subtree_with_same_root(tree, Nleaves, outfile, optimize=False):
+    dates = {k.name:date_from_seq_name(k.name) for k in tree.get_terminals()
+                if date_from_seq_name(k.name) is not None}
+    return dates
+
+def subtree_with_same_root(tree, Nleaves, outfile, optimize=True):
 
     if isinstance(tree, str):
         treecopy = Phylo.read(tree, 'newick')
@@ -98,14 +86,14 @@ def subtree_with_same_root(tree, Nleaves, outfile, optimize=False):
     n_left_sampled = np.min((n_left, Nleaves * n_left / (n_left + n_right)))
     n_left_sampled = np.max((n_left_sampled, 5))  # make sure we have at least one
     left_terminals = left.get_terminals()
-    left_sample_idx = np.random.choice(np.arange(len(left_terminals)), size=n_left_sampled)
+    left_sample_idx = np.random.choice(np.arange(len(left_terminals)), size=n_left_sampled, replace=False)
     left_sample = [left_terminals[i] for i in left_sample_idx]
 
     # sample to the right of the root
     n_right_sampled = np.min((n_right, Nleaves * n_right / (n_left + n_right)))
     n_right_sampled = np.max((n_right_sampled, 5))  # make sure we have at least one
     right_terminals = right.get_terminals()
-    right_sample_idx = np.random.choice(np.arange(len(right_terminals)), size=n_right_sampled)
+    right_sample_idx = np.random.choice(np.arange(len(right_terminals)), size=n_right_sampled, replace=False)
     right_sample = [right_terminals[i] for i in right_sample_idx]
 
     for leaf in treecopy.get_terminals():
@@ -115,8 +103,17 @@ def subtree_with_same_root(tree, Nleaves, outfile, optimize=False):
             pass
             #print ("leaving leaf {} in the tree".format(leaf.name))
 
-    Phylo.write(treecopy, outfile, 'newick')
-    return treecopy
+    if optimize:
+        import treetime
+        dates = dates_from_flu_tree(treecopy)
+        aln = './resources/flu_H3N2/H3N2_HA_2011_2013.fasta'
+        tt = treetime.TreeAnc(tree=treecopy, aln=aln,gtr='Jukes-Cantor')
+        tt.optimize_seq_and_branch_len(prune_short=False)
+        Phylo.write(tt.tree, outfile, 'newick')
+        return tt.tree
+    else:
+        Phylo.write(treecopy, outfile, 'newick')
+        return treecopy
 
 def subtree_year_vol(tree, N_per_year, outfile):
 
@@ -151,17 +148,7 @@ def subtree_year_vol(tree, N_per_year, outfile):
     Phylo.write(treecopy, outfile, 'newick')
     return treecopy
 
-
-def dates_from_flu_tree(tree):
-
-    if isinstance(tree, str):
-        tree = Phylo.read(tree, 'newick')
-
-    dates = {k.name:date_from_seq_name(k.name) for k in tree.get_terminals()
-                if date_from_seq_name(k.name) is not None}
-    return dates
-
-def LSD_dates_file_from_tree(tree, outfile):
+def create_LSD_dates_file_from_flu_tree(tree, outfile):
 
     dates = dates_from_flu_tree(tree)
 
@@ -170,22 +157,51 @@ def LSD_dates_file_from_tree(tree, outfile):
         df.write("\n".join([str(k) + "\t" + str(dates[k]) for k in dates]))
     return dates
 
-def internal_regress(myTree):
-    resarr = []
-    for node in myTree.tree.get_nonterminals():
-        try:
-            resarr.append((node.numdate, node.dist2root))
-        except:
-            continue
-    resarr = np.array(resarr)
-    if resarr.shape[0] == 0:
-        return 0.
-    else:
-        return linregress(resarr[:, 0], resarr[:, 1]).rvalue**2
+def create_treetime_with_missing_dates(alnfile, treefile, dates_known_fraction=1.0):
+    """
+    Create TreeTime object with some dates information missing
+    """
+    aln = AlignIO.read(alnfile, 'fasta')
+    tt = Phylo.read(treefile, 'newick')
+
+    dates = {k.name: date_from_seq_name(k.name) for k in aln}
+
+    # randomly choose the dates so that only the  known_ratio number of dates is known
+    if dates_known_fraction != 1.0:
+        assert(dates_known_fraction > 0 and dates_known_fraction < 1.0)
+        knonw_keys = np.random.choice(dates.keys(), size=int (len(dates) * dates_known_fraction), replace=False)
+        dates = {k : dates[k] for k in knonw_keys}
+
+    myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = tt,
+            aln = aln, verbose = 4, dates = dates, debug=False)
+
+    myTree.optimize_seq_and_branch_len(reuse_branch_len=True, prune_short=True, max_iter=5, infer_gtr=False)
+
+    return myTree
+
+def create_subtree(tree, n_seqs, out_file, st_type='equal_sampling'):
+    """
+    Args:
+     - tree(filename or Biopython tree): original tree
+
+     - n_seqs: number of leaves in the resulting subtree
+
+     - out_file: output locaton to store the resulting subtree
+
+     - st_type: type of the subtree generation algorithm. Available types:
+         - random: just choose n_leaves randomly
+         - equal_sampling: choose equal leaves each year (if possible)
+         - preserve_root: sample from right and left subtrees of the tree root.
+         The root of the resulting subtree is therefore the same as of the original tree
+
+    """
+    if isinstance(tree, str):
+        tree = Phylo.read(tree, 'newick')
+
+    pass
 
 if __name__ == '__main__':
-
-    tree = subtree_with_same_root('./H3N2_HA_1980_2015_NA.nwk', 1000, './H3N2_HA_1980_2015_NA_100.nwk')
+    pass
 
 
 

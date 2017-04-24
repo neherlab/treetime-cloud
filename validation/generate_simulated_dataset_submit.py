@@ -15,20 +15,23 @@ sys.path.append("./")
 
 if __name__ == '__main__':
 
+    CLUSTER = True
+
     # Directory to store results
-    res_dir = "./accuracy_5"
+    res_dir = "./simulated_data/dataset"
     # File prefix to store the formatted output for further processing/comparison
-    outfile = "./accuracy_5_"
+    outfile = "./simulated_data/2017-04-19"
 
     # FFPopSim simulation parameters
     L = 1e4
     N = 100
     SAMPLE_VOL = 10
     SAMPLE_NUM = 20
-    SAMPLE_FREQS = [10, 20, 50, 75, 100] #[1, 2, 3, 5, 10, 20, 50, 75, 100, 150, 200]
-    MUS = [1e-5, 2e-5, 5e-5, 8e-5, 1e-4, 2e-4, 5e-4, 7e-4, 1e-3, 2e-3, 4e-3]
+    SAMPLE_FREQS = [10, 20, 50] # T/N = [2, 4, 10]
+    MUS = [7e-6, 1e-5, 2e-5, 5e-5, 7e-5, 1e-4, 2e-4, 5e-4, 7e-4, 1e-3, 2e-3]
+    # MUS= [2e-4, 5e-4, 7e-4, 1e-3, 2e-3]
     N_POINTS = 20
-    N_0 = 30
+    N_0 = 0
 
     # run treetime in-place:
     Ncalls = 0
@@ -42,21 +45,27 @@ if __name__ == '__main__':
                     print ("Number of jobs exceeded")
                     break
 
-                # direct invokation of a subprocess
-                #call = ['./generate_dataset_call.py']
+                if CLUSTER:
+                    call = ['qsub', '-cwd', '-b','y',
+                           '-l', 'h_rt=23:59:0', # BEAST might run long
+                            #'-o', './stdout.txt',
+                              #'-e', './stderr.txt',
+                            '-l', 'h_vmem=50G', # BEAST requires A LOT
+                             './generate_simulated_dataset_run.py']
+                else:
+                    call = ['./generate_simulated_dataset_run.py']
 
                 # run computations on a cluster
-                call = ['qsub', '-cwd', '-b','y',
-                       '-l', 'h_rt=0:59:0',
-                        #'-o', './stdout.txt',
-                        #'-e', './stderr.txt',
-                        '-l', 'h_vmem=3G',
-                         './generate_dataset_call.py']
 
-                arguments = [str(L), str(N), str(SAMPLE_VOL), str(SAMPLE_NUM),
-                             str(SAMPLE_FREQ), str(MU), res_dir, suffix, outfile]
+                arguments = [str(L),
+                            str(N),
+                            str(SAMPLE_VOL),
+                            str(SAMPLE_NUM),
+                            str(SAMPLE_FREQ),
+                            str(MU),
+                            res_dir,
+                            suffix,
+                            outfile]
                 call.extend(arguments)
 
                 sp.call(call)
-
-
