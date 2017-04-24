@@ -3,21 +3,31 @@ This is the sumplementary project to the Treetime phylogeny package. If you are 
 
 This project comprises the boilerplate code for Treetime validation, tests and benchmarking.
 
-## Organization
+# Table of Contents
+
+
+* [Organization](#organization)
+* [Configuration and run](#configuration-and-run)
+   * [Influenza H3N2 - missing dates](#influenza-h3n2-reconstruction-with-missing-dates-information)
+   * [Influenza H3N2 - subtrees](#influenza-h3n2-subtrees-of-a-single-big-tree)
+* Results
+
+
+#Organization
 Basically, the validation workflow is separated into two major parts: the dataset generation, and the processing the generated datasets followed by the results analysis and plotting. These two parts are intentionally implemented so that they can be run separately and independently.
 
-## Configuration and run
+# Configuration and run
 
-### Influenza H3N2 - reconstruction with missing dates information
+## Influenza H3N2 - reconstruction with missing dates information
 The main goal of this part is to analyze the influence of the missing temopral information on the precision of the Tmrca reconstruction. The validation is sseparated into two parts: the dataset generation+analysis, and the results plotting.
 
-#### Dataset generation
+### Dataset generation
 To generate dataset and to run the simulations on the generated data, configure and run the two python scripts: `generate_flu_missingDates_submit.py` and `generate_flu_missingDates_run.py`. The first script generates the range of the parameters to be used in the simulations, and calls the second script for each combination of the input parameters. The seond script performs datapreparation for a single set of parameters, and then runs the treetime simulations for the specified parameters.
 
-##### Single-point simulations (Run script)
+#### Single-point simulations (Run script)
 The script performs rnadom sampling of the leaves on a given tree, erases the temporal information for these leaves, and then perform the treetime simulations. normally, it requeres no configuration.
 
-##### Whole dataset generation (Submit script)
+#### Whole dataset generation (Submit script)
 Before running the scipt, it should be configured. First of all, specify the output directories where the results will be placed.
 
 ```python
@@ -70,7 +80,7 @@ After all done, run the dataset generation running
 ```bash
 $python generate_flu_missingDates_dataset_run.py
 ```
-#### Plotting the results
+### Plotting the results
 To plot the results, first you shold configure the `plot_flu_missing_dates.py` script. Normally, you should only specify the filenames, where the results of the above simulations are stored. It is only necessary, if the filenames or paths were modified. optionally, set flag to save figures.
 
 ```python
@@ -87,13 +97,13 @@ Then, run the script:
 $python ./plot_flu_missing_dates.py
 ```
 
-### Influenza H3N2 - subtrees of a single big tree
+## Influenza H3N2 - subtrees of a single big tree
 This part describes the datasetgeneration and processing for the subtrees of a single Influenza tree. The main purpose of this validation run is to prove the stability of the TreeTime inferrence on the sample size. The results are also compared against the two best competitors - Beast and LSD. To show the stability of the inferred Tmrca on the sample size, we perform sampling of subtrees from the bigger Influenza tree. The latter is store in the resources folder in the repository. The sampling is done so that the root of every sampled tree is the same as of the initial tree, which implies that the expected inferred Tmrca date should be the same on every suubtree.
 
-#### Dataset generation
+### Dataset generation
 The dataset generation is performed by the two scripts: one is to run the simulations for a given set of parameters (`./generate_flu_subtrees_dataset_run.py`). Another  script (`./generate_flu_subtrees_dataset_submit.py`)  creates the range of the parameters, and for each combination of the parameters, calls the 'run' script. It also decides whether to run the simulations directly on the local computer, or it should be submitted to a remote cluster.
 
-##### Single point simulation (Run script)
+#### Single point simulation (Run script)
 The configuration of the run script is basically to toggle switches to set which simulations should be performed:
 
 ```python
@@ -111,7 +121,7 @@ tree_name = "./resources/flu_H3N2/H3N2_HA_2011_2013.nwk"
 
 NOTE: tree should be in newick format, the alignment should be in the fasta format.
 
-##### Whole dataset generation (Submit script)
+#### Whole dataset generation (Submit script)
 To run the validation, first edit the `generate_flu_subtrees_dataset_submit.py` file to adapt to your run conditions. The example of the configuration is shown below:
 
 
@@ -166,7 +176,7 @@ Finally, decide whether you will run the simulations on a cluster in parallel, o
 
 NOTE: the time and the amount of memory is set for the Beast run, which uses Java virtual machine and requires a lot of memory just to be started. If you are not using Beast, you could decrease the runtime to 20 mins, and the amount of memory to 3G.
 
-#### Plotting the results
+### Plotting the results
 To plot the results, first edit the `./plot_flu_subtrees_res.py` file. The configuration includes specifying the filenames, where the results should be found:
 
 ```python
