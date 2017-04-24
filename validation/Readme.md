@@ -5,18 +5,136 @@ This project comprises the boilerplate code for Treetime validation, tests and b
 
 # Table of Contents
 
-
 * [Organization](#organization)
+   * [Resources](#resources)
+      * [External binaries](external-binaries)
+      * [Initial data](initial-data)
 * [Configuration and run](#configuration-and-run)
+   * [Simulated data](simulated-data)
    * [Influenza H3N2 - missing dates](#influenza-h3n2-reconstruction-with-missing-dates-information)
    * [Influenza H3N2 - subtrees](#influenza-h3n2-subtrees-of-a-single-big-tree)
-* Results
 
 
 #Organization
 Basically, the validation workflow is separated into two major parts: the dataset generation, and the processing the generated datasets followed by the results analysis and plotting. These two parts are intentionally implemented so that they can be run separately and independently.
 
+## Resources
+
+### External binaries
+The comparison to the other packages requires some external binaries to be downloaded, installed to the host system, and registered by the project. To avoid the issues with the paths of the program installation, there is an `external_binaries.py` file, which lists all third-party binaries used by the project.
+
+The two phylogeny packages used in the validation are the [LSD](http://www.atgc-montpellier.fr/LSD/), and [BEAST](http://beast.bio.ed.ac.uk/). Download them and install, using the instructions provided by the vendors. After all done, the treetime-validation project should be able to find the executables of the projects.  In addition, for tree generation, we use the [FastTree](http://www.microbesonline.org/fasttree/) package. Download and install following the instructions.
+
+Add the paths to the phylogeny packages to the  `external_binaries.py` file:
+
+```python
+FAST_TREE_BIN = "/usr/bin/fasttree"
+LSD_BIN  = "/usr/bin/lsd"
+BEAST_BIN = "/opt/BEASTv1.8.4/lib/beast.jar"
+```
+
+The simulation of the evolution process also includes usage of the [FFpopSim](http://webdav.tuebingen.mpg.de/ffpopsim/) forward-time simulation library.
+
+NOTE: to enable intermediate sampling in the population in the evolution process, we use the FFpopSim extension.
+
+Download the FFpopSim from [GiHub page](https://github.com/neherlab/ffpopsim), and checkout to the branch `historical_samples`. Compile the library using the instructions provided with the code. Then, compile the cpp programs developed for the treetime validation. The cpp files are located in the `resources/src` directory. The compilation is performed as shown below:
+
+NOTE: To compile FFpopsim, you should have gnu-scientific library installed
+
+```bash
+$g++ g++ -o ffpopsim --std=c++11 FFpopSim.cpp -I <path-to-ffpopsim-headers> [-L <path-to-ffpopsim-lib>] -lFFPopSim -lgsl -lgslcblas
+```
+
+There is another version used to generate data for skyline validation:
+
+```bash
+$g++ g++ -o ffpopsim_skyline --std=c++11 FFpopSim_skyline.cpp -I <path-to-ffpopsim-headers> [-L <path-to-ffpopsim-lib>] -lFFPopSim -lgsl -lgslcblas
+```
+
+Then, register the compiled binaries to the `external_binaries.py` file:
+
+```python
+
+FFPOPSIM_BIN  = "<path-to-ffpopsim binary>"
+FFPOPSIM_SKYLINE_BIN = "<path-to-ffpopsim_skyline binary>"
+```
+
+### Initial data
+The data usde for the simulation are located in the `resources` folder. Basically, the validation scripts need the Influenza tree and alignment with substantial number of leaves (ideally, around 5000 leaves). We have chosen the influenza sequences for the period 2011-2013 years, segment HA. The sequences were downloaded from [flu-DB](https://www.fludb.org), re-aligned. The tree for the alignment has been built using FastTree. In principle, any other tree can be used for the alignment. In case another tree is used, make sure you specify the name of the tree accordingly where needed.
+
+To run Beast, we need som configuration template. As we work with influenza trees, we use the previously tested and published configuration from the [Bedford, Russell, et al](http://www.nature.com/nature/journal/v523/n7559/full/nature14460.html?WT.ec_id=NATURE-20150709&spMailingID=49054266&spUserID=MjA1NjIyNTk4MQS2&spJobID=720986702&spReportId=NzIwOTg2NzAyS0). The file is located in the `resources` folder. Note that we use it only as a configuration template. Than means, in each simulation we specify the actual sequences, initial tree and leaf dates, whereas all the configurations stay the same accross simulations.
+
 # Configuration and run
+
+
+## Simulated data
+To validate the TreeTime results, we use the trees, simulated by the FFPopSim forward-time evolution simulation package. Before run the analysis in this section, please make sure you have downloadad and compiled FFPpopSim as described above. The validation is separated into two parts - the generation of the simulated dataset + its analysis, and plotiing the results.
+The results of the TreeTime are compared against the Beast and LSD packages. If you use them in the analysis, please make sure you have donloaded the binaries, and configured the paths accordingly. The dataset generation and analysis is made by the two python scripts. First, configure the `generate_simulated_dataset_submit.py`.
+
+#### Single-point simulations (Run script)
+This script runs single-point simulations for a given set of parameters. It should not require any configuration except enabling/disabling the simulation steps.
+
+```python
+
+    # if true, everything will be regenerated from scratch. otherise, the
+    # existing dataset will be used
+    GENERATE_SIMULATED_DATA = True
+
+    RUN_TREETIME = True
+    RUN_LSD = True
+    RUN_BEAST = True
+```
+#### Whole dataset generation (Submit script)
+This script creates the range of the parameters used and then for each set of the input parameters calls `generate_simulated_dataset_run.py` script. First, define the output directories and filenames for the generated data:
+
+```python
+    # Directory to store results
+    res_dir = "./simulated_data/dataset"
+    # File prefix to store the formatted output for further processing/comparison
+    outfile = "./simulated_data/2017-04-19"
+```
+Then, you should provide the range of the parameters to simulate:
+
+```python
+    # FFPopSim simulation parameters
+    L = 1e4  # sequence length
+    N = 100  # population size
+    SAMPLE_VOL = 10  # number of sequences sampled to be included in the tree
+    SAMPLE_NUM = 20  # number of samples (defines the total tree length)
+    SAMPLE_FREQS = [10, 20, 50]  # number of generations between sampling.
+                                 # Defines the total tree length.
+                                 # In this case, tot evo time = T/N =
+                                 # [2, 4, 10] coalescence times
+
+    # mutation rates used in the simulations
+    MUS = [7e-6, 1e-5, 2e-5, 5e-5, 7e-5, 1e-4, 2e-4, 5e-4, 7e-4, 1e-3, 2e-3]
+    # number of simulations per set of parameters
+    N_POINTS = 20
+
+    # staring repetiion number. If you have some dataset, setting this number
+    # to a bigger value will cause the sets concatenation rather then overwrite
+    N_0 = 0
+```
+
+When all done, you should decide, whether the simulations will be run remotely on the cluster, or locally on your computer. In the first case, you should set the cluster flag to ON and edit the call command. Below, there is  a configuration for the Sun Grid Engine cluster.
+
+```python
+
+    CLUSTER = True
+
+    if CLUSTER:
+        call = ['qsub', '-cwd', '-b','y',
+               '-l', 'h_rt=23:59:0', # BEAST might run long
+                #'-o', './stdout.txt',
+                  #'-e', './stderr.txt',
+                '-l', 'h_vmem=50G', # BEAST requires A LOT
+                 './generate_simulated_dataset_run.py']
+    else:
+        call = ['./generate_simulated_dataset_run.py']
+```
+
+NOTE: the time and the amount of memory is set for the Beast run, which uses Java virtual machine and requires a lot of memory just to be started. If you are not using Beast, you could decrease the runtime to 20 mins, and the amount of memory to 3G.
+
 
 ## Influenza H3N2 - reconstruction with missing dates information
 The main goal of this part is to analyze the influence of the missing temopral information on the precision of the Tmrca reconstruction. The validation is sseparated into two parts: the dataset generation+analysis, and the results plotting.
