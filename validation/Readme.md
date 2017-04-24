@@ -10,17 +10,40 @@ This project comprises the boilerplate code for Treetime validation, tests and b
 
 Basically, the validation workflow is separated into two major parts: the dataset generation, and the processing the generated datasets followed by the results analysis and plotting. These two parts are intentionally implemented so that they can be run separately and independently.
 
-### Dataset generation
-
-#### Influenza H3N2 - subtrees of a single big tree
+### Influenza H3N2 - subtrees of a single big tree
 
 This part describes the datasetgeneration and processing for the subtrees of a single Influenza tree. The main purpose of this validation run is to prove the stability of the TreeTime inferrence on the sample size. The results are also compared against the two best competitors - Beast and LSD. To show the stability of the inferred Tmrca on the sample size, we perform sampling of subtrees from the bigger Influenza tree. The latter is store in the resources folder in the repository. The sampling is done so that the root of every sampled tree is the same as of the initial tree, which implies that the expected inferred Tmrca date should be the same on every suubtree.
+
+#### Dataset generation
+
+The dataset generation is performed by the two scripts: one is to run the simulations for a given set of parameters (`./generate_flu_subtrees_dataset_run.py`). Another  script (`./generate_flu_subtrees_dataset_submit.py`)  creates the range of the parameters, and for each combination of the parameters, calls the 'run' script. It also decides whether to run the simulations directly on the local computer, or it should be submitted to a remote cluster.
+
+##### Single point simulation (Run script)
+
+The configuration of the run script is basically to toggle switches to set which simulations should be performed:
+
+```python
+RUN_TREETIME = True
+RUN_LSD = True
+RUN_BEAST = True
+```
+
+In addition, if you are using custom tree and alignment, specify the path, where the script can find both:
+
+```python
+aln_name = "./resources/flu_H3N2/H3N2_HA_2011_2013.fasta"
+tree_name = "./resources/flu_H3N2/H3N2_HA_2011_2013.nwk"
+```
+
+NOTE: tree should be in newick format, the alignment should be in the fasta format.
+
+##### Whole dataset generation (Submit script)
+
 
 To run the validation, first edit the `generate_flu_subtrees_dataset_submit.py` file to adapt to your run conditions. The example of the configuration is shown below:
 
 
 First, configure the output directory and filenames to store the results:
-
 
 ```python
 # root dir to store all results
