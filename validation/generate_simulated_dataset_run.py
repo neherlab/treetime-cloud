@@ -7,7 +7,6 @@ import utility_functions_simulated_data as utils_sim
 
 if  __name__ == '__main__':
 
-    long_branch = False
     GENERATE_SIMULATED_DATA = True
     RUN_TREETIME = True
     RUN_LSD = True
