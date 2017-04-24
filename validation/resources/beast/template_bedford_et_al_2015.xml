@@ -1,0 +1,233 @@
+<?xml version="1.0" standalone="yes"?>
+<beast>
+
+    <taxa id="taxa">
+    </taxa>
+    <alignment id="alignment" dataType="nucleotide">
+    </alignment>
+    <newick id="startingTree" usingDates="true">
+    </newick>
+
+    <mergePatterns id="CP1+2.patterns">
+        <patterns from="1" every="3" strip="false">
+            <alignment idref="alignment"/>
+        </patterns>
+        <patterns from="2" every="3" strip="false">
+            <alignment idref="alignment"/>
+        </patterns>
+    </mergePatterns>
+
+    <patterns id="CP3.patterns" from="3" every="3" strip="false">
+        <alignment idref="alignment"/>
+    </patterns>
+
+    <constantSize id="constant" units="years">
+        <populationSize>
+            <parameter id="constant.popSize" value="5.0" lower="0.0"/>
+        </populationSize>
+    </constantSize>
+
+<!--     <coalescentTree id="startingTree">
+        <taxa idref="taxa"/>
+        <constantSize idref="constant"/>
+    </coalescentTree> -->
+
+    <treeModel id="treeModel">
+        <tree idref="startingTree"/>
+        <rootHeight>
+            <parameter id="treeModel.rootHeight"/>
+        </rootHeight>
+        <nodeHeights internalNodes="true">
+            <parameter id="treeModel.internalNodeHeights"/>
+        </nodeHeights>
+
+        <nodeHeights internalNodes="true" rootNode="true">
+            <parameter id="treeModel.allInternalNodeHeights"/>
+        </nodeHeights>
+    </treeModel>
+
+    <coalescentLikelihood id="coalescent">
+        <model>
+            <constantSize idref="constant"/>
+        </model>
+        <populationTree>
+            <treeModel idref="treeModel"/>
+        </populationTree>
+    </coalescentLikelihood>
+
+    <strictClockBranchRates id="branchRates">
+        <rate>
+            <parameter id="clock.rate" value="0.0050" lower="0.0"/>
+        </rate>
+    </strictClockBranchRates>
+
+    <HKYModel id="CP1+2.hky">
+        <frequencies>
+            <frequencyModel dataType="nucleotide">
+                <frequencies>
+                    <parameter id="CP1+2.frequencies" value="0.25 0.25 0.25 0.25"/>
+                </frequencies>
+            </frequencyModel>
+        </frequencies>
+        <kappa>
+            <parameter id="CP1+2.kappa" value="2.0" lower="0.0"/>
+        </kappa>
+    </HKYModel>
+
+    <HKYModel id="CP3.hky">
+        <frequencies>
+            <frequencyModel dataType="nucleotide">
+                <frequencies>
+                    <parameter id="CP3.frequencies" value="0.25 0.25 0.25 0.25"/>
+                </frequencies>
+            </frequencyModel>
+        </frequencies>
+        <kappa>
+            <parameter id="CP3.kappa" value="2.0" lower="0.0"/>
+        </kappa>
+    </HKYModel>
+
+    <siteModel id="CP1+2.siteModel">
+        <substitutionModel>
+            <HKYModel idref="CP1+2.hky"/>
+        </substitutionModel>
+        <relativeRate>
+            <parameter id="CP1+2.mu" value="1.0" lower="0.0"/>
+        </relativeRate>
+    </siteModel>
+
+    <siteModel id="CP3.siteModel">
+        <substitutionModel>
+            <HKYModel idref="CP3.hky"/>
+        </substitutionModel>
+        <relativeRate>
+            <parameter id="CP3.mu" value="1.0" lower="0.0"/>
+        </relativeRate>
+    </siteModel>
+
+    <compoundParameter id="allMus">
+        <parameter idref="CP1+2.mu"/>
+        <parameter idref="CP3.mu"/>
+    </compoundParameter>
+    <treeLikelihood id="CP1+2.treeLikelihood" useAmbiguities="false" stateTagName="CP1+2.states">
+        <mergePatterns idref="CP1+2.patterns"/>
+        <treeModel idref="treeModel"/>
+        <siteModel idref="CP1+2.siteModel"/>
+        <strictClockBranchRates idref="branchRates"/>
+    </treeLikelihood>
+
+    <treeLikelihood id="CP3.treeLikelihood" useAmbiguities="false" stateTagName="CP3.states">
+        <patterns idref="CP3.patterns"/>
+        <treeModel idref="treeModel"/>
+        <siteModel idref="CP3.siteModel"/>
+        <strictClockBranchRates idref="branchRates"/>
+    </treeLikelihood>
+    <operators id="operators" optimizationSchedule="log">
+
+        <scaleOperator scaleFactor="0.75" weight="0.1">
+            <parameter idref="CP1+2.kappa"/>
+        </scaleOperator>
+        <scaleOperator scaleFactor="0.75" weight="0.1">
+            <parameter idref="CP3.kappa"/>
+        </scaleOperator>
+        <deltaExchange delta="0.01" weight="0.1">
+            <parameter idref="CP1+2.frequencies"/>
+        </deltaExchange>
+        <deltaExchange delta="0.01" weight="0.1">
+            <parameter idref="CP3.frequencies"/>
+        </deltaExchange>
+        <deltaExchange delta="0.75" parameterWeights="1140 570" weight="2">
+            <parameter idref="allMus"/>
+        </deltaExchange>
+        <scaleOperator scaleFactor="0.75" weight="3">
+            <parameter idref="clock.rate"/>
+        </scaleOperator>
+        <subtreeSlide size="15.0" gaussian="true" weight="15">
+            <treeModel idref="treeModel"/>
+        </subtreeSlide>
+        <narrowExchange weight="15">
+            <treeModel idref="treeModel"/>
+        </narrowExchange>
+        <wideExchange weight="3">
+            <treeModel idref="treeModel"/>
+        </wideExchange>
+        <wilsonBalding weight="3">
+            <treeModel idref="treeModel"/>
+        </wilsonBalding>
+        <scaleOperator scaleFactor="0.75" weight="3">
+            <parameter idref="treeModel.rootHeight"/>
+        </scaleOperator>
+        <uniformOperator weight="30">
+            <parameter idref="treeModel.internalNodeHeights"/>
+        </uniformOperator>
+        <scaleOperator scaleFactor="0.75" weight="3">
+            <parameter idref="constant.popSize"/>
+        </scaleOperator>
+        <upDownOperator scaleFactor="0.75" weight="3">
+            <up>
+                <parameter idref="clock.rate"/>
+            </up>
+            <down>
+                <parameter idref="treeModel.allInternalNodeHeights"/>
+            </down>
+        </upDownOperator>
+    </operators>
+    <mcmc id="mcmc" chainLength="5000000" autoOptimize="true" operatorAnalysis="h3_small_tree.ops">
+        <posterior id="posterior">
+            <prior id="prior">
+                <logNormalPrior mean="1.0" stdev="1.25" offset="0.0" meanInRealSpace="false">
+                    <parameter idref="CP1+2.kappa"/>
+                </logNormalPrior>
+                <logNormalPrior mean="1.0" stdev="1.25" offset="0.0" meanInRealSpace="false">
+                    <parameter idref="CP3.kappa"/>
+                </logNormalPrior>
+                <uniformPrior lower="0.0" upper="1.0">
+                    <parameter idref="CP1+2.frequencies"/>
+                </uniformPrior>
+                <uniformPrior lower="0.0" upper="1.0">
+                    <parameter idref="CP3.frequencies"/>
+                </uniformPrior>
+                <ctmcScalePrior>
+                    <ctmcScale>
+                        <parameter idref="clock.rate"/>
+                    </ctmcScale>
+                    <treeModel idref="treeModel"/>
+                </ctmcScalePrior>
+                <exponentialPrior mean="1.0" offset="0.0">
+                    <parameter idref="constant.popSize"/>
+                </exponentialPrior>
+                <coalescentLikelihood idref="coalescent"/>
+            </prior>
+            <likelihood id="likelihood">
+                <treeLikelihood idref="CP1+2.treeLikelihood"/>
+                <treeLikelihood idref="CP3.treeLikelihood"/>
+            </likelihood>
+        </posterior>
+        <operators idref="operators"/>
+
+        <log id="screenLog" logEvery="10000">
+            <column label="Posterior" dp="4" width="12">
+                <posterior idref="posterior"/>
+            </column>
+            <column label="Prior" dp="4" width="12">
+                <prior idref="prior"/>
+            </column>
+            <column label="Likelihood" dp="4" width="12">
+                <likelihood idref="likelihood"/>
+            </column>
+            <column label="rootHeight" sf="6" width="12">
+                <parameter idref="treeModel.rootHeight"/>
+            </column>
+            <column label="clock.rate" sf="6" width="12">
+                <parameter idref="clock.rate"/>
+            </column>
+        </log>
+
+
+    </mcmc>
+    <report>
+        <property name="timer">
+            <mcmc idref="mcmc"/>
+        </property>
+    </report>
+</beast>
