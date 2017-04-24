@@ -8,6 +8,85 @@ Basically, the validation workflow is separated into two major parts: the datase
 
 ## Configuration and run
 
+### Influenza H3N2 - reconstruction with missing dates information
+The main goal of this part is to analyze the influence of the missing temopral information on the precision of the Tmrca reconstruction. The validation is sseparated into two parts: the dataset generation+analysis, and the results plotting.
+
+#### Dataset generation
+To generate dataset and to run the simulations on the generated data, configure and run the two python scripts: `generate_flu_missingDates_submit.py` and `generate_flu_missingDates_run.py`. The first script generates the range of the parameters to be used in the simulations, and calls the second script for each combination of the input parameters. The seond script performs datapreparation for a single set of parameters, and then runs the treetime simulations for the specified parameters.
+
+##### Single-point simulations (Run script)
+The script performs rnadom sampling of the leaves on a given tree, erases the temporal information for these leaves, and then perform the treetime simulations. normally, it requeres no configuration.
+
+##### Whole dataset generation (Submit script)
+Before running the scipt, it should be configured. First of all, specify the output directories where the results will be placed.
+
+```python
+    #output directories
+    out_dir = "./flu_H3N2/missing_dates/"
+    subtree_dir = os.path.join(out_dir, "subtrees")
+```
+
+Then, define the name format of the output files:
+
+```python
+    # file formats
+    resfile_fmt  = os.path.join(out_dir, "./H3N2_HA_2011_2013_{}seqs_res.csv")
+    resfile_dates_fmt  = os.path.join(out_dir, "./H3N2_HA_2011_2013_{}seqs_dates_res.csv")
+    treefile_fmt = os.path.join(subtree_dir, "./H3N2_HA_2011_2013_{}seqs.nwk")
+    alnfile_fmt  = os.path.join(subtree_dir, "./H3N2_HA_2011_2013_{}seqs.fasta")
+```
+
+In the end, you should specify the range of the used parameters:
+
+```python
+    # for the simulations, use the tree with the specified number of
+    # sequences. The trees should be produced beforehand and placed in the s
+    # subtrees folder defined above.
+    nseqs = [100]
+    # Set of the fraction of dates known.
+    dates_knonwn_fraction = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5,
+                             0.6, 0.7, 0.8, 0.9, 1.0]
+    # Numbe of repetitions for each subtree and each known fraction. Multiple
+    # repetitions allow to estimate the statistical error. The good estimate
+    # for this parameter is between 10 and 50.
+    Npoints = 20
+```
+
+In the end, you should decide, whether the simulations will be run remotely on the cluster, or locally on your computer. In the first case, you should set the cluster flag to ON and edit the call command. Below, there is  a configuration for the Sun Grid Engine cluster.
+
+```python
+    CLUSTER = True
+    call = ['qsub', '-cwd', '-b','y',
+                             '-l', 'h_rt=1:59:0',
+                             #'-o', './stdout.txt',
+                             #'-e', './stderr.txt',
+                             '-l', 'h_vmem=3G',
+                             './generate_flu_missingDates_dataset_run.py']
+```
+
+
+After all done, run the dataset generation running
+
+```bash
+$python generate_flu_missingDates_dataset_run.py
+```
+#### Plotting the results
+To plot the results, first you shold configure the `plot_flu_missing_dates.py` script. Normally, you should only specify the filenames, where the results of the above simulations are stored. It is only necessary, if the filenames or paths were modified. optionally, set flag to save figures.
+
+```python
+    save_fig = True
+
+    work_dir = './flu_H3N2/missing_dates'
+    fname_format = 'H3N2_HA_2011_2013_{}seqs_res.csv'
+    fname_dates_format = 'H3N2_HA_2011_2013_{}seqs_res.csv_dates.csv'
+```
+
+Then, run the script:
+
+```bash
+$python ./plot_flu_missing_dates.py
+```
+
 ### Influenza H3N2 - subtrees of a single big tree
 This part describes the datasetgeneration and processing for the subtrees of a single Influenza tree. The main purpose of this validation run is to prove the stability of the TreeTime inferrence on the sample size. The results are also compared against the two best competitors - Beast and LSD. To show the stability of the inferred Tmrca on the sample size, we perform sampling of subtrees from the bigger Influenza tree. The latter is store in the resources folder in the repository. The sampling is done so that the root of every sampled tree is the same as of the initial tree, which implies that the expected inferred Tmrca date should be the same on every suubtree.
 
