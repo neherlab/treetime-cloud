@@ -24,6 +24,9 @@ simulated_data/*
 flu_H3N2/missing_dates/*
 flu_H3N2/subtree_samples/*
 figs/
+# include resources:
+!resources/beast/*
+!resources/flu_H3N2/*
 
 # results are placed in the datasets in the results branch:
 #!simulated_data/*.csv
