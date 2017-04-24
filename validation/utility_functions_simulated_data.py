@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+"""
+This module defines some  utility functions,
+which are needed to operate the simulated data workflow.
+"""
 import treetime
 from Bio import Phylo, AlignIO, Align
 import os, sys
@@ -5,7 +10,6 @@ import treetime
 import numpy as np
 from external_binaries import *
 from utility_functions_general import internal_regress, remove_polytomies, parse_lsd_output
-
 import subprocess
 
 NEAREST_DATE = 2016.5
@@ -70,6 +74,9 @@ def evolve_seq(treefile, basename, mu=0.0001, L=1000, mygtr = treetime.GTR.stand
     return aln, full_aln, mu_real
 
 def _create_random_gtr(mu, alphabet='nuc'):
+    """
+    Create random GTR model
+    """
     alph = treetime.seq_utils.alphabets[alphabet]
     pis = np.random.rand(alph.shape[0])
     pis /= np.sum(pis)
@@ -79,7 +86,10 @@ def _create_random_gtr(mu, alphabet='nuc'):
     return treetime.GTR.custom(mu, pis, W, alphabet=alphabet)
 
 def _evolve_sequence(tree, L, gtr):
-
+    """
+    Produce random sequence of a given length L, evolve it on a given tree
+    using the given gtr model.
+    """
     if isinstance(tree, str):
         tree = Phylo.read(tree, 'newick')
 
@@ -113,6 +123,9 @@ def _evolve_sequence(tree, L, gtr):
     return root_seq, aln
 
 def gtr_comparison(basename, mu_avg_t, L=1e3):
+    """
+    Compare the two GTR models.
+    """
 
     def _get_avg_branch_len(treefile):
 
@@ -152,6 +165,24 @@ def run_treetime(basename, outfile, fasttree=False, failed=None, **kwargs):
     """
     Infer the dates of the internal nodes using the TreeTime package.
     Append results to the given file.
+
+    Args:
+
+     - basename(str): file prefix, which is resolved in the alignment path (by
+     adding '.nuc.fasta') and to the tree filename (by adding '.opt.nwk' or similar).
+
+     - outfile(str): output file to save results. The results will be written in
+     append mode.
+
+     - fasttree(bool): whether to use fasttree-generated tree (<basename>.ft.nwk)
+     or not (use <basename>.opt.nwk)
+
+     - failed(list or None): in not None, in case of treetime failure, the basename
+     will be appended to the list for further analysis
+
+    **Kwargs:
+
+     - all arguments will be passe down to the treetime object run function.
     """
     if fasttree:
         treefile = basename + ".ft.nwk"
@@ -426,6 +457,10 @@ def dates_from_ffpopsim_tree(t):
         return NEAREST_DATE, {}
 
 def run_beast(basename, out_dir, fast_tree=False):
+    """
+    From basename, compose names for the tree, dates and lignment, and call
+    run_beast from the beast_utilities.py module
+    """
 
     try: # if running in parallel, migh be simultaneous creation of the same dir from different threads
         if not os.path.exists(out_dir):
