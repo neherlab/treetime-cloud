@@ -7,6 +7,7 @@ from treetime import TreeTime
 from matplotlib import pyplot as plt
 import seaborn as sns
 
+from plot_defaults import *
 cols = sns.color_palette(n_colors=6)
 
 def run_ffpopsim_simulation_skyline(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, amplitude,
@@ -73,7 +74,8 @@ def estimate_skyline(base_name, plot=False):
     amp = float(params[-3][3:])
     N = float(params[2][1:])
 
-    T = TreeTime(tree=tree_file, aln=aln_file, dates = generations_from_ffpopsim_tree(tree_file)[1], gtr="JC69", real_dates=False)
+    generations = generations_from_ffpopsim_tree(tree_file)[1]
+    T = TreeTime(tree=tree_file, aln=aln_file, dates=generations, gtr="JC69", real_dates=False)
 
     T.run(Tc="skyline",max_iter=3, long_branch=True, resolve_polytomies=True, infer_gtr=True, root='best') #, fixed_slope=0.0001)
     print(T.gtr)
@@ -92,38 +94,118 @@ def estimate_skyline(base_name, plot=False):
     informative_range = x.searchsorted(np.min([n.numdate for n in T.tree.root]))
     return period, amp, x[informative_range:], skyline.y[informative_range:], truePopSize[informative_range:]
 
+def save_estimate_skyline(period, amp, x, y, trueY, outfile):
+    with open(outfile, 'w') as of:
+        of.write("#period={}\n".format(period))
+        of.write("#amplitude={}\n".format(amp))
+        of.write("#x, y, trueY\n")
+        for (i,j,k) in zip(x, y, trueY):
+            of.write('{},{},{}\n'.format(i,j,k))
+
+def read_estimate_skyline(infile):
+    with open(infile, 'r') as inf:
+        ss = inf.readlines()
+
+    period = None
+    amp = None
+    x,y,trueY = [],[],[]
+
+    reading_arrays = False
+    for s in ss:
+        if s.startswith('#period'):
+            period = float(s.split('=')[-1].strip())
+        elif s.startswith('#amplitude'):
+            amp = float(s.split('=')[-1].strip())
+        elif s.startswith('#x, y, trueY'):
+            reading_arrays = True
+        elif reading_arrays:
+            try:
+                i,j,k = map(float, s.split(','))
+                x.append(i)
+                y.append(j)
+                trueY.append(k)
+            except:
+                reading_arrays = False
+        else:
+            continue
+    return period, amp, x, y, trueY
 
 if __name__=="__main__":
 
     RUN_FFPOPSIM = False
+    RUN_TREETIME = False
+    SAVE_FIG = True
 
-    res_dir = './skyline/simulated_data/'
+    sim_dir = './skyline/simulated_data/'
+    resdir = './skyline/'
     N=300
     mu = 1e-3
     L=1000
     Nsamples = 40
     DeltaT = N/40
     SampleSize = 20
-    periods = [0.5, 1.0, 2.0]
+    periods = [0.5, 2.0]
 
     if RUN_FFPOPSIM:
         for period in periods:
             for amp in [0.5, 0.8, 0.9]:
-                run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, res_dir, 'fluct')
+                run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, sim_dir, 'fluct')
 
-    fnames = glob.glob(os.path.join(res_dir,'FF*Mu0.001*fluct.nwk'))
-    res = []
-    for fname in fnames:
-        tmp = estimate_skyline(fname[:-4])
-        res.append(tmp)
 
-    fig, axs = plt.subplots(3,1)
+    if RUN_TREETIME:
+        fnames = glob.glob(os.path.join(sim_dir,'FF*Mu0.001*fluct.nwk'))
+        res = []
+        for fname in fnames:
+            tmp = estimate_skyline(fname[:-4])
+            resname = os.path.join(resdir, os.path.split(fname)[-1].replace('_fluct.nwk', '_res.txt'))
+            save_estimate_skyline(tmp[0], tmp[1],tmp[2],tmp[3],tmp[4], resname)
+            res.append(tmp)
+
+
+    fnames = glob.glob(os.path.join(resdir,'FF*Mu0.001*res.txt'))
+    res = map(read_estimate_skyline, fnames)
+
+
+    fig = plt.figure(figsize=onecolumn_figsize)
+
+    # common Y label
+    fig.text(0.05,0.5, 'Population size estimate',
+        rotation='vertical',
+        fontsize=label_fs,
+        verticalalignment='center',
+        horizontalalignment='center')
+
+    axs = [fig.add_subplot(211), fig.add_subplot(212)]
     for ri, (p, amp, x, s, t) in enumerate(res):
-        ax = axs[periods.index(p)]
-        print(p,amp, np.corrcoef(s,t)[0,1])
-        ax.plot(x, s, c=cols[ri%len(cols)], ls='--')
-        ax.plot(x, t, c=cols[ri%len(cols)], ls='-')
 
-    plt.savefig('./skyline.pdf')
+        if not p in periods:
+            continue
+
+        axidx = periods.index(p)
+        ax = axs[axidx]
+        print(p,amp, np.corrcoef(s,t)[0,1])
+        ax.plot(x, s, c=cols[ri%len(cols)], ls='-')
+        ax.plot(x, t, c=cols[ri%len(cols)], ls='--')
+        ax.set_xlim(4300,4800)
+
+
+        for label in ax.get_yticklabels():
+            label.set_fontsize(tick_fs)
+
+        if axidx == 0:
+            for label in ax.get_xticklabels():
+                label.set_visible(False)
+        else:
+            for label in ax.get_xticklabels():
+                label.set_fontsize(tick_fs)
+
+
+    #axes.set_ylabel('Population size estimate', fontsize=label_fs)
+    axs[1].set_xlabel('Evolution time, [Generations]', fontsize = label_fs)
+
+    if SAVE_FIG:
+        plt.savefig('./figs/skyline.pdf')
+        plt.savefig('./figs/skyline.png')
+        plt.savefig('./figs/skyline.svg')
 
 

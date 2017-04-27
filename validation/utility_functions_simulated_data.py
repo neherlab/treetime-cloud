@@ -448,8 +448,8 @@ def generations_from_ffpopsim_tree(t):
         for clade in t.get_terminals():
             if "_DATE_"not in clade.name:
                 continue
-            generations[clade.name] = float(clade.name.split("_")[2])
-        Gen_mrca = float (t.root.name.split("_")[2])
+            generations[clade.name] = float(clade.name.split("_")[1])
+        Gen_mrca = float (t.root.name.split("_")[1])
         return Gen_mrca, generations
     except:
         return 0, {}
