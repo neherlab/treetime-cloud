@@ -30,7 +30,7 @@ def read_treetime_results_dataset(fname):
     df = df[df.R > 0.1]
 
     # some very basic preprocessing
-    df['dTmrca'] = (df['Sim_Tmrca'] - df['Tmrca'])
+    df['dTmrca'] = -(df['Sim_Tmrca'] - df['Tmrca'])
     df['Sim_mu'] = map(lambda x: float(x.split("/")[-1].split('_')[6][2:]), df.File)
     df['Ns'] = map(lambda x: int(x.split("/")[-1].split('_')[3][2:]), df.File)
     df['Ts'] = map(lambda x: int(x.split("/")[-1].split('_')[4][2:]), df.File)
@@ -58,7 +58,7 @@ def read_lsd_results_dataset(fname):
     df = df[[len(k) > 10 for k in df.File]]
 
     #Some basic preprocessing
-    df['dTmrca'] = (df['Sim_Tmrca'] - df['Tmrca'])
+    df['dTmrca'] = -(df['Sim_Tmrca'] - df['Tmrca'])
     df['Sim_mu'] = map(lambda x: float(x.split("/")[-1].split('_')[6][2:]), df.File)
     df['Ns'] = map(lambda x: int(x.split("/")[-1].split('_')[3][2:]), df.File)
     df['Ts'] = map(lambda x: int(x.split("/")[-1].split('_')[4][2:]), df.File)
@@ -89,7 +89,7 @@ def create_lsd_tt_pivot(df, T_over_N=None, mean_or_median='median'):
             N_MUS_idxs[idx] = False
             continue
 
-        dMu = (DF.Sim_mu[idxs] - DF.mu[idxs])/DF.Sim_mu[idxs]
+        dMu = -(DF.Sim_mu[idxs] - DF.mu[idxs])/DF.Sim_mu[idxs]
         dMu.sort_values(inplace=True)
         dMu[int(dMu.shape[0]*0.05) : int(dMu.shape[0]*0.95)]
 
@@ -246,7 +246,7 @@ def read_all_beast_logs(logsdir, treesdir, T_over_N=None):
         Mu.append(df['clock.rate'][-50:].mean())
         Mu_std.append(df['clock.rate'][-50:].std())
 
-        dTmrca.append(Sim_Tmrca[-1] - Tmrca[-1])
+        dTmrca.append(-(Sim_Tmrca[-1] - Tmrca[-1]))
         dMu.append(Sim_Mu[-1] - Mu[-1])
 
     res = pandas.DataFrame({
@@ -294,7 +294,7 @@ def create_beast_log_pivot(df, T_over_N=None):
             N_MUS_idxs[idx] = False
             continue
 
-        dMu = (DF.Sim_Mu[idxs] - DF.Mu[idxs])/DF.Sim_Mu[idxs]
+        dMu = -(DF.Sim_Mu[idxs] - DF.Mu[idxs])/DF.Sim_Mu[idxs]
         dMu.sort_values(inplace=True)
         dMu[int(dMu.shape[0]*0.05) : int(dMu.shape[0]*0.95)]
 
