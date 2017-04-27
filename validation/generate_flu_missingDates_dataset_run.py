@@ -19,6 +19,7 @@ if __name__ == "__main__":
     tree_name = sys.argv[4]
     res_file = sys.argv[5]
     res_dates_file = sys.argv[6]
+    filename_suffix = sys.argv[7]
 
 
     assert(knonw_dates_fraction > 0 and knonw_dates_fraction <= 1.0)
@@ -28,8 +29,6 @@ if __name__ == "__main__":
         start = datetime.datetime.now()
         myTree.run(root='best', relaxed_clock=False, max_iter=3, resolve_polytomies=True, do_marginal=False)
         end = datetime.datetime.now()
-
-
         with open(res_file, 'a') as of:
             of.write("{},{},{},{},{},{},{}\n".format(
                 tree_name,
@@ -64,7 +63,7 @@ if __name__ == "__main__":
                 os.makedirs(beast_out_dir)
             except:
                 pass
-        beast_prefix = os.path.join(beast_out_dir, os.path.split(tree_name)[-1][:-4])  # truncate '.nwk'
+        beast_prefix = os.path.join(beast_out_dir, os.path.split(tree_name)[-1].replace('.nwk', filename_suffix))  # truncate '.nwk'
         run_beast(tree_name, aln_name, dates, beast_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml")
 
 

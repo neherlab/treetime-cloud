@@ -37,12 +37,15 @@ if __name__ =="__main__":
                 else:
                     call = ['./generate_flu_missingDates_dataset_run.py']
 
+                filename_suffix = "_Nk{}_{}".format(frac,point)
+
                 arguments = [str(frac),
                         out_dir,
                         alnfile_fmt.format(nseq),
                         treefile_fmt.format(nseq),
                         resfile_fmt.format(nseq),
-                        resfile_dates_fmt.format(nseq)
+                        resfile_dates_fmt.format(nseq),
+                        filename_suffix
                         ]
                 call.extend(arguments)
                 sp.call(call)
