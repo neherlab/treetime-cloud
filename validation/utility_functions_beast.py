@@ -71,7 +71,7 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
 
     def _set_taxa_dates(xml_root, tree, dates):
 
-        def _create_taxon(name, date):
+        def _create_taxon(name, date=None):
 
             """
             create XML structure, which holds taxon info: id, date, etc
@@ -85,23 +85,22 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
              - xml_taxon: Taxon data as XML structure ready to be plugged to the BEAST xml
             """
 
-            xml_date = XML.Element("date")
-            xml_date.attrib = {"value": str(date), "direction" : "forward", "units":"years"}
-
             xml_taxon = XML.Element('taxon')
             xml_taxon.attrib = {"id" : name}
-            xml_taxon.append(xml_date)
-
+            if date is not None:
+                xml_date = XML.Element("date")
+                xml_date.attrib = {"value": str(date), "direction" : "forward", "units":"years"}
+                xml_taxon.append(xml_date)
             return xml_taxon
 
         xml_taxa = xml_root.find('taxa')
         for leaf in tree.get_terminals():
             name = leaf.name
             if name not in dates:
-                continue
-            date = dates[name]
+                date=None
+            else:
+                date = dates[name]
             xml_taxa.append(_create_taxon(name, date))
-
 
     def _set_aln(xml_root, aln, tree=None):
         xml_aln = xml_root.find('alignment')
