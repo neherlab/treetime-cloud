@@ -20,8 +20,8 @@ if __name__ =="__main__":
     alnfile_fmt  = os.path.join(subtree_dir, "./H3N2_HA_2011_2013_{}seqs.fasta")
 
     nseqs = [100] # files for these number of leaves (sequences) must be produces beforehand
-    dates_knonwn_fraction = [0.5] #[0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    Npoints = 1
+    dates_knonwn_fraction = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    Npoints = 20
 
     for nseq in nseqs:
         for frac in dates_knonwn_fraction:
@@ -29,10 +29,10 @@ if __name__ =="__main__":
 
                 if CLUSTER:
                     call = ['qsub', '-cwd', '-b','y',
-                         '-l', 'h_rt=1:59:0',
+                         '-l', 'h_rt=23:59:0',
                          #'-o', './stdout.txt',
                          #'-e', './stderr.txt',
-                         '-l', 'h_vmem=3G',
+                         '-l', 'h_vmem=50G',
                          './generate_flu_missingDates_dataset_run.py']
                 else:
                     call = ['./generate_flu_missingDates_dataset_run.py']

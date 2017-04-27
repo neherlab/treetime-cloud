@@ -5,7 +5,7 @@ import datetime
 import utility_functions_flu as flu_utils
 from utility_functions_beast import run_beast
 from Bio import AlignIO
-import sys
+import os,sys
 import treetime
 if __name__ == "__main__":
 
