@@ -175,7 +175,8 @@ if __name__ == '__main__':
     plot_date_dists(dates_100,axes=ax_dates)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_leafDates.svg")
-        fig.savefig("./figs/fluH3N2_missingDates_leafDates.jpg")
+        fig.savefig("./figs/fluH3N2_missingDates_leafDates.png")
+        fig.savefig("./figs/fluH3N2_missingDates_leafDates.pdf")
 
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_tmrca = fig.add_subplot(111)
@@ -183,7 +184,8 @@ if __name__ == '__main__':
     plot_results(df_500, 'Tmrca', label='500 nodes tree', axes=ax_tmrca, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_Tmrca.svg")
-        fig.savefig("./figs/fluH3N2_missingDates_Tmrca.jpg")
+        fig.savefig("./figs/fluH3N2_missingDates_Tmrca.png")
+        fig.savefig("./figs/fluH3N2_missingDates_Tmrca.pdf")
 
 
     fig = plt.figure(figsize=onecolumn_figsize)
@@ -192,7 +194,8 @@ if __name__ == '__main__':
     plot_results(df_500, 'Mu', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_Mu.svg")
-        fig.savefig("./figs/fluH3N2_missingDates_Mu.jpg")
+        fig.savefig("./figs/fluH3N2_missingDates_Mu.png")
+        fig.savefig("./figs/fluH3N2_missingDates_Mu.pdf")
 
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_mu = fig.add_subplot(111)
@@ -200,4 +203,5 @@ if __name__ == '__main__':
     plot_results(df_500, 'R2', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.svg")
-        fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.jpg")
+        fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.png")
+        fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.pdf")

@@ -5,7 +5,7 @@ validation
 """
 
 FFPOPSIM_BIN  = "/ebio/ag-neher/share/users/psagulenko/projects/TreeTime/validation/resources/src/ffpopsim"
-FFPOPSIM_SKYLINE_BIN = "/ebio/ag-neher/share/users/psagulenko/projects/TreeTime/validation/resources/src/ffpopsim_skyline"
+FFPOPSIM_SKYLINE_BIN = "/ebio/ag-neher/share/users/psagulenko/projects/TreeTime/validation/resources/src/FFPopSim_skyline.bin"
 
 FAST_TREE_BIN = "/ebio/ag-neher/share/users/psagulenko/programs/fast_tree/fasttree"
 LSD_BIN       = "/ebio/ag-neher/share/users/psagulenko/programs/LSD/lsd-0.2/bin/lsd"

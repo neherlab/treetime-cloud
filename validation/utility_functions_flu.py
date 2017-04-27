@@ -235,8 +235,23 @@ def create_LSD_dates_file_from_flu_tree(tree, outfile):
         df.write("\n".join([str(k) + "\t" + str(dates[k]) for k in dates]))
     return dates
 
-def create_treetime_with_missing_dates(alnfile, treefile, dates_known_fraction=1.0):
+def make_known_dates_dict(alnfile, dates_known_fraction=1.0):
     """
+    Read all the dates of the given flu sequences, and make the dates dictionary
+    for only a fraction of them. The sequences in the resulting dict are chosen
+    randomly.
+    """
+    aln = AlignIO.read(alnfile, 'fasta')
+    dates = {k.name: date_from_seq_name(k.name) for k in aln}
+    # randomly choose the dates so that only the  known_ratio number of dates is known
+    if dates_known_fraction != 1.0:
+        assert(dates_known_fraction > 0 and dates_known_fraction < 1.0)
+        knonw_keys = np.random.choice(dates.keys(), size=int (len(dates) * dates_known_fraction), replace=False)
+        dates = {k : dates[k] for k in knonw_keys}
+    return dates
+
+def create_treetime_with_missing_dates(alnfile, treefile, dates_known_fraction=1.0):
+    """dates = {k.name: date_from_seq_name(k.name) for k in aln}
     Create TreeTime object with fraction of leaves having no sampling dates.
     The leaves to earse sampling dates are chosen randomly.
 
@@ -253,19 +268,10 @@ def create_treetime_with_missing_dates(alnfile, treefile, dates_known_fraction=1
     aln = AlignIO.read(alnfile, 'fasta')
     tt = Phylo.read(treefile, 'newick')
 
-    dates = {k.name: date_from_seq_name(k.name) for k in aln}
-
-    # randomly choose the dates so that only the  known_ratio number of dates is known
-    if dates_known_fraction != 1.0:
-        assert(dates_known_fraction > 0 and dates_known_fraction < 1.0)
-        knonw_keys = np.random.choice(dates.keys(), size=int (len(dates) * dates_known_fraction), replace=False)
-        dates = {k : dates[k] for k in knonw_keys}
-
-    myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = tt,
-            aln = aln, verbose = 4, dates = dates, debug=False)
-
+    dates = make_known_dates_dict(alnfile, dates_known_fraction)
+    myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = treefile,
+            aln = alnfile, verbose = 4, dates = dates, debug=False)
     myTree.optimize_seq_and_branch_len(reuse_branch_len=True, prune_short=True, max_iter=5, infer_gtr=False)
-
     return myTree
 
 def create_subtree(tree, n_seqs, out_file, st_type='equal_sampling'):

@@ -1,12 +1,9 @@
 from external_binaries import FFPOPSIM_SKYLINE_BIN
-
-from generate_dataset import _ffpopsim_tree_aln_postprocess,
+from utility_functions_simulated_data import _ffpopsim_tree_aln_postprocess, generations_from_ffpopsim_tree
 import sys,os, glob
 
 import numpy as np
 from treetime import TreeTime
-from treetime import io
-from generate_dataset import dates_from_ffpopsim_tree
 from matplotlib import pyplot as plt
 import seaborn as sns
 
@@ -61,22 +58,22 @@ def _run_ffpopsim_skyline(L=100, N=100, SAMPLE_NUM=10, SAMPLE_FREQ=5, SAMPLE_VOL
         basename = basename + "_" + res_suffix
 
 
-    call = [FFPOPSIM_BIN, L, N, SAMPLE_NUM, SAMPLE_FREQ, SAMPLE_VOL, MU, basename, amp, period]
+    call = [FFPOPSIM_SKYLINE_BIN, L, N, SAMPLE_NUM, SAMPLE_FREQ, SAMPLE_VOL, MU, basename, amp, period]
     os.system(' '.join([str(k) for k in call]))
 
     return basename
 
 
 def estimate_skyline(base_name, plot=False):
-    tree_file = "out/%s.opt.nwk"%base_name
-    aln_file  = "out/%s.nuc.fasta"%base_name
-    params = base_name.split('_')
+    tree_file = base_name + ".opt.nwk"
+    aln_file  = base_name + ".nuc.fasta"
+    params = (os.path.split(base_name)[-1]).split('_')
     print(params)
     period = float(params[-2][6:])
     amp = float(params[-3][3:])
     N = float(params[2][1:])
 
-    T = TreeTime(tree=tree_file, aln=aln_file, dates = dates_from_ffpopsim_tree(tree_file)[1], gtr="JC69", real_dates=False)
+    T = TreeTime(tree=tree_file, aln=aln_file, dates = generations_from_ffpopsim_tree(tree_file)[1], gtr="JC69", real_dates=False)
 
     T.run(Tc="skyline",max_iter=3, long_branch=True, resolve_polytomies=True, infer_gtr=True, root='best') #, fixed_slope=0.0001)
     print(T.gtr)
@@ -98,6 +95,8 @@ def estimate_skyline(base_name, plot=False):
 
 if __name__=="__main__":
 
+    RUN_FFPOPSIM = False
+
     res_dir = './skyline/simulated_data/'
     N=300
     mu = 1e-3
@@ -106,14 +105,16 @@ if __name__=="__main__":
     DeltaT = N/40
     SampleSize = 20
     periods = [0.5, 1.0, 2.0]
-    for period in periods:
-        for amp in [0.5, 0.8, 0.9]:
-            run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, res_dir, 'fluct')
+
+    if RUN_FFPOPSIM:
+        for period in periods:
+            for amp in [0.5, 0.8, 0.9]:
+                run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, res_dir, 'fluct')
 
     fnames = glob.glob(os.path.join(res_dir,'FF*Mu0.001*fluct.nwk'))
     res = []
     for fname in fnames:
-        tmp = estimate_skyline('.'.join(fname.split('/')[-1].split('.')[:-1]))
+        tmp = estimate_skyline(fname[:-4])
         res.append(tmp)
 
     fig, axs = plt.subplots(3,1)
@@ -122,5 +123,7 @@ if __name__=="__main__":
         print(p,amp, np.corrcoef(s,t)[0,1])
         ax.plot(x, s, c=cols[ri%len(cols)], ls='--')
         ax.plot(x, t, c=cols[ri%len(cols)], ls='-')
+
+    plt.savefig('./skyline.pdf')
 
 

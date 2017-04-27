@@ -416,12 +416,12 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
 
 if __name__ == '__main__':
 
-    T_over_N = 10.
+    T_over_N = 2.
     mean_or_median = 'median'
     PLOT_TREETIME = True
     PLOT_LSD = True
     PLOT_BEAST = True
-    save_fig = False
+    save_fig = True
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
     res_dir = "./simulated_data"
@@ -461,7 +461,8 @@ if __name__ == '__main__':
 
     if save_fig:
         fig.savefig("./figs/simdata_Mu_TN{}_{}.svg".format(T_over_N, mean_or_median))
-        fig.savefig("./figs/simdata_Mu_TN{}_{}.jpg".format(T_over_N, mean_or_median))
+        fig.savefig("./figs/simdata_Mu_TN{}_{}.png".format(T_over_N, mean_or_median))
+        fig.savefig("./figs/simdata_Mu_TN{}_{}.pdf".format(T_over_N, mean_or_median))
 
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
@@ -469,4 +470,5 @@ if __name__ == '__main__':
 
     if save_fig:
         fig.savefig("./figs/simdata_Tmrca_TN{}_{}.svg".format(T_over_N, mean_or_median))
-        fig.savefig("./figs/simdata_Tmrca_TN{}_{}.jpg".format(T_over_N, mean_or_median))
+        fig.savefig("./figs/simdata_Tmrca_TN{}_{}.png".format(T_over_N, mean_or_median))
+        fig.savefig("./figs/simdata_Tmrca_TN{}_{}.pdf".format(T_over_N, mean_or_median))

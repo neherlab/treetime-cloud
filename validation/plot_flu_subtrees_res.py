@@ -232,8 +232,9 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
             label.set_fontsize(tick_fs)
 
     if save:
-        fig.savefig("./figs/{}_LSD_{}.svg".format(what, suffix))
-        fig.savefig("./figs/{}_LSD_{}.jpg".format(what, suffix))
+        fig.savefig("./figs/fluH3N2_subtrees_{}.svg".format(what))
+        fig.savefig("./figs/fluH3N2_subtrees_{}.png".format(what))
+        fig.savefig("./figs/fluH3N2_subtrees_{}.pdf".format(what))
 
 if __name__ == "__main__":
 

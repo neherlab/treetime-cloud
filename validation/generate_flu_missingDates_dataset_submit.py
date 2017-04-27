@@ -38,6 +38,7 @@ if __name__ =="__main__":
                     call = ['./generate_flu_missingDates_dataset_run.py']
 
                 arguments = [str(frac),
+                        out_dir,
                         alnfile_fmt.format(nseq),
                         treefile_fmt.format(nseq),
                         resfile_fmt.format(nseq),

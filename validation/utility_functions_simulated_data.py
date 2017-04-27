@@ -438,6 +438,22 @@ def reconstruct_fasttree(basename):
     os.remove(outfile)
     Phylo.write(tree, outfile, 'newick')
 
+def generations_from_ffpopsim_tree(t):
+    """
+    """
+    if isinstance(t, str):
+        t = Phylo.read(t, 'newick')
+    try:
+        generations = {}
+        for clade in t.get_terminals():
+            if "_DATE_"not in clade.name:
+                continue
+            generations[clade.name] = float(clade.name.split("_")[2])
+        Gen_mrca = float (t.root.name.split("_")[2])
+        return Gen_mrca, generations
+    except:
+        return 0, {}
+
 def dates_from_ffpopsim_tree(t):
     """
     Args:
