@@ -421,7 +421,7 @@ if __name__ == '__main__':
     PLOT_TREETIME = True
     PLOT_LSD = True
     PLOT_BEAST = True
-    save_fig = True
+    save_fig = False
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
     res_dir = "./simulated_data"
@@ -458,6 +458,8 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
     plot_data_stat('Mu', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
+    fig.text(0.15, 0.85, '$\mathrm{\mu}$ overestimated', fontsize=tick_fs)
+    fig.text(0.15, 0.15, '$\mathrm{\mu}$ underestimated', fontsize=tick_fs)
 
     if save_fig:
         fig.savefig("./figs/simdata_Mu_TN{}_{}.svg".format(T_over_N, mean_or_median))
@@ -467,6 +469,8 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
     plot_data_stat('Tmrca', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
+    fig.text(0.15, 0.85, '$\mathrm{T_{mrca}}$ overestimated', fontsize=tick_fs)
+    fig.text(0.15, 0.15, '$\mathrm{T_{mrca}}$ underestimated', fontsize=tick_fs)
 
     if save_fig:
         fig.savefig("./figs/simdata_Tmrca_TN{}_{}.svg".format(T_over_N, mean_or_median))
