@@ -4,8 +4,6 @@ import { Row, Navbar, Nav, NavItem } from "react-bootstrap";
 <h4>Maximum-Likelihood molecular clock phylogenies</h4>
 var Logo = React.createClass({
 
-
-
     render(){
         var scope = {
             splitterStyle: {
@@ -32,7 +30,6 @@ var Name = React.createClass({
 });
 
 var Header  = React.createClass({
-
     render(){
         const navbarInstance = (
           <Navbar inverse className="navbar-treetime">
