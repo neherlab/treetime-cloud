@@ -52,7 +52,14 @@ The simulation of the evolution process also includes usage of the [FFpopSim](ht
 
 NOTE: to enable intermediate sampling in the population in the evolution process, we use the FFpopSim extension.
 
-Download the FFpopSim from [GiHub page](https://github.com/neherlab/ffpopsim), and checkout to the branch `historical_samples`. Compile the library using the instructions provided with the code. Then, compile the cpp programs developed for the treetime validation. The cpp files are located in the `resources/src` directory. The compilation is performed as shown below:
+Download the FFpopSim from [GiHub page](https://github.com/neherlab/ffpopsim), and checkout to the branch `historical_samples`:
+
+```bash
+$git clone https://github.com/neherlab/ffpopsim.git
+$git checkout historical_samples
+```
+
+Compile the library using the instructions provided with the code. Then, compile the cpp programs developed for the treetime validation. The cpp files are located in the `resources/src` directory. The compilation is performed as shown below:
 
 NOTE: To compile FFpopsim, you should have gnu-scientific library installed
 
