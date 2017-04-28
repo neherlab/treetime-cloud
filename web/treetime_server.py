@@ -35,10 +35,51 @@ def index():
 
 @app.route('/ancestral_reconstruction_request', methods=['GET', 'POST'])
 def ancestral_reconstruction_request():
+
     userid = "anc_" + make_id();
     print ("Ancestral reconstruction request " + request.method + "  user_id: " + userid)
-    return None
-    #return redirect('/' + userid + '/progress')
+
+    data = {
+            "UserId": userid,
+            "config": {}
+        }
+
+    response = app.response_class(
+            response=json.dumps(data),
+            status=200,
+            mimetype='application/json'
+    )
+    return response
+
+
+@app.route('/ancestral/<userid>', methods=['GET', 'POST'])
+def ancestral_reconstruction_welcome(userid):
+    if request.method == 'GET':
+        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config={})
+    else:
+        pass
+
+@app.route('/treetime_request', methods=['GET', 'POST'])
+def treetime_request():
+    userid = "tt_" + make_id();
+    print ("treetime request: " + request.method + "  user_id: " + userid)
+    data = {
+        "UserId": userid,
+        "config": {}
+    }
+    response = app.response_class(
+            response=json.dumps(data),
+            status=200,
+            mimetype='application/json'
+    )
+    return response
+
+@app.route('/treetime/<userid>', methods=['GET', 'POST'])
+def treetime_welcome(userid):
+    if request.method == 'GET':
+        return render_template('welcome_treetime.html', UserId=userid, Config={})
+    else:
+        pass
 
 
 # @app.route('/<userid>', methods=['GET', 'POST'])

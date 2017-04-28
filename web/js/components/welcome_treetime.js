@@ -4,7 +4,7 @@ import Header from './header.js'
 var request = require('superagent');
 import { Button } from "react-bootstrap";
 
-var WelcomeAncPage = React.createClass({
+var WelcomeTreeTimePage = React.createClass({
 
     componentDidMount: function(){
         var parentNode = this.getDOMNode().parentNode;
@@ -20,15 +20,15 @@ var WelcomeAncPage = React.createClass({
         return (
             <div>
                 <Header/>
-                <Button bsStyle="primary">Alignment</Button>
-                <Button bsStyle="primary">Tree</Button>
+                <Button bsStyle="primary">TreeTime</Button>
+                <Button bsStyle="primary">TreeTime</Button>
             </div>
         );
     }
 });
 
 ReactDOM.render((
-    <WelcomeAncPage/>),
+    <WelcomeTreeTimePage/>),
     document.getElementById('react'));
 
-export default WelcomeAncPage;
+export default WelcomeTreeTimePage;
