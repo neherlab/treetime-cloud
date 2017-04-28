@@ -1,11 +1,13 @@
-var webpack = require('webpack');  
+var webpack = require('webpack');
 
-module.exports = {  
+module.exports = {
     entry: {
         welcome: "./js/components/welcome.js",
-        progress: "./js/components/progress.js", 
-        results: "./js/components/results.js", 
-        terms: "./js/components/terms.js", 
+        welcome_1: "./js/components/welcome_1.js",
+        welcome_anc: "./js/components/welcome_ancestral_reconstruction.js",
+        progress: "./js/components/progress.js",
+        results: "./js/components/results.js",
+        terms: "./js/components/terms.js",
 
     },
 
@@ -13,11 +15,11 @@ module.exports = {
         path: __dirname + '/static/js',
         filename: "[name].js"
     },
-    
+
     module: {
         loaders: [
             { test: /\.js?$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
-            { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
+            { test: /\.js$/,  exclude: /node_modules/, loader: 'babel-loader'},
             { test: /\.css$/, loader: "style!css" }
         ]
     },

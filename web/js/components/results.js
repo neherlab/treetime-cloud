@@ -361,10 +361,6 @@ var TreeRightPane = React.createClass({
         );
     },
 
-    componentDidMount: function () {
-
-    },
-
     componentDidUpdate : function(){
 
         //console.log("Will update Tree view");

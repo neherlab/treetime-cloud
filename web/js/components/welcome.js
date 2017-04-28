@@ -20,8 +20,6 @@ var DoBuildTree = React.createClass({
         this.props.SetAppConfig({build_tree: !this.props.AppConfig.build_tree})
     },
 
-
-
     render(){
         const tooltip = (
             <Tooltip id="tooltip">
@@ -835,7 +833,7 @@ var TreeTimeForm = React.createClass({
                                     <DoBuildTree
                                         AppConfig={this.state.config}
                                         SetAppConfig={this.SetAppConfig}
-
+                                        blah={'blah'}
                                         />
 
                                 </Col>
