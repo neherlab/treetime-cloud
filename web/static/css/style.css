@@ -20,6 +20,9 @@ h3{
   color:#565656;
 }
 
+/* header */
+
+
 .tooltip-inner{
   text-align:left;
   font-size:12pt;
@@ -30,35 +33,6 @@ h3{
   max-width: 600px;
   width:600px;
   font-size:12pt;
-}
-/*
-* Header definition
-* Header is present on the top of all pages of the application
-*/
-.navbar-treetime{
-    color: #ffffff;
-    background-color: #667292;
-    border-color: #667292;
-}
-
-.navbar-header-treetime {
-  float: center;
-  text-align: center;
-  width:100%;
-  margin-top:24px;
-  margin-bottom:24px;
-}
-
-.navbar-brand {
-  float:none;
-}
-
-.navbar-header-treetime{
-  color:#ffffff;
-}
-
-.info-treetime{
-  background-color: #CAD3DE;
 }
 
 

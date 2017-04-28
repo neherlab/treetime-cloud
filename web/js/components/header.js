@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Navbar, Nav, NavItem } from "react-bootstrap";
+import { Row, Navbar, Nav, NavItem, Glyphicon } from "react-bootstrap";
 
 <h4>Maximum-Likelihood molecular clock phylogenies</h4>
 var Logo = React.createClass({
@@ -32,10 +32,13 @@ var Name = React.createClass({
 var Header  = React.createClass({
     render(){
         const navbarInstance = (
-          <Navbar inverse className="navbar-treetime">
-            <Navbar.Header  className='navbar-header-treetime'>
+          <Navbar>
+            <Nav>
+                <NavItem eventKey={1} href="/"><Glyphicon glyph={"home"}/></NavItem>
+            </Nav>
+            <Navbar.Header>
               <Navbar.Brand>
-                <span style={{"color":"white", "font-size":"20pt;"}}> TreeTime: Maximum-Likelihood molecular clock phylogenies</span>
+                <span> TreeTime: molecular clock phylogenies</span>
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>

@@ -3,11 +3,9 @@ from werkzeug import secure_filename
 import threading
 import numpy as np
 import os, random, subprocess, json, shutil
-
 from Bio import Phylo
 import os,sys
 import StringIO
-
 
 app = Flask(__name__)
 app.threads = {};
@@ -20,6 +18,7 @@ sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 
 import main as main
+
 #from treetime_web import default_config as TREETIME_DEFAULT_CONFIG
 #from treetime_web import run as RUN_TREETIME
 #from tree_time_process import process as TREETIME_PROCESS
@@ -35,7 +34,6 @@ def index():
 
 @app.route('/ancestral_reconstruction_request', methods=['GET', 'POST'])
 def ancestral_reconstruction_request():
-
     userid = "anc_" + make_id();
     print ("Ancestral reconstruction request " + request.method + "  user_id: " + userid)
 
