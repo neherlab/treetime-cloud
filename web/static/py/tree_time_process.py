@@ -2,19 +2,35 @@ from __future__ import print_function, division
 import treetime
 import pandas
 import numpy as np
-from Bio import Phylo, AlignIO
-
-
-from treetime_web import TreeTimeWeb
-import os, sys
-
-from treetime_filenames import *
+from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
+import zipfile
+import time
+import os, sys, json
+from treetime import utils
 
 dirname = (os.path.dirname(__file__))
 
 treename = "in_tree.nwk"
 alnname = "in_aln.fasta"
 metaname = "in_meta.csv"
+
+# file names, uniform across the sessions
+session_state_file = 'session_state.json'
+in_tree = "in_tree.nwk"
+in_aln = "in_aln.fasta"
+in_meta = "in_meta.csv"
+in_cfg = "config.json"
+
+log_filename = "log.txt"
+out_tree_json = "out_tree.json"
+out_likelihoods_json = "out_likelihoods.json"
+out_tree_nwk = "out_tree.nwk"
+out_aln_fasta = "out_aln.fasta"
+out_metadata_csv = "out_metadata.csv"
+out_mol_clock_csv = 'molecular_clock.csv'
+out_gtr = "out_GTR.txt"
+zipname = 'treetime_results.zip'
+
 
 def get_filepaths(root):
     """
@@ -75,6 +91,7 @@ def read_metadata_from_file(infile):
         return dates, metadata
     except:
         print ("Cannot read the metadata file. Exception caught")
+        raise
         return {}, {}
 
 
@@ -84,6 +101,7 @@ class TreeTimeWeb(treetime.TreeTime):
 
         self._webconfig = webconfig
         self._root_dir = root
+        self._log_file = os.path.join(self._root_dir, log_filename)
 
         if webconfig['build_tree'] is True or webconfig['build_tree'] == 'True':
             self.build_tree(root)
@@ -95,31 +113,30 @@ class TreeTimeWeb(treetime.TreeTime):
         self._metadata = metadata
 
         gtr = 'jc' if webconfig['gtr'] == 'infer' else webconfig['gtr']
-        super(treetime.TreeTime, self).__init__(dates=dates, tree=tree, aln=aln,
+        super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
                 gtr=gtr, *args, **kwargs)
 
 
     def run(self, **kwargs):
 
         # get the run parameters
-        infer  = self._webconfig['gtr'] == 'infer'
+        infer_gtr  = self._webconfig['gtr'] == 'infer'
         root = self._webconfig['root']
         do_marginal = False if self._webconfig['do_marginal'] == 'False' or not self._webconfig['do_marginal'] else True
         resolve_polytomies = False if self._webconfig['polytomies'] == 'False' or not self._webconfig['polytomies'] else True
         slope = None if self._webconfig['slope'] is None or self._webconfig['slope'] == 'None' else float(self._webconfig['slope'])
 
-
         # run treetime - call the standard run () function with exctrected parameters
         # TODO add other parameters: relaxed clock + coalescence
-        super(treetime.TreeTime, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
-            resolve_polytomies=resolve_polytomies, max_iter=3, Tc=None, fixed_slope=slope,
-            do_marginal=True)
+        super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
+            resolve_polytomies=resolve_polytomies, max_iter=0, Tc=None, fixed_slope=slope,
+            do_marginal=True, **kwargs)
 
         # save results:
+        self.save_results()
 
 
-
-    def _save_results(self):
+    def save_results(self):
 
         from Bio import Align
         #  files to be displayed in the web interface
@@ -138,7 +155,7 @@ class TreeTimeWeb(treetime.TreeTime):
             out_zip.write(os.path.join(self._root_dir, out_aln_fasta), arcname=out_aln_fasta)
             out_zip.write(os.path.join(self._root_dir, out_metadata_csv), arcname=out_metadata_csv)
             out_zip.write(os.path.join(self._root_dir, out_tree_json), arcname=out_tree_json)
-            out_zip.write(os.path.join(self._root_dir, in_cfg), arcname=in_cfg)
+            #out_zip.write(os.path.join(self._root_dir, in_cfg), arcname=in_cfg)
             out_zip.write(os.path.join(self._root_dir, out_mol_clock_csv), arcname=out_mol_clock_csv)
             out_zip.write(os.path.join(self._root_dir, out_likelihoods_json), arcname=out_likelihoods_json)
             out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
@@ -265,7 +282,7 @@ class TreeTimeWeb(treetime.TreeTime):
                 "value": (node.branch_length) / (node.mutation_length + 0.001)
             })
 
-        if self._relaxed_clock:
+        if self._webconfig['relaxed_clock'] is not False and self._webconfig['relaxed_clock'] is not None:
             # append mutation rate deviation from average
             if hasattr(node, 'branch_length_interplator'):
                 meta.append({
@@ -280,14 +297,13 @@ class TreeTimeWeb(treetime.TreeTime):
     def _distribution_to_human_readable(self, dist):
 
         if dist.is_delta:
-            date = utils.numeric_date() -  self.date2dist.get_date(dist.peak_pos)
-
+            date = self.date2dist.to_numdate(dist.peak_pos)
             return [date-0.5, date-1e-10, date, date + 1e-10, date + 0.5],[0,0,1.0,0,0]
 
         peak_pos = dist.peak_pos
         fwhm = dist.fwhm
         raw_x = dist.x [(dist.x > peak_pos - 3*fwhm) & (dist.x < peak_pos + 3*fwhm)]
-        dates_x = utils.numeric_date() -  np.array(map(self.date2dist.get_date, raw_x))
+        dates_x = np.array(map(self.date2dist.to_numdate, raw_x))
         y = dist.prob_relative(raw_x)
         return dates_x, y
 
@@ -297,7 +313,7 @@ class TreeTimeWeb(treetime.TreeTime):
         """
         out_dic = {}
         for node in self.tree.find_clades():
-            x,y = self._distribution_to_human_readable(node.marginal_lh)
+            x,y = self._distribution_to_human_readable(node.marginal_pos_LH)
             arr = [{"x":f, "y":b} for f, b in zip(x, y)]
             out_dic[node.name] = arr
 
@@ -343,16 +359,7 @@ class TreeTimeWeb(treetime.TreeTime):
             outstr+=msg
             with open(self._log_file, 'a') as logf:
                 print(outstr,file=logf)
-
-
-
-
-
-
-
-
-
-
+                print (outstr)
 
     def build_tree(self, root):
 
@@ -369,15 +376,19 @@ class TreeTimeWeb(treetime.TreeTime):
         if res != 0:
             raise RuntimeError("FastTree: Exception caught while building the phylogenetic tree")
 
-    return
+        return
 
 
 
 
 if __name__=="__main__":
 
-    root = "./"
-    process(root)
+    root = '../../sessions/AGJPHWRULXGO/'
+    import  tree_time_config
+    cfg = tree_time_config.treetime_webconfig
+
+    ttw = TreeTimeWeb(root, cfg)
+    ttw.run()
 
 
 

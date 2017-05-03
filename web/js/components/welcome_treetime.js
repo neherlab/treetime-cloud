@@ -187,6 +187,47 @@ var PanelExamples = React.createClass({
 });
 
 var PanelConfig = React.createClass({
+
+    getInitialState(){
+        return ({
+                available_gtrs:[]
+            }
+        );
+    },
+
+    componentWillMount: function() {
+        console.log("Will mount: ");
+        console.log(this.props.TreeTimeConfig.available_gtrs)
+    },
+
+    componentDidMount: function() {
+        var dics = this.props.TreeTimeConfig;
+        console.log("Did mount: ");
+        console.log(dics)
+    },
+
+    componentWillUpdate(nextProps, nextState) {
+        console.log("Will Update: ");
+        console.log(nextProps)
+
+        var new_gtrs = nextProps.TreeTimeConfig.available_gtrs;
+        if (new_gtrs.length != this.state.available_gtrs.length){
+            this.setState ({available_gtrs:nextProps.TreeTimeConfig.available_gtrs})
+        }
+    },
+
+    onTreeTimeRoot : function (e){
+        var chk = this.props.TreeTimeConfig.root != false && this.props.TreeTimeConfig.root != null;
+        var new_root = chk ? false : 'best';
+        this.props.setTreeTimeConfig({"root": new_root});
+    },
+
+    onTreeTimePoly : function(e){
+        var chk = this.props.TreeTimeConfig.polytomies != false && this.props.TreeTimeConfig.polytomies != null;
+        var new_poly = !chk;
+        this.props.setTreeTimeConfig({"polytomies": new_poly});
+    },
+
     render: function(){
         const reroot_tooltip = (
             <Tooltip id="tooltip">
@@ -199,28 +240,39 @@ var PanelConfig = React.createClass({
             <div>
                     <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
                         {/*Reroot to best root*/}
-                        <Checkbox>
-                            {/*checked={this.props.AppConfig.reroot}
-                            onChange={this.handleChange}>*/}
+                        <Checkbox
+                            checked={this.props.TreeTimeConfig.root != false && this.props.TreeTimeConfig.root != null}
+                            onChange={this.onTreeTimeRoot}>
                             <OverlayTrigger placement="top" overlay={reroot_tooltip}>
                             <div>Optimize tree root position</div>
                             </OverlayTrigger>
                         </Checkbox>
 
                         {/*Polytomies resolution*/}
-                        <Checkbox>
-                            {/*checked={this.props.AppConfig.resolve_poly}
-                            onChange={this.handleChange}>*/}
+                        <Checkbox
+                            checked={this.props.TreeTimeConfig.polytomies != false && this.props.TreeTimeConfig.polytomies != null}
+                            onChange={this.onTreeTimePoly}>
                             Resolve polytomies using temporal constraints
                         </Checkbox>
 
                         {/*GTR model*/}
                         <FormGroup>
                             <ControlLabel>GTR model</ControlLabel>
-                            <FormControl componentClass="select" placeholder="InferFromTree" className="select-treetime" id="welcome-panel_config-select_GTR"
-                                onChange={this.onChange}>
-                                <option value= "InferFromTree">Infer from tree</option>
-                                <option value= "jukes_cantor">Jukes-Cantor</option>
+                            <FormControl componentClass="select"
+                                    placeholder="InferFromTree"
+                                    className="select-treetime"
+                                    id="welcome-panel_config-select_GTR"
+                                    onChange={this.onChange}>
+                                <option value= "infer">Infer from tree</option>
+                                {
+                                    this.state.available_gtrs.map(function(d){
+                                        return <option key={d.key} value={d.key}>{d.value}</option>;
+                                    })
+                                    //this.props.TreeTimeConfig.available_gtrs.map(function(d) {
+                                    //    return <option key={d.key} value={d.key}>{d.value}</option>;
+                                    //})
+
+                                }
                             </FormControl>
                         </FormGroup>
                         <FormGroup>
@@ -283,14 +335,58 @@ var PanelConfig = React.createClass({
 
 var WelcomeTreeTimePage = React.createClass({
 
+    getInitialState : function() {
+      return {
+        UID: null,
+        // labels and status of the files uploads
+        tree_file:false,
+        tree_filename:"Select tree file",
+        aln_file:false,
+        aln_filename:"Select alignment file",
+        meta_file:false,
+        meta_filename:"Select meta data file",
+        // treetime configuration
+        TreeTimeConfig: {}
+      };
+    },
+
     componentDidMount: function(){
         var parentNode = this.getDOMNode().parentNode;
         // set user id from the HTML template
-        this.setAppState({'UID':parentNode.attributes.userid.value});
+        this.state.UID = parentNode.attributes.userid.value;
+        this.state.TreeTimeConfig = cfg;
+        //this.setAppState({'UID':parentNode.attributes.userid.value});
+        this.setState({'treetime_cfg':cfg})
+        console.log(this.state.UID)
+        console.log(this.state.TreeTimeConfig.build_tree == false)
     },
 
     setAppState : function(partialState){
         this.setState(partialState);
+        console.log(this.state)
+    },
+
+    setTreeTimeConfig: function(cfg){
+        console.log(cfg)
+        var new_config = this.state.TreeTimeConfig
+        for (var key in cfg) {
+            new_config[key] = cfg[key];
+            if (key == "build_tree" ){
+                if (cfg[key]){
+                    this.setState({
+                    tree_filename: "Will be built from alignment",
+                    tree_file: false,
+                })
+            }else{
+                this.setState({
+                    tree_filename: "Select tree file",
+                    tree_file: false,
+                })
+            }
+        }
+        }
+        this.setState({TreeTimeConfig:new_config})
+        console.log(this.state.TreeTimeConfig)
     },
 
     render:function(){
@@ -303,7 +399,10 @@ var WelcomeTreeTimePage = React.createClass({
 
                 <PanelExamples/>
 
-                <PanelConfig/>
+                <PanelConfig
+                    TreeTimeConfig={this.state.TreeTimeConfig}
+                    setTreeTimeConfig={this.setTreeTimeConfig}/>
+
                 <Button bsStyle="primary">Run treetime</Button>
             </div>
         );

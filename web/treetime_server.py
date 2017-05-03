@@ -7,6 +7,7 @@ from Bio import Phylo
 import os,sys
 import StringIO
 
+
 app = Flask(__name__)
 app.threads = {};
 app.debug=True
@@ -16,6 +17,9 @@ ALLOWED_EXTENSIONS = ['fasta', 'nwk', 'csv', 'png', 'jpg']
 dn = os.path.dirname(os.path.abspath(__file__))
 sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
+
+
+from  tree_time_config import treetime_webconfig
 
 
 def make_id():
@@ -70,7 +74,7 @@ def treetime_request():
 @app.route('/treetime/<userid>', methods=['GET', 'POST'])
 def treetime_welcome(userid):
     if request.method == 'GET':
-        return render_template('welcome_treetime.html', UserId=userid, Config={})
+        return render_template('welcome_treetime.html', UserId=userid, Config=treetime_webconfig)
     else:
         pass
 
