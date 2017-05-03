@@ -17,11 +17,6 @@ dn = os.path.dirname(os.path.abspath(__file__))
 sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 
-import main as main
-
-#from treetime_web import default_config as TREETIME_DEFAULT_CONFIG
-#from treetime_web import run as RUN_TREETIME
-#from tree_time_process import process as TREETIME_PROCESS
 
 def make_id():
     return "".join([chr(random.randint(65,90)) for ii in range(12)])
