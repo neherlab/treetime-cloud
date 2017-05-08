@@ -232,7 +232,11 @@ var PanelConfig = React.createClass({
     },
 
     onMuChanged : function (val){
+        console.log(val)
+    },
 
+    elementShowStyle: function (show){
+        return show ? {"display":"inline-block"} : {"display":"none"}
     },
 
     render: function(){
@@ -288,17 +292,18 @@ var PanelConfig = React.createClass({
                             <Checkbox
                                 onChange={this.onMuSelected}
                             >Fix substitution rate</Checkbox>
-                            <span>
-                                <FormControl type="number"
-                                disabled={false}
-                                /*
-                                onChange={this.handleTextChange}*/
-                                value={0.001}/>
-                            <span>(#/year)</span>
+                            <span style={this.elementShowStyle(this.props.TreeTimeConfig.slope)}>
+                                <FormControl
+                                    type="number"
+                                    disabled={false}
+                                    style={{"display":"inline-block"}}
+                                    onChange={this.onMuChanged}
+                                    value={this.props.TreeTimeConfig.slope_value}/>
+                                <span style={{"display":"inline-block"}}>(#/year)</span>
                             </span>
                         </FormGroup>
 
-                    {/*Use coalescent prior*/}
+                        {/*Use coalescent prior*/}
                         <FormGroup>
                             <Checkbox>Use coalescent prior</Checkbox>
                             <span style={{"visibility":"hidden", "display":"inline-block"}}>Tc = </span>
