@@ -260,6 +260,18 @@ var PanelConfig = React.createClass({
 
     },
 
+    getRealxedClockCoupling: function(){
+        return this.props.TreeTimeConfig.relaxed_clock ?
+                this.props.TreeTimeConfig.relaxed_clock.coupling :
+                0;
+    },
+
+    getRealxedClockSlack: function(){
+        return this.props.TreeTimeConfig.relaxed_clock ?
+                this.props.TreeTimeConfig.relaxed_clock.slack :
+                0;
+    },
+
     elementShowStyle: function (show){
         return show ? {"display":"inline-block"} : {"display":"none"}
     },
@@ -365,17 +377,27 @@ var PanelConfig = React.createClass({
                                 Relax molecular clock
                             </Checkbox>
                             <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_relaxed_clock)}>
-                                <div style={{"verticalAlign":"center", "lineHeight":"50px", "width":"100%","display":"inline-block", "float":"left"}}>
-                                <span  style={{"display":"inline-block", "float":"left"}}>Slack: &alpha; =</span>
-                                <FormControl type="number"  style={{"height":"50px", "display":"inline-block", "float":"left"}}
-                                    visible={false}/*disabled=true
-                                    onChange={this.handleTextChange}*/
-                                    value={0.02}/>
-                                <span  style={{"display":"inline-block", "float":"left"}}>Coupling: &beta; =</span>
-                                <FormControl type="number" style={{"visibility":"hidden", "display":"inline-block", "float":"left"}}
-                                    /*disabled=true
-                                    onChange={this.handleTextChange}*/
-                                    value={0.0001}/>
+                                <div style={{"verticalAlign":"center", "lineHeight":"30px", "width":"100%"}}>
+                                    <span  style={{"display":"inline-block", "float":"left"}}>Slack: &alpha; =</span>
+                                     <FormControl
+                                        style={{"height":"30px", "display":"inline-block", "float":"left"}}
+                                        type="number"
+                                        min="0"
+                                        max="0.1"
+                                        step="1e-3"
+                                        onChange={this.onRelaxClockSlack}
+                                        value={this.getRealxedClockSlack()}>
+                                    </FormControl>
+                                    <span  style={{"display":"inline-block", "float":"left"}}>Coupling: &beta; =</span>
+                                    <FormControl
+                                        style={{"height":"30px", "display":"inline-block", "float":"left"}}
+                                        type="number"
+                                        min="0"
+                                        max="0.1"
+                                        step="1e-3"
+                                        value={this.getRealxedClockCoupling()}
+                                        onChange={this.onRelaxClockCoupling}>
+                                    </FormControl>
                                 </div>
                             </div>
                         </FormGroup>
