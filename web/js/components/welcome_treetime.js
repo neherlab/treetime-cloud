@@ -253,11 +253,17 @@ var PanelConfig = React.createClass({
     },
 
     onRelaxClockSlack : function(e){
-
+        var val = e.target.value;
+        var coupling = this.getRealxedClockCoupling()
+        // NOTE have to update the whole relaxed clock dict
+        this.props.setTreeTimeConfig({"relaxed_clock":{"slack": val, "coupling":coupling}})
     },
 
     onRelaxClockCoupling : function(e){
-
+        var val = e.target.value;
+        var slack = this.getRealxedClockSlack()
+        // NOTE have to update the whole relaxed clock dict
+        this.props.setTreeTimeConfig({"relaxed_clock":{"slack": slack, "coupling":val}})
     },
 
     getRealxedClockCoupling: function(){
@@ -401,22 +407,6 @@ var PanelConfig = React.createClass({
                                 </div>
                             </div>
                         </FormGroup>
-
-
-                        {/*}
-                        <UseSlope
-                            AppConfig={this.state.config}
-                            SetAppConfig={this.SetAppConfig}/>
-
-                        <DoCoalescent
-                            AppConfig={this.state.config}
-                            SetAppConfig={this.SetAppConfig}/>
-
-                        <DoRelaxedClock
-                            AppConfig={this.state.config}
-                            SetAppConfig={this.SetAppConfig}/>
-
-                        */}
                     </Panel>
             </div>
         );
