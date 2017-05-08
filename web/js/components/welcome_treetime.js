@@ -225,14 +225,25 @@ var PanelConfig = React.createClass({
     },
 
     onMuSelected : function(e){
-        console.log (this.props.TreeTimeConfig)
         var chk = this.props.TreeTimeConfig.slope != false && this.props.TreeTimeConfig.slope != null;
         var use_slope = !chk;
         this.props.setTreeTimeConfig({"slope":use_slope})
     },
 
-    onMuChanged : function (val){
-        console.log(val)
+    onMuChanged : function (e){
+        var val = e.target.value;
+        this.props.setTreeTimeConfig({"slope_value":val})
+    },
+
+    onCoalescentPriorSelected : function(e){
+        var chk = this.props.TreeTimeConfig.use_coalescent_prior != false &&
+            this.props.TreeTimeConfig.use_coalescent_prior != null;
+        var use_cp = !chk;
+        this.props.setTreeTimeConfig({"use_coalescent_prior": use_cp})
+    },
+    onCoalescentPriorChanged : function(e){
+        var val = e.target.value;
+        this.props.setTreeTimeConfig({"coalescent_prior_value":val})
     },
 
     elementShowStyle: function (show){
@@ -250,6 +261,7 @@ var PanelConfig = React.createClass({
 
             <div>
                     <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
+
                         {/*Reroot to best root*/}
                         <Checkbox
                             checked={this.props.TreeTimeConfig.root != false && this.props.TreeTimeConfig.root != null}
@@ -289,12 +301,14 @@ var PanelConfig = React.createClass({
 
                         {/*Fix substitution rate*/}
                         <FormGroup>
-                            <Checkbox
-                                onChange={this.onMuSelected}
-                            >Fix substitution rate</Checkbox>
+                            <Checkbox onChange={this.onMuSelected}>Fix substitution rate</Checkbox>
                             <span style={this.elementShowStyle(this.props.TreeTimeConfig.slope)}>
                                 <FormControl
                                     type="number"
+                                    step="1e-4"
+                                    maxlength="5"
+                                    min="1e-9"
+                                    max="1e-2"
                                     disabled={false}
                                     style={{"display":"inline-block"}}
                                     onChange={this.onMuChanged}
@@ -305,13 +319,20 @@ var PanelConfig = React.createClass({
 
                         {/*Use coalescent prior*/}
                         <FormGroup>
-                            <Checkbox>Use coalescent prior</Checkbox>
-                            <span style={{"visibility":"hidden", "display":"inline-block"}}>Tc = </span>
-                            <FormControl style={{"visibility":"hidden", "display":"inline-block"}} type="number"
-                                /*disabled=true
-                                onChange={this.handleTextChange}*/
-                                value={0.001}/>
-
+                            <Checkbox onChange={this.onCoalescentPriorSelected}>Use coalescent prior</Checkbox>
+                            <span style={this.elementShowStyle(this.props.TreeTimeConfig.use_coalescent_prior)}>
+                                <FormControl
+                                    type="number"
+                                    step="1e-4"
+                                    maxlength="5"
+                                    min="0"
+                                    max="1e-1"
+                                    disabled={false}
+                                    style={{"display":"inline-block"}}
+                                    onChange={this.onCoalescentPriorChanged}
+                                    value={this.props.TreeTimeConfig.coalescent_prior_value}/>
+                                <span style={{"display":"inline-block"}}>(Hamming distance)</span>
+                            </span>
                         </FormGroup>
 
                         <FormGroup>
