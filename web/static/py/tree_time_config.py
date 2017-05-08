@@ -6,7 +6,8 @@ treetime_webconfig = {
     'gtr': 'infer',
     'polytomies': True,
     'root': 'best',
-    'slope': None,
+    'slope': False,
+    'slope_value' : 1e-3,
     'relaxed_clock':False,
     'coalescent':None,
     'available_gtrs':

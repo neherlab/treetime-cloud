@@ -69,10 +69,6 @@ var PanelFiles = React.createClass({
                 The server will try to parse these columns and show it in the results section.</li>
                 </ul>
 
-
-
-
-
             </Tooltip>
         );
 
@@ -228,6 +224,17 @@ var PanelConfig = React.createClass({
         this.props.setTreeTimeConfig({"polytomies": new_poly});
     },
 
+    onMuSelected : function(e){
+        console.log (this.props.TreeTimeConfig)
+        var chk = this.props.TreeTimeConfig.slope != false && this.props.TreeTimeConfig.slope != null;
+        var use_slope = !chk;
+        this.props.setTreeTimeConfig({"slope":use_slope})
+    },
+
+    onMuChanged : function (val){
+
+    },
+
     render: function(){
         const reroot_tooltip = (
             <Tooltip id="tooltip">
@@ -275,16 +282,23 @@ var PanelConfig = React.createClass({
                                 }
                             </FormControl>
                         </FormGroup>
+
+                        {/*Fix substitution rate*/}
                         <FormGroup>
-                            <Checkbox>Fix substitution rate</Checkbox>
-                            <FormControl type="number"
+                            <Checkbox
+                                onChange={this.onMuSelected}
+                            >Fix substitution rate</Checkbox>
+                            <span>
+                                <FormControl type="number"
                                 disabled={false}
                                 /*
                                 onChange={this.handleTextChange}*/
                                 value={0.001}/>
                             <span>(#/year)</span>
+                            </span>
                         </FormGroup>
 
+                    {/*Use coalescent prior*/}
                         <FormGroup>
                             <Checkbox>Use coalescent prior</Checkbox>
                             <span style={{"visibility":"hidden", "display":"inline-block"}}>Tc = </span>
@@ -357,17 +371,13 @@ var WelcomeTreeTimePage = React.createClass({
         this.state.TreeTimeConfig = cfg;
         //this.setAppState({'UID':parentNode.attributes.userid.value});
         this.setState({'treetime_cfg':cfg})
-        console.log(this.state.UID)
-        console.log(this.state.TreeTimeConfig.build_tree == false)
     },
 
     setAppState : function(partialState){
         this.setState(partialState);
-        console.log(this.state)
     },
 
     setTreeTimeConfig: function(cfg){
-        console.log(cfg)
         var new_config = this.state.TreeTimeConfig
         for (var key in cfg) {
             new_config[key] = cfg[key];
@@ -386,6 +396,7 @@ var WelcomeTreeTimePage = React.createClass({
         }
         }
         this.setState({TreeTimeConfig:new_config})
+        console.log("TreeTime config changed. New config: ");
         console.log(this.state.TreeTimeConfig)
     },
 
