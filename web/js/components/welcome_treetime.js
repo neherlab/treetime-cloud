@@ -292,122 +292,122 @@ var PanelConfig = React.createClass({
         return (
 
             <div>
-                    <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
+            <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
 
-                        {/*Reroot to best root*/}
-                        <Checkbox
-                            checked={this.props.TreeTimeConfig.root != false && this.props.TreeTimeConfig.root != null}
-                            onChange={this.onTreeTimeRoot}>
-                            <OverlayTrigger placement="top" overlay={reroot_tooltip}>
-                            <div>Optimize tree root position</div>
-                            </OverlayTrigger>
-                        </Checkbox>
+                {/*Reroot to best root*/}
+                <Checkbox
+                    checked={this.props.TreeTimeConfig.root != false && this.props.TreeTimeConfig.root != null}
+                    onChange={this.onTreeTimeRoot}>
+                    <OverlayTrigger placement="top" overlay={reroot_tooltip}>
+                    <div>Optimize tree root position</div>
+                    </OverlayTrigger>
+                </Checkbox>
 
-                        {/*Polytomies resolution*/}
-                        <Checkbox
-                            checked={this.props.TreeTimeConfig.polytomies != false && this.props.TreeTimeConfig.polytomies != null}
-                            onChange={this.onTreeTimePoly}>
-                            Resolve polytomies using temporal constraints
-                        </Checkbox>
+                {/*Polytomies resolution*/}
+                <Checkbox
+                    checked={this.props.TreeTimeConfig.polytomies != false && this.props.TreeTimeConfig.polytomies != null}
+                    onChange={this.onTreeTimePoly}>
+                    Resolve polytomies using temporal constraints
+                </Checkbox>
 
-                        {/*GTR model*/}
-                        <FormGroup>
-                            <ControlLabel>GTR model</ControlLabel>
-                            <FormControl componentClass="select"
-                                    placeholder="InferFromTree"
-                                    className="select-treetime"
-                                    id="welcome-panel_config-select_GTR"
-                                    onChange={this.onChange}>
-                                <option value= "infer">Infer from tree</option>
-                                {
-                                    this.state.available_gtrs.map(function(d){
-                                        return <option key={d.key} value={d.key}>{d.value}</option>;
-                                    })
-                                    //this.props.TreeTimeConfig.available_gtrs.map(function(d) {
-                                    //    return <option key={d.key} value={d.key}>{d.value}</option>;
-                                    //})
+                {/*GTR model*/}
+                <FormGroup>
+                    <ControlLabel>GTR model</ControlLabel>
+                    <FormControl componentClass="select"
+                            placeholder="InferFromTree"
+                            className="select-treetime"
+                            id="welcome-panel_config-select_GTR"
+                            onChange={this.onChange}>
+                        <option value= "infer">Infer from tree</option>
+                        {
+                            this.state.available_gtrs.map(function(d){
+                                return <option key={d.key} value={d.key}>{d.value}</option>;
+                            })
+                            //this.props.TreeTimeConfig.available_gtrs.map(function(d) {
+                            //    return <option key={d.key} value={d.key}>{d.value}</option>;
+                            //})
+                        }
+                    </FormControl>
+                </FormGroup>
 
-                                }
+                {/*Fix substitution rate*/}
+                <FormGroup>
+                    <Checkbox
+                        onChange={this.onMuSelected}
+                        checked={this.props.TreeTimeConfig.slope != false && this.props.TreeTimeConfig.slope != null}>
+                        Fix substitution rate
+                    </Checkbox>
+                    <div style={this.elementShowStyle(this.props.TreeTimeConfig.slope)}>
+                        <FormControl
+                            type="number"
+                            step="1e-4"
+                            maxlength="5"
+                            min="1e-9"
+                            max="1e-2"
+                            disabled={false}
+                            style={{"display":"inline-block"}}
+                            onChange={this.onMuChanged}
+                            value={this.props.TreeTimeConfig.slope_value}/>
+                        <span style={{"display":"inline-block"}}>(#/year)</span>
+                    </div>
+                </FormGroup>
+
+                {/*Use coalescent prior*/}
+                <FormGroup>
+                    <Checkbox
+                        checked={this.props.TreeTimeConfig.use_coalescent_prior != false && this.props.TreeTimeConfig.use_coalescent_prior != null}
+                        onChange={this.onCoalescentPriorSelected}>
+                        Use coalescent prior
+                    </Checkbox>
+                    <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_coalescent_prior)}>
+                        <FormControl
+                            type="number"
+                            step="1e-3"
+                            maxlength="5"
+                            min="0"
+                            max="1e-1"
+                            disabled={false}
+                            style={{"display":"inline-block"}}
+                            onChange={this.onCoalescentPriorChanged}
+                            value={this.props.TreeTimeConfig.coalescent_prior_value}/>
+                        <span style={{"display":"inline-block"}}>(Hamming distance)</span>
+                    </div>
+                </FormGroup>
+
+                {/*Relaxed molecular clock*/}
+                <FormGroup>
+                    <Checkbox
+                        onChange={this.onRelaxClockSelected}
+                        checked={this.props.TreeTimeConfig.use_relaxed_clock != false && this.props.TreeTimeConfig.use_relaxed_clock != null}>
+                        Relax molecular clock
+                    </Checkbox>
+                    <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_relaxed_clock)}>
+                        <div style={{"verticalAlign":"center", "lineHeight":"30px", "width":"100%"}}>
+                            <span  style={{"display":"inline-block", "float":"left"}}>Slack: &alpha; =</span>
+                             <FormControl
+                                style={{"height":"30px", "display":"inline-block", "float":"left"}}
+                                type="number"
+                                min="0"
+                                max="0.1"
+                                step="1e-3"
+                                onChange={this.onRelaxClockSlack}
+                                value={this.getRealxedClockSlack()}>
                             </FormControl>
-                        </FormGroup>
+                            <span  style={{"display":"inline-block", "float":"left"}}>Coupling: &beta; =</span>
+                            <FormControl
+                                style={{"height":"30px", "display":"inline-block", "float":"left"}}
+                                type="number"
+                                min="0"
+                                max="0.1"
+                                step="1e-3"
+                                value={this.getRealxedClockCoupling()}
+                                onChange={this.onRelaxClockCoupling}>
+                            </FormControl>
+                        </div>
+                    </div>
+                </FormGroup>
 
-                        {/*Fix substitution rate*/}
-                        <FormGroup>
-                            <Checkbox
-                                onChange={this.onMuSelected}
-                                checked={this.props.TreeTimeConfig.slope != false && this.props.TreeTimeConfig.slope != null}>
-                                Fix substitution rate
-                            </Checkbox>
-                            <div style={this.elementShowStyle(this.props.TreeTimeConfig.slope)}>
-                                <FormControl
-                                    type="number"
-                                    step="1e-4"
-                                    maxlength="5"
-                                    min="1e-9"
-                                    max="1e-2"
-                                    disabled={false}
-                                    style={{"display":"inline-block"}}
-                                    onChange={this.onMuChanged}
-                                    value={this.props.TreeTimeConfig.slope_value}/>
-                                <span style={{"display":"inline-block"}}>(#/year)</span>
-                            </div>
-                        </FormGroup>
-
-                        {/*Use coalescent prior*/}
-                        <FormGroup>
-                            <Checkbox
-                                checked={this.props.TreeTimeConfig.use_coalescent_prior != false && this.props.TreeTimeConfig.use_coalescent_prior != null}
-                                onChange={this.onCoalescentPriorSelected}>
-                                Use coalescent prior
-                            </Checkbox>
-                            <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_coalescent_prior)}>
-                                <FormControl
-                                    type="number"
-                                    step="1e-3"
-                                    maxlength="5"
-                                    min="0"
-                                    max="1e-1"
-                                    disabled={false}
-                                    style={{"display":"inline-block"}}
-                                    onChange={this.onCoalescentPriorChanged}
-                                    value={this.props.TreeTimeConfig.coalescent_prior_value}/>
-                                <span style={{"display":"inline-block"}}>(Hamming distance)</span>
-                            </div>
-                        </FormGroup>
-
-                        {/*Relaxed molecular clock*/}
-                        <FormGroup>
-                            <Checkbox
-                                onChange={this.onRelaxClockSelected}
-                                checked={this.props.TreeTimeConfig.use_relaxed_clock != false && this.props.TreeTimeConfig.use_relaxed_clock != null}>
-                                Relax molecular clock
-                            </Checkbox>
-                            <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_relaxed_clock)}>
-                                <div style={{"verticalAlign":"center", "lineHeight":"30px", "width":"100%"}}>
-                                    <span  style={{"display":"inline-block", "float":"left"}}>Slack: &alpha; =</span>
-                                     <FormControl
-                                        style={{"height":"30px", "display":"inline-block", "float":"left"}}
-                                        type="number"
-                                        min="0"
-                                        max="0.1"
-                                        step="1e-3"
-                                        onChange={this.onRelaxClockSlack}
-                                        value={this.getRealxedClockSlack()}>
-                                    </FormControl>
-                                    <span  style={{"display":"inline-block", "float":"left"}}>Coupling: &beta; =</span>
-                                    <FormControl
-                                        style={{"height":"30px", "display":"inline-block", "float":"left"}}
-                                        type="number"
-                                        min="0"
-                                        max="0.1"
-                                        step="1e-3"
-                                        value={this.getRealxedClockCoupling()}
-                                        onChange={this.onRelaxClockCoupling}>
-                                    </FormControl>
-                                </div>
-                            </div>
-                        </FormGroup>
-                    </Panel>
+            </Panel>
             </div>
         );
     }
@@ -467,13 +467,55 @@ var WelcomeTreeTimePage = React.createClass({
         console.log(this.state.TreeTimeConfig)
     },
 
+    uploadTreeFile :function(evt){
+
+        this.setTreeTimeConfig({"build_tree":false})
+
+        if (evt.target.files.length == 0){
+            console.log("Resetting treefile")
+            this.setState({
+                tree_filename:"Select tree file",
+                tree_file:false,
+            });
+            return;
+        }
+        console.log("Uploading tree file...");
+        var formData = new FormData();
+        formData.append('treefile', evt.target.files[0]);
+        //for (var key in evt.target.files) {
+        //    formData.append(key, files[key]);
+        //}
+
+
+        this.setAppState({tree_file:true});
+        request.post('/upload/treetime/' + this.state.UID + '/file')
+            .send(formData)
+            .end(this.onUploadTreeFile);
+    },
+
+    onUploadTreeFile: function(err, res){
+        if (err){
+            this.setAppState({tree_file:false, tree_filename: "Error uploading file"});
+            alert("Tree file upload error. Please, try once more.")
+            return;
+        }
+
+        this.setState({
+            tree_filename:JSON.parse(res.text).TreeFile,
+            tree_file:true
+        })
+    },
+
     render:function(){
         return (
             <div>
                 <Header/>
                 <PanelText/>
                 <div className='bigspacer'/>
-                <PanelFiles/>
+                <PanelFiles
+                    appState={this.state}
+                    uploadTreeFile={this.uploadTreeFile}
+                />
 
                 <PanelExamples/>
 
