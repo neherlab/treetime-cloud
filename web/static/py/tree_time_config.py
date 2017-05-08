@@ -1,6 +1,6 @@
 treetime_webconfig = {
     # build tree using FastTree?
-    "build_tree": False,
+    "build_tree": True,
     # need to show confidence intervals later
     'do_marginal': True,
     'gtr': 'infer',

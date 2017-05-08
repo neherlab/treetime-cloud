@@ -30,15 +30,19 @@ var PanelText = React.createClass({
 });
 
 var PanelFiles = React.createClass({
+
+    onBuildTreeSelected: function(evt){
+        var chk = this.props.TreeTimeConfig.build_tree != false && this.props.TreeTimeConfig.slope != null;
+        var btree = !chk;
+        this.props.setTreeTimeConfig({"build_tree":btree})
+    },
+
     render: function(){
         const csv_tooltip = (
             <Tooltip className="csv_tooltip">
-
                 Upload comma-separated file with sampling dates and additional metadata.
                 The format of the file should be as follows:
-
                     <div className='spacer'/>
-
                     <table>
                     <tr>
                         <th>
@@ -52,10 +56,7 @@ var PanelFiles = React.createClass({
                         </td>
                     </tr>
                     </table>
-
                     <div className='spacer'/>
-
-
                 <ul className="scriptFont">
                 <li>A single header row with column names is required. "name" and "date" are required fields.</li>
 
@@ -74,56 +75,56 @@ var PanelFiles = React.createClass({
 
         return (
             <div>
-                <Panel collapsible defaultExpanded header="Upload data" className="panel-treetime" id="welcome_panel_files">
-                            <Grid id="welcome_upload_grid">
+            <Panel collapsible defaultExpanded header="Upload data" className="panel-treetime" id="welcome_panel_files">
+            <Grid id="welcome_upload_grid">
 
-                            <Row className="grid-treetime-row">
+                {/*Upload Tree file*/}
+                <Row className="grid-treetime-row">
+                    <Col xs={6} md={4} id="welcome_col_upload_tree" className="grid-treetime-col-right" >
+                        <span className="btn btn-primary btn-file btn-file-treetime" id="btn-1">
+                            Newick
+                            <input type="file" onChange={this.props.uploadTreeFile}/>
+                        </span>
+                        {this.props.appState.tree_filename}
+                        <Checkbox
+                            checked={this.props.TreeTimeConfig.build_tree}
+                            onChange={this.onBuildTreeSelected}>
+                            Build tree
+                        </Checkbox>
+                        {// <DoBuildTree
+                        //     AppConfig={this.state.config}
+                        //     SetAppConfig={this.SetAppConfig}
+                        //     blah={'blah'}
+                        //     />
+                        }
+                    </Col>
+                </Row>
 
-                                <Col  xs={6} md={4}
-                                    id="welcome_col_upload_tree" className="grid-treetime-col-right" >
+                {/*Upload Fasta file*/}
+                <Row className="grid-treetime-row">
+                    <Col  xs={6} md={4} className="grid-treetime-col-right">
+                        <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
+                            Fasta
+                            <input type="file" onChange={this.uploadAlnFile} />
+                        </span>
+                        AlnFilename{/*this.state.aln_filename*/}
+                    </Col>
+                </Row>
 
-                                    <span className="btn btn-primary btn-file btn-file-treetime" id="btn-1">
-                                        Newick <input  type="file"  onChange={this.uploadTreeFile} />
-                                    </span>
-
-                                    TreeFilename{/*this.state.tree_filename*/}
-
-                                    {// <DoBuildTree
-                                    //     AppConfig={this.state.config}
-                                    //     SetAppConfig={this.SetAppConfig}
-                                    //     blah={'blah'}
-                                    //     />
-                                    }
-
-                                </Col>
-                            </Row>
-
-                            <Row className="grid-treetime-row">
-
-                                <Col  xs={6} md={4} className="grid-treetime-col-right">
-
-                                    <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
-                                        Fasta <input type="file" onChange={this.uploadAlnFile} />
-                                    </span>
-                                    AlnFilename{/*this.state.aln_filename*/}
-
-                                </Col>
-                            </Row>
-
-                            <Row className="grid-treetime-row">
-
-                                <Col xs={6} md={4} className="grid-treetime-col-right">
-                                    <OverlayTrigger placement="bottom" overlay={csv_tooltip}>
-                                    <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
-                                            CSV <input type="file" onChange={this.uploadMetaFile} />
-                                    </span>
-                                    </OverlayTrigger>
-                                    MetaFileName{/*this.state.meta_filename*/}
-
-                                </Col>
-                            </Row>
-                            </Grid>
-                        </Panel>
+                {/*Upload Metadata file*/}
+                <Row className="grid-treetime-row">
+                    <Col xs={6} md={4} className="grid-treetime-col-right">
+                        <OverlayTrigger placement="bottom" overlay={csv_tooltip}>
+                        <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
+                                CSV
+                                <input type="file" onChange={this.uploadMetaFile} />
+                        </span>
+                        </OverlayTrigger>
+                        MetaFileName{/*this.state.meta_filename*/}
+                    </Col>
+                </Row>
+            </Grid>
+            </Panel>
             </div>
         );
     }
@@ -513,6 +514,8 @@ var WelcomeTreeTimePage = React.createClass({
                 <PanelText/>
                 <div className='bigspacer'/>
                 <PanelFiles
+                    TreeTimeConfig={this.state.TreeTimeConfig}
+                    setTreeTimeConfig={this.setTreeTimeConfig}
                     appState={this.state}
                     uploadTreeFile={this.uploadTreeFile}
                 />
