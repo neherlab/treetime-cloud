@@ -246,6 +246,20 @@ var PanelConfig = React.createClass({
         this.props.setTreeTimeConfig({"coalescent_prior_value":val})
     },
 
+    onRelaxClockSelected : function(e){
+        var chk = this.props.TreeTimeConfig.use_relaxed_clock != false && this.props.TreeTimeConfig.use_relaxed_clock != null;
+        var use_clock = !chk;
+        this.props.setTreeTimeConfig({"use_relaxed_clock":use_clock})
+    },
+
+    onRelaxClockSlack : function(e){
+
+    },
+
+    onRelaxClockCoupling : function(e){
+
+    },
+
     elementShowStyle: function (show){
         return show ? {"display":"inline-block"} : {"display":"none"}
     },
@@ -301,8 +315,12 @@ var PanelConfig = React.createClass({
 
                         {/*Fix substitution rate*/}
                         <FormGroup>
-                            <Checkbox onChange={this.onMuSelected}>Fix substitution rate</Checkbox>
-                            <span style={this.elementShowStyle(this.props.TreeTimeConfig.slope)}>
+                            <Checkbox
+                                onChange={this.onMuSelected}
+                                checked={this.props.TreeTimeConfig.slope != false && this.props.TreeTimeConfig.slope != null}>
+                                Fix substitution rate
+                            </Checkbox>
+                            <div style={this.elementShowStyle(this.props.TreeTimeConfig.slope)}>
                                 <FormControl
                                     type="number"
                                     step="1e-4"
@@ -314,16 +332,20 @@ var PanelConfig = React.createClass({
                                     onChange={this.onMuChanged}
                                     value={this.props.TreeTimeConfig.slope_value}/>
                                 <span style={{"display":"inline-block"}}>(#/year)</span>
-                            </span>
+                            </div>
                         </FormGroup>
 
                         {/*Use coalescent prior*/}
                         <FormGroup>
-                            <Checkbox onChange={this.onCoalescentPriorSelected}>Use coalescent prior</Checkbox>
-                            <span style={this.elementShowStyle(this.props.TreeTimeConfig.use_coalescent_prior)}>
+                            <Checkbox
+                                checked={this.props.TreeTimeConfig.use_coalescent_prior != false && this.props.TreeTimeConfig.use_coalescent_prior != null}
+                                onChange={this.onCoalescentPriorSelected}>
+                                Use coalescent prior
+                            </Checkbox>
+                            <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_coalescent_prior)}>
                                 <FormControl
                                     type="number"
-                                    step="1e-4"
+                                    step="1e-3"
                                     maxlength="5"
                                     min="0"
                                     max="1e-1"
@@ -332,22 +354,29 @@ var PanelConfig = React.createClass({
                                     onChange={this.onCoalescentPriorChanged}
                                     value={this.props.TreeTimeConfig.coalescent_prior_value}/>
                                 <span style={{"display":"inline-block"}}>(Hamming distance)</span>
-                            </span>
+                            </div>
                         </FormGroup>
 
+                        {/*Relaxed molecular clock*/}
                         <FormGroup>
-                            <Checkbox>Relax molecular clock</Checkbox>
-                            <div style={{"verticalAlign":"center", "lineHeight":"50px", "width":"100%","display":"inline-block", "float":"left"}}>
-                            <span  style={{"display":"inline-block", "float":"left"}}>Slack: &alpha; =</span>
-                            <FormControl type="number"  style={{"height":"50px", "display":"inline-block", "float":"left"}}
-                                visible={false}/*disabled=true
-                                onChange={this.handleTextChange}*/
-                                value={0.02}/>
-                            <span  style={{"display":"inline-block", "float":"left"}}>Coupling: &beta; =</span>
-                            <FormControl type="number" style={{"visibility":"hidden", "display":"inline-block", "float":"left"}}
-                                /*disabled=true
-                                onChange={this.handleTextChange}*/
-                                value={0.0001}/>
+                            <Checkbox
+                                onChange={this.onRelaxClockSelected}
+                                checked={this.props.TreeTimeConfig.use_relaxed_clock != false && this.props.TreeTimeConfig.use_relaxed_clock != null}>
+                                Relax molecular clock
+                            </Checkbox>
+                            <div style={this.elementShowStyle(this.props.TreeTimeConfig.use_relaxed_clock)}>
+                                <div style={{"verticalAlign":"center", "lineHeight":"50px", "width":"100%","display":"inline-block", "float":"left"}}>
+                                <span  style={{"display":"inline-block", "float":"left"}}>Slack: &alpha; =</span>
+                                <FormControl type="number"  style={{"height":"50px", "display":"inline-block", "float":"left"}}
+                                    visible={false}/*disabled=true
+                                    onChange={this.handleTextChange}*/
+                                    value={0.02}/>
+                                <span  style={{"display":"inline-block", "float":"left"}}>Coupling: &beta; =</span>
+                                <FormControl type="number" style={{"visibility":"hidden", "display":"inline-block", "float":"left"}}
+                                    /*disabled=true
+                                    onChange={this.handleTextChange}*/
+                                    value={0.0001}/>
+                                </div>
                             </div>
                         </FormGroup>
 

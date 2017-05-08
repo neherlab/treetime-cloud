@@ -8,9 +8,13 @@ treetime_webconfig = {
     'root': 'best',
     'slope': False,
     'slope_value' : 1e-3,
-    'relaxed_clock':False,
     'use_coalescent_prior':False,
     "coalescent_prior_value":0.01,
+    'use_relaxed_clock':False,
+    'relaxed_clock':
+        {'slack' : 0.01,
+         'coupling':0.005
+        },
     'available_gtrs':
         [
             {"key":"jc", "value": "Jukes, Cantor 1969"},
