@@ -148,7 +148,7 @@ var PanelExamples = React.createClass({
                               <th>1409</th>
                               <th>20</th>
                               <th>2000-2013</th>
-                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.on_example_H3N2_NA_20}>Load</Button></th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_H3N2_NA_20}>Load</Button></th>
                             </tr>
                             <tr className="info-treetime">
                               <th>Influenza H3N2</th>
@@ -156,7 +156,7 @@ var PanelExamples = React.createClass({
                               <th>1409</th>
                               <th>500</th>
                               <th>1968-2010</th>
-                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.on_example_H3N2_NA_500}>Load</Button></th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_H3N2_NA_500}>Load</Button></th>
                             </tr>
                             <tr>
                               <th>Zika</th>
@@ -164,7 +164,7 @@ var PanelExamples = React.createClass({
                               <th>10617</th>
                               <th>65</th>
                               <th>2013-2016</th>
-                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.on_example_zika_65}>Load</Button></th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_zika_65}>Load</Button></th>
                             </tr>
                             </tbody>
                             </Table>
@@ -462,6 +462,7 @@ var WelcomeTreeTimePage = React.createClass({
         console.log(this.state.TreeTimeConfig)
     },
 
+    // Files uploads section
     uploadTreeFile :function(evt){
 
         this.setTreeTimeConfig({"build_tree":false})
@@ -561,12 +562,45 @@ var WelcomeTreeTimePage = React.createClass({
         this.setState({meta_filename:JSON.parse(res.text).MetaFile, meta_file:true})
     },
 
+    //Examples section
+    onExample_H3N2_NA_20 : function(){
+        this.runExample("H3N2_NA_20");
+    },
+
+    onExample_H3N2_NA_500 : function(){
+        this.runExample("H3N2_NA_500");
+    },
+
+    onExample_zika_65 : function(){
+        this.runExample("zika_65");
+    },
+
+    runExample : function(example){
+        console.log("run example requested:  " + example)
+        this.setTreeTimeConfig({"build_tree":false})
+        request.post("/treetime/" + this.state.UID + "/example")
+          .set('Content-Type', 'application/json')
+          .send({example:example})
+          .end(this.onExampleUpload);
+    },
+
+    onExampleUpload : function(err, res){
+
+        console.log("Example files uploaded")
+        this.onUploadAlnFile(err, res)
+        this.onUploadMetaFile(err, res)
+        this.onUploadTreeFile(err, res)
+
+    },
+
     render:function(){
         return (
             <div>
                 <Header/>
                 <PanelText/>
                 <div className='bigspacer'/>
+
+                {/* Upload files*/}
                 <PanelFiles
                     TreeTimeConfig={this.state.TreeTimeConfig}
                     setTreeTimeConfig={this.setTreeTimeConfig}
@@ -576,8 +610,14 @@ var WelcomeTreeTimePage = React.createClass({
                     uploadMetaFile={this.uploadMetaFile}
                 />
 
-                <PanelExamples/>
+                {/* Choose predefined example dataset*/}
+                <PanelExamples
+                    onExample_H3N2_NA_20={this.onExample_H3N2_NA_20}
+                    onExample_H3N2_NA_500={this.onExample_H3N2_NA_500}
+                    onExample_zika_65={this.onExample_zika_65}
+                />
 
+                {/* Advanced configuration*/}
                 <PanelConfig
                     TreeTimeConfig={this.state.TreeTimeConfig}
                     setTreeTimeConfig={this.setTreeTimeConfig}/>

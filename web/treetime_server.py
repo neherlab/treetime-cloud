@@ -104,6 +104,52 @@ def upload_treetime_file(userid):
 
         return jsonify(**res)
 
+
+@app.route('/treetime/<userid>/example', methods=['POST'])
+def run_example(userid):
+
+    def copy_files(name, root):
+        res = {}
+        examples = os.path.join(os.path.join(dn, "examples") , name)
+        treefile = name + ".nwk"
+        alnfile = name + ".fasta"
+        metafile = name + ".csv"
+        shutil.copyfile(os.path.join(examples, treefile), os.path.join(root, "in_tree.nwk"))
+        res["TreeFile"] = treefile
+        shutil.copyfile(os.path.join(examples, alnfile), os.path.join(root, "in_aln.fasta"))
+        res["AlnFile"] = alnfile
+        shutil.copyfile(os.path.join(examples, metafile), os.path.join(root, "in_meta.csv"))
+        res["MetaFile"] = metafile
+        return res
+
+    if request.method != 'POST':
+        abort(404)
+
+    root = os.path.join(sessions_root, userid)
+    if not os.path.exists(root):
+            os.makedirs(root)
+    req_data = request.get_json()
+    if 'example' not in req_data:
+        abort(404)
+
+    res = {}
+
+    if req_data['example'] == 'H3N2_NA_20':
+        name = 'H3N2_NA_20'
+        res = copy_files(name, root)
+    elif req_data['example'] == 'H3N2_NA_500':
+        name = 'H3N2_NA_500'
+        res = copy_files(name, root)
+    elif req_data['example'] == 'zika_65':
+        name = 'zika_65'
+        res = copy_files(name, root)
+    else:
+        abort(404)
+
+    res["UploadFile"] = "OK"
+    return  jsonify(**res)
+
+
 # @app.route('/<userid>', methods=['GET', 'POST'])
 # def index_session(userid):
 #     if request.method == 'GET':
@@ -136,49 +182,6 @@ def upload_treetime_file(userid):
 #     else:
 #         pass
 
-# @app.route('/<userid>/example', methods=['GET', 'POST'])
-# def run_example(userid):
-
-#     def copy_files(name, root):
-#         res = {}
-#         examples = os.path.join(os.path.join(dn, "examples") , name)
-#         treefile = name + ".nwk"
-#         alnfile = name + ".fasta"
-#         metafile = name + ".csv"
-#         shutil.copyfile(os.path.join(examples, treefile), os.path.join(root, "in_tree.nwk"))
-#         res["TreeFile"] = treefile
-#         shutil.copyfile(os.path.join(examples, alnfile), os.path.join(root, "in_aln.fasta"))
-#         res["AlnFile"] = alnfile
-#         shutil.copyfile(os.path.join(examples, metafile), os.path.join(root, "in_meta.csv"))
-#         res["MetaFile"] = metafile
-#         return res
-
-#     if request.method != 'POST':
-#         abort(404)
-
-#     root = os.path.join(sessions_root, userid)
-#     if not os.path.exists(root):
-#             os.makedirs(root)
-#     req_data = request.get_json()
-#     if 'example' not in req_data:
-#         abort(404)
-
-#     res = {}
-
-#     if req_data['example'] == 'H3N2_NA_20':
-#         name = 'H3N2_NA_20'
-#         res = copy_files(name, root)
-#     elif req_data['example'] == 'H3N2_NA_500':
-#         name = 'H3N2_NA_500'
-#         res = copy_files(name, root)
-#     elif req_data['example'] == 'zika_65':
-#         name = 'zika_65'
-#         res = copy_files(name, root)
-#     else:
-#         abort(404)
-
-#     res["UploadFile"] = "OK"
-#     return  jsonify(**res)
 
 # @app.route('/<userid>/progress', methods=['GET', 'POST'])
 # def progress(userid):
