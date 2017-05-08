@@ -100,6 +100,7 @@ class TreeTimeWeb(treetime.TreeTime):
     def __init__(self, root, webconfig, *args, **kwargs):
 
         self._webconfig = webconfig
+
         self._root_dir = root
         self._log_file = os.path.join(self._root_dir, log_filename)
 
@@ -124,16 +125,21 @@ class TreeTimeWeb(treetime.TreeTime):
         root = self._webconfig['root']
         do_marginal = False if self._webconfig['do_marginal'] == 'False' or not self._webconfig['do_marginal'] else True
         resolve_polytomies = False if self._webconfig['polytomies'] == 'False' or not self._webconfig['polytomies'] else True
-        slope = None if self._webconfig['slope'] is None or self._webconfig['slope'] == 'None' else float(self._webconfig['slope'])
+        slope = None if self._webconfig['slope'] == 'False' or not self._webconfig['slope'] else float(self._webconfig['slope_value'])
+        Tc = None if self._webconfig['use_coalescent_prior'] == 'False' or not self._webconfig['use_coalescent_prior'] \
+            else float(self._webconfig['coalescent_prior_value'])
 
         # run treetime - call the standard run () function with exctrected parameters
         # TODO add other parameters: relaxed clock + coalescence
         super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
-            resolve_polytomies=resolve_polytomies, max_iter=0, Tc=None, fixed_slope=slope,
-            do_marginal=True, **kwargs)
+            resolve_polytomies=resolve_polytomies, max_iter=0, Tc=Tc, fixed_slope=slope,
+            do_marginal=do_marginal, **kwargs)
 
+        self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
         # save results:
         self.save_results()
+
+        self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
 
 
     def save_results(self):

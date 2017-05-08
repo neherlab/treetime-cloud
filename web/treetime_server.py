@@ -163,7 +163,7 @@ def run_treetime(userid):
     #save config, run treetime in a separate thread
     if 'config' in request.get_json():
         ss = request.get_json()['config']
-        import ipdb; ipdb.set_trace()
+
         with open(os.path.join(root, "config.json"), 'w') as of:
             json.dump(ss, of, True)
         app.threads[userid] = threading.Thread(target=RUN_TREETIME, args=(root,ss))

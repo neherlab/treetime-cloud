@@ -625,7 +625,7 @@ var WelcomeTreeTimePage = React.createClass({
             console.log(err)
             return;
         }
-        window.location.replace("/treetime/" + this.state.UID + "/progress");
+        //window.location.replace("/treetime/" + this.state.UID + "/progress");
     },
 
     render:function(){
