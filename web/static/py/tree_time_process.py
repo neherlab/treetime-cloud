@@ -379,6 +379,9 @@ class TreeTimeWeb(treetime.TreeTime):
         return
 
 
+def run_treetime(root, webconfig):
+    ttw = TreeTimeWeb(root, webconfig)
+    ttw.run()
 
 
 if __name__=="__main__":

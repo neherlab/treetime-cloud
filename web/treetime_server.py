@@ -19,7 +19,8 @@ sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 
 
-from  tree_time_config import treetime_webconfig
+from tree_time_config import treetime_webconfig
+from tree_time_process import run_treetime as RUN_TREETIME
 
 
 def make_id():
@@ -106,7 +107,7 @@ def upload_treetime_file(userid):
 
 
 @app.route('/treetime/<userid>/example', methods=['POST'])
-def run_example(userid):
+def upload_example(userid):
 
     def copy_files(name, root):
         res = {}
@@ -149,6 +150,33 @@ def run_example(userid):
     res["UploadFile"] = "OK"
     return  jsonify(**res)
 
+@app.route('/treetime/<userid>/run', methods=['POST'])
+def run_treetime(userid):
+    if (request.method != "POST"):
+        abort(404)
+
+    # save settings
+    root = os.path.join(sessions_root, userid)
+    if not os.path.exists(root):
+        os.makedirs(root)
+
+    #save config, run treetime in a separate thread
+    if 'config' in request.get_json():
+        ss = request.get_json()['config']
+        import ipdb; ipdb.set_trace()
+        with open(os.path.join(root, "config.json"), 'w') as of:
+            json.dump(ss, of, True)
+        app.threads[userid] = threading.Thread(target=RUN_TREETIME, args=(root,ss))
+        app.threads[userid].start()
+        return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
+
+    # error: server did not send us config for treetime run
+    else:
+        return jsonify({'res':'error',
+            'message': 'Client-server error: server cannot find proper '
+                        'config in the request'})
+
+
 
 # @app.route('/<userid>', methods=['GET', 'POST'])
 # def index_session(userid):
@@ -159,28 +187,6 @@ def run_example(userid):
 #         return render_template('flask.html', UserId=userid, Config=TREETIME_DEFAULT_CONFIG)
 
 #     elif request.method == 'POST':
-#         # save settings
-#         root = os.path.join(sessions_root, userid)
-#         if not os.path.exists(root):
-#             os.makedirs(root)
-
-#         if 'config' in request.get_json():
-#             ss = request.get_json()['config']
-#             with open(os.path.join(root, "config.json"), 'w') as of:
-#                 json.dump(ss, of, True)
-
-#             app.threads[userid] = threading.Thread(target = RUN_TREETIME, args=(root,))
-#             app.threads[userid].start()
-#             return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
-
-#         else:
-#             # error
-#             return jsonify({'res':'error',
-#                 'message': 'Client-server error: server cannot find proper '
-#                             'config in the request'})
-#         #return redirect('/'+userid+'/progress')
-#     else:
-#         pass
 
 
 # @app.route('/<userid>/progress', methods=['GET', 'POST'])

@@ -593,6 +593,41 @@ var WelcomeTreeTimePage = React.createClass({
 
     },
 
+
+    onRunTreeTime: function(){
+        //console.log("APP:: RUN button pressed");
+        if ((!this.state.tree_file & !this.state.TreeTimeConfig.build_tree) || ! this.state.aln_file || !this.state.meta_file){
+          var msg = "Cannot proceed with TreeTime: one or more file not loaded.\n\n"
+          if ((!this.state.tree_file & !this.state.TreeTimeConfig.build_tree)){
+            msg += "Phylogenetic tree file is missing.\n\n";
+          }
+          if (!this.state.aln_file){
+            msg += "Sequence alignment file is missing.\n\n";
+          }
+          if (!this.state.meta_file){
+            msg += "Meta data file is missing.\n\n";
+          }
+          alert(msg);
+          return;
+        }
+        request.post("/treetime/" + this.state.UID + "/run")
+          .set('Content-Type', 'application/json')
+          .send({config: this.state.TreeTimeConfig})
+          .end(this.onRunTreeTimeResponse);
+    },
+
+    onRunTreeTimeResponse : function(err, res){
+
+        //console.log("RUN RESPONSE");
+        //console.log(res)
+        if (err){
+            alert("Cannot start TreeTime calculations. Server error.")
+            console.log(err)
+            return;
+        }
+        window.location.replace("/treetime/" + this.state.UID + "/progress");
+    },
+
     render:function(){
         return (
             <div>
@@ -622,7 +657,9 @@ var WelcomeTreeTimePage = React.createClass({
                     TreeTimeConfig={this.state.TreeTimeConfig}
                     setTreeTimeConfig={this.setTreeTimeConfig}/>
 
-                <Button bsStyle="primary">Run treetime</Button>
+                {/* Run treetime on the server*/}
+                <Button bsStyle="primary" onClick={this.onRunTreeTime}>Run treetime</Button>
+
             </div>
         );
     }
