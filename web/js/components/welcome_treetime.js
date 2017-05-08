@@ -99,9 +99,9 @@ var PanelFiles = React.createClass({
                     <Col  xs={6} md={4} className="grid-treetime-col-right">
                         <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
                             Fasta
-                            <input type="file" onChange={this.uploadAlnFile} />
+                            <input type="file" onChange={this.props.uploadAlnFile} />
                         </span>
-                        AlnFilename{/*this.state.aln_filename*/}
+                        {this.props.appState.aln_filename}
                     </Col>
                 </Row>
 
@@ -111,10 +111,10 @@ var PanelFiles = React.createClass({
                         <OverlayTrigger placement="bottom" overlay={csv_tooltip}>
                         <span className="btn btn-primary btn-file btn-treetime btn-file-treetime">
                                 CSV
-                                <input type="file" onChange={this.uploadMetaFile} />
+                                <input type="file" onChange={this.props.uploadMetaFile} />
                         </span>
                         </OverlayTrigger>
-                        MetaFileName{/*this.state.meta_filename*/}
+                        {this.props.appState.meta_filename}
                     </Col>
                 </Row>
             </Grid>
@@ -501,6 +501,66 @@ var WelcomeTreeTimePage = React.createClass({
         })
     },
 
+
+    uploadAlnFile :function(evt){
+
+        if (evt.target.files.length == 0){
+            // console.log("Resetting treefile")
+            // this.setState({tree_filename:"No file chosen"})
+            return;
+        }
+        //console.log("Uploading alignment file...");
+        var formData = new FormData();
+        formData.append('alnfile', evt.target.files[0]);
+        //for (var key in evt.target.files) {
+        //    formData.append(key, files[key]);
+        //}
+        this.setAppState({aln_file:true});
+        request.post('/upload/treetime/' + this.state.UID + '/file')
+            .send(formData)
+            .end(this.onUploadAlnFile);
+    },
+
+    onUploadAlnFile: function(err, res){
+        if (err){
+            this.setAppState({aln_file:false});
+            alert("Alignment file upload error. Please, try once more.")
+            return;
+        }
+        this.setState({aln_filename:JSON.parse(res.text).AlnFile, aln_file:true})
+
+    },
+
+    uploadMetaFile :function(evt){
+
+        if (evt.target.files.length == 0){
+            // console.log("Resetting treefile")
+            // this.setState({tree_filename:"No file chosen"})
+            return;
+        }
+        //console.log("Uploading metadata file...");
+        var formData = new FormData();
+        formData.append('metafile', evt.target.files[0]);
+        //for (var key in evt.target.files) {
+        //    formData.append(key, files[key]);
+        //}
+
+        this.setAppState({meta_file:true});
+        request.post('/upload/treetime/' + this.state.UID + '/file')
+            .send(formData)
+            .end(this.onUploadMetaFile);
+    },
+
+    onUploadMetaFile: function(err, res){
+        if (err){
+            this.setAppState({meta_file:false});
+            alert("Meta data file upload error. Please, try once more.")
+            return;
+        }
+
+        this.setState({meta_filename:JSON.parse(res.text).MetaFile, meta_file:true})
+    },
+
     render:function(){
         return (
             <div>
@@ -512,6 +572,8 @@ var WelcomeTreeTimePage = React.createClass({
                     setTreeTimeConfig={this.setTreeTimeConfig}
                     appState={this.state}
                     uploadTreeFile={this.uploadTreeFile}
+                    uploadAlnFile={this.uploadAlnFile}
+                    uploadMetaFile={this.uploadMetaFile}
                 />
 
                 <PanelExamples/>
