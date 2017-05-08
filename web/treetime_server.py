@@ -78,6 +78,31 @@ def treetime_welcome(userid):
     else:
         pass
 
+@app.route('/upload/treetime/<userid>/file', methods=['POST'])
+def upload_treetime_file(userid):
+    folder = os.path.join(sessions_root, userid)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    if request.method == 'POST':
+        res = {}
+        # todo validate the content of uploaded files
+        if 'treefile' in request.files:
+            treefile = request.files['treefile']
+            treefile.save(os.path.join(folder, "in_tree.nwk"))
+            res['TreeFile'] = treefile.filename
+        if 'alnfile' in request.files:
+            alnfile = request.files['alnfile']
+            alnfile.save(os.path.join(folder, "in_aln.fasta"))
+            res['AlnFile'] = alnfile.filename
+        if 'metafile' in request.files:
+            metafile = request.files['metafile']
+            metafile.save(os.path.join(folder, "in_meta.csv"))
+            res['MetaFile'] = metafile.filename
+
+        res["UploadFile"] = "OK"
+
+        return jsonify(**res)
 
 # @app.route('/<userid>', methods=['GET', 'POST'])
 # def index_session(userid):
@@ -173,32 +198,7 @@ def treetime_welcome(userid):
 #     #return Response(json.dumps(json_data),  mimetype='application/json')
 #     return jsonify(**{"steps": json_data})
 
-@app.route("/upload/<userid>/file", methods=['GET', 'POST'])
-def upload(userid):
 
-    folder = os.path.join(sessions_root, userid)
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-
-    if request.method == 'POST':
-        res = {}
-
-        if 'treefile' in request.files:
-            treefile = request.files['treefile']
-            treefile.save(os.path.join(folder, "in_tree.nwk"))
-            res['TreeFile'] = treefile.filename
-        if 'alnfile' in request.files:
-            alnfile = request.files['alnfile']
-            alnfile.save(os.path.join(folder, "in_aln.fasta"))
-            res['AlnFile'] = alnfile.filename
-        if 'metafile' in request.files:
-            metafile = request.files['metafile']
-            metafile.save(os.path.join(folder, "in_meta.csv"))
-            res['MetaFile'] = metafile.filename
-
-        res["UploadFile"] = "OK"
-
-        return jsonify(**res)
 
     #return render_template('results.html', username=username)
     #return "Hello World!"
