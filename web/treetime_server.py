@@ -73,7 +73,7 @@ def treetime_request():
     return response
 
 @app.route('/treetime/<userid>', methods=['GET', 'POST'])
-def treetime_welcome(userid):
+def render_treetime_welcome(userid):
     if request.method == 'GET':
         return render_template('welcome_treetime.html', UserId=userid, Config=treetime_webconfig)
     else:
@@ -176,17 +176,32 @@ def run_treetime(userid):
             'message': 'Client-server error: server cannot find proper '
                         'config in the request'})
 
+@app.route('/treetime/<userid>/progress', methods=['GET'])
+def render_treetime_progress(userid):
+    if request.method == 'GET':
+        return render_template('progress_treetime.html', UserId=userid)
+
+@app.route('/treetime/<userid>/get_session_state', methods=['GET'])
+def get_session_state(userid):
+
+    root = os.path.join (sessions_root, userid)
+    inf = os.path.join(root, "session_state.txt")
+    if not os.path.exists(inf):
+        abort(404)
+    with open (inf, 'r') as infile:
+        json_data = json.load(infile)
+    return jsonify(**{"session_state": json_data})
+
+@app.route('/treetime/<userid>/results', methods=['GET'])
+def render_treetime_results(userid):
+    if request.method == 'GET':
+        return render_template('results_treetime.html', UserId=userid)
 
 
-# @app.route('/<userid>', methods=['GET', 'POST'])
-# def index_session(userid):
-#     if request.method == 'GET':
-#         cfg = StringIO.StringIO()
-#         json.dump(TREETIME_DEFAULT_CONFIG, cfg)
-#         print (TREETIME_DEFAULT_CONFIG)
-#         return render_template('flask.html', UserId=userid, Config=TREETIME_DEFAULT_CONFIG)
-
-#     elif request.method == 'POST':
+@app.route('/sessions/<userid>/<filename>', methods=['GET', 'POST'])
+def send_file(userid, filename):
+    uploads = os.path.join(sessions_root, userid)
+    return send_from_directory(uploads, filename) #with open(os.path.join(uploads, filename), 'r') as inf:
 
 
 # @app.route('/<userid>/progress', methods=['GET', 'POST'])
@@ -217,13 +232,6 @@ def run_treetime(userid):
 # #     print (userid)
 # #     return render_template('results.html', UserId=userid)
 
-# # @app.route('/sessions/<userid>/<filename>', methods=['GET', 'POST'])
-# # def send_file(userid, filename):
-# #     uploads = os.path.join(sessions_root, userid)
-# #     return send_from_directory(uploads, filename) #with open(os.path.join(uploads, filename), 'r') as inf:
-# #     #    json_data = json.load(inf)
-# #     #print (json_data)
-# #     #return jsonify(**json_data)
 
 # @app.route('/terms.html/')
 # def send_terms():

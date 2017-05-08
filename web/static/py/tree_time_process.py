@@ -7,12 +7,15 @@ import zipfile
 import time
 import os, sys, json
 from treetime import utils
+import traceback
 
 dirname = (os.path.dirname(__file__))
 
 treename = "in_tree.nwk"
 alnname = "in_aln.fasta"
 metaname = "in_meta.csv"
+session_state_name = "session_state.txt"
+
 
 # file names, uniform across the sessions
 session_state_file = 'session_state.json'
@@ -40,6 +43,7 @@ def get_filepaths(root):
         'tree' : os.path.join(root, treename),
         'aln' : os.path.join(root, alnname),
         'meta' : os.path.join(root, metaname),
+        "session_state":os.path.join(root, session_state_name)
     }
 
 
@@ -117,9 +121,16 @@ class TreeTimeWeb(treetime.TreeTime):
         super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
                 gtr=gtr, *args, **kwargs)
 
+    def _write_session_state(self, state, desc=""):
+
+        dic = {"state":state,
+                "desc": desc}
+        with open (os.path.join(self._root_dir, "session_state.txt"), 'w') as of:
+            json.dump(dic, of, indent=True)
+
 
     def run(self, **kwargs):
-
+        self._write_session_state("reading config")
         # get the run parameters
         infer_gtr  = self._webconfig['gtr'] == 'infer'
         root = self._webconfig['root']
@@ -129,17 +140,28 @@ class TreeTimeWeb(treetime.TreeTime):
         Tc = None if self._webconfig['use_coalescent_prior'] == 'False' or not self._webconfig['use_coalescent_prior'] \
             else float(self._webconfig['coalescent_prior_value'])
 
-        # run treetime - call the standard run () function with exctrected parameters
-        # TODO add other parameters: relaxed clock + coalescence
-        super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
-            resolve_polytomies=resolve_polytomies, max_iter=0, Tc=Tc, fixed_slope=slope,
-            do_marginal=do_marginal, **kwargs)
+        # run treetime
+        try:
+            self._write_session_state("running treetime")
+            super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
+                resolve_polytomies=resolve_polytomies, max_iter=0, Tc=Tc, fixed_slope=slope,
+                do_marginal=do_marginal, **kwargs)
+        except:
+            tb = traceback.format_exc()
+            self._write_session_state("error", desc="TreeTime crashed. {}".format(tb))
+            return
 
-        self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
-        # save results:
-        self.save_results()
-
-        self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
+        # save results
+        try:
+            self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
+            self._write_session_state("saving results")
+            self.save_results()
+            self._write_session_state("done")
+            self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
+        except:
+            tb = traceback.format_exc()
+            self._write_session_state("error\nTreeTime crashed while saving results. {}".format(tb))
+            return
 
 
     def save_results(self):

@@ -6,8 +6,9 @@ module.exports = {
         welcome_1: "./js/components/welcome_1.js",
         welcome_anc: "./js/components/welcome_ancestral_reconstruction.js",
         welcome_treetime: "./js/components/welcome_treetime.js",
+        progress_treetime: "./js/components/progress_treetime.js",
+        results_treetime: "./js/components/results_treetime.js",
         progress: "./js/components/progress.js",
-        results: "./js/components/results.js",
         terms: "./js/components/terms.js",
 
     },
