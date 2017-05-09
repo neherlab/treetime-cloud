@@ -187,9 +187,10 @@ def get_session_state(userid):
     root = os.path.join (sessions_root, userid)
     inf = os.path.join(root, "session_state.txt")
     if not os.path.exists(inf):
-        abort(404)
-    with open (inf, 'r') as infile:
-        json_data = json.load(infile)
+        json_data = {"session_state":{"state":"running"}}
+    else:
+        with open (inf, 'r') as infile:
+            json_data = json.load(infile)
     return jsonify(**{"session_state": json_data})
 
 @app.route('/treetime/<userid>/results', methods=['GET'])
