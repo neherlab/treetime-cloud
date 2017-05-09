@@ -7,6 +7,7 @@ import zipfile
 import time
 import os, sys, json
 from treetime import utils
+from treetime.treetime import TreeTime
 import traceback
 
 dirname = (os.path.dirname(__file__))
@@ -99,7 +100,7 @@ def read_metadata_from_file(infile):
         return {}, {}
 
 
-class TreeTimeWeb(treetime.TreeTime):
+class TreeTimeWeb(TreeTime):
 
     def __init__(self, root, webconfig, *args, **kwargs):
 
