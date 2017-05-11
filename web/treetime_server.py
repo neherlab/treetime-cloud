@@ -204,39 +204,31 @@ def send_file(userid, filename):
     uploads = os.path.join(sessions_root, userid)
     return send_from_directory(uploads, filename) #with open(os.path.join(uploads, filename), 'r') as inf:
 
+@app.route("/treeanc/<userid>/run", methods=['POST'])
+def run_treeanc(userid):
+    if (request.method != "POST"):
+        abort(404)
 
-# @app.route('/<userid>/progress', methods=['GET', 'POST'])
-# def progress(userid):
-#     if request.method =='GET':
-#         return render_template('progress.html', UserId=userid)
+    # save settings
+    root = os.path.join(sessions_root, userid)
+    if not os.path.exists(root):
+        os.makedirs(root)
 
-# @app.route('/<userid>/session_state', methods=['GET', 'POST'])
-# def get_session_state(userid):
+    #save config, run treetime in a separate thread
+    if 'config' in request.get_json():
+        ss = request.get_json()['config']
 
-#     root = os.path.join (sessions_root, userid)
-#     inf = os.path.join(root, "session_state.json")
-#     if not os.path.exists(inf):
-#         abort(404)
-#     with open (inf, 'r') as infile:
-#         json_data = json.load(infile)
-#         print (json_data)
-#     #return Response(json.dumps(json_data),  mimetype='application/json')
-#     return jsonify(**{"steps": json_data})
+        with open(os.path.join(root, "config.json"), 'w') as of:
+            json.dump(ss, of, True)
+        app.threads[userid] = threading.Thread(target=RUN_TREEANC, args=(root,ss))
+        app.threads[userid].start()
+        return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
 
-
-
-    #return render_template('results.html', username=username)
-    #return "Hello World!"
-
-# # @app.route('/<userid>/results', methods=['GET', 'POST'])
-# # def results(userid):
-# #     print (userid)
-# #     return render_template('results.html', UserId=userid)
-
-
-# @app.route('/terms.html/')
-# def send_terms():
-#     return render_template('terms.html')
+    # error: server did not send us config for treetime run
+    else:
+        return jsonify({'res':'error',
+            'message': 'Client-server error: server cannot find proper '
+                        'config in the request'})
 
 if __name__ == "__main__":
     app.wait_time = {};
