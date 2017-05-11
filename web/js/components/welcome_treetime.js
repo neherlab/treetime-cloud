@@ -32,7 +32,7 @@ var PanelText = React.createClass({
 var PanelFiles = React.createClass({
 
     onBuildTreeSelected: function(evt){
-        var chk = this.props.TreeTimeConfig.build_tree != false && this.props.TreeTimeConfig.slope != null;
+        var chk = this.props.TreeTimeConfig.build_tree != false && this.props.TreeTimeConfig.build_tree != null;
         var btree = !chk;
         this.props.setTreeTimeConfig({"build_tree":btree})
     },
@@ -277,6 +277,10 @@ var PanelConfig = React.createClass({
         return show ? {"display":"inline-block"} : {"display":"none"}
     },
 
+    onGtrChange : function(e){
+
+    },
+
     render: function(){
         const reroot_tooltip = (
             <Tooltip id="tooltip">
@@ -312,7 +316,7 @@ var PanelConfig = React.createClass({
                             placeholder="InferFromTree"
                             className="select-treetime"
                             id="welcome-panel_config-select_GTR"
-                            onChange={this.onChange}>
+                            onChange={this.onGtrChange}>
                         <option value= "infer">Infer from tree</option>
                         {
                             this.state.available_gtrs.map(function(d){

@@ -19,7 +19,7 @@ sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 
 
-from tree_time_config import treetime_webconfig
+from tree_time_config import treetime_webconfig, treeanc_webconfig
 from tree_time_process import run_treetime as RUN_TREETIME
 
 
@@ -53,7 +53,7 @@ def ancestral_reconstruction_request():
 @app.route('/ancestral/<userid>', methods=['GET', 'POST'])
 def ancestral_reconstruction_welcome(userid):
     if request.method == 'GET':
-        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config={})
+        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config=treeanc_webconfig)
     else:
         pass
 
