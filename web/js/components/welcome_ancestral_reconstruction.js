@@ -225,7 +225,7 @@ var WelcomeAncPage = React.createClass({
           alert(msg);
           return;
         }
-        request.post("/treeanc/" + this.state.UID + "/run")
+        request.post("/ancestral/" + this.state.UID + "/run")
           .set('Content-Type', 'application/json')
           .send({config: this.state.treeAncConfig})
           .end(this.onRunTreeAncResponse);
@@ -240,7 +240,7 @@ var WelcomeAncPage = React.createClass({
             console.log(err)
             return;
         }
-        window.location.replace("/treeanc/" + this.state.UID + "/progress");
+        window.location.replace("/ancestral/" + this.state.UID + "/progress");
     },
 
 

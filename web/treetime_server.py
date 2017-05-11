@@ -18,10 +18,9 @@ dn = os.path.dirname(os.path.abspath(__file__))
 sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 
-
 from tree_time_config import treetime_webconfig, treeanc_webconfig
 from tree_time_process import run_treetime as RUN_TREETIME
-
+from tree_time_process import run_treeanc as RUN_TREEANC
 
 def make_id():
     return "".join([chr(random.randint(65,90)) for ii in range(12)])
@@ -204,8 +203,8 @@ def send_file(userid, filename):
     uploads = os.path.join(sessions_root, userid)
     return send_from_directory(uploads, filename) #with open(os.path.join(uploads, filename), 'r') as inf:
 
-@app.route("/treeanc/<userid>/run", methods=['POST'])
-def run_treeanc(userid):
+@app.route("/ancestral/<userid>/run", methods=['POST'])
+def run_ancestral(userid):
     if (request.method != "POST"):
         abort(404)
 
@@ -216,19 +215,24 @@ def run_treeanc(userid):
 
     #save config, run treetime in a separate thread
     if 'config' in request.get_json():
-        ss = request.get_json()['config']
+        config = request.get_json()['config']
 
         with open(os.path.join(root, "config.json"), 'w') as of:
-            json.dump(ss, of, True)
-        app.threads[userid] = threading.Thread(target=RUN_TREEANC, args=(root,ss))
+            json.dump(config, of, True)
+        app.threads[userid] = threading.Thread(target=RUN_TREEANC, args=(root,config))
         app.threads[userid].start()
-        return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
+        return jsonify({'res':'OK', 'mesage':'You can redirect to the wait page'})
 
     # error: server did not send us config for treetime run
     else:
         return jsonify({'res':'error',
             'message': 'Client-server error: server cannot find proper '
                         'config in the request'})
+
+@app.route("/ancestral/<userid>/progress", methods=['GET', 'POST'])
+def render_ancestral_progress(userid):
+    return render_template('progress_ancestral.html', UserId=userid)
+
 
 if __name__ == "__main__":
     app.wait_time = {};
