@@ -122,6 +122,7 @@ var ProgressTreeTimePage = React.createClass({
     render: function(){
         return (
             <div>
+            <Header/>
                 <div style={this.stateRenderStyle(false)}>
                     <Banner  />
                 </div>
