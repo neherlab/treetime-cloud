@@ -1,6 +1,6 @@
 import React from  'react'
 import ReactDOM from 'react-dom'
-import { Panel, Button, Grid, Row, Col } from "react-bootstrap";
+import { Panel, Button, Grid, Row, Col, Glyphicon } from "react-bootstrap";
 
 import Header from './header.js'
 import Footer from './footer.js'
@@ -62,16 +62,16 @@ var Terms = React.createClass({
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                <a href="http://www.eb.tuebingen.mpg.de/nc/research/departments/details/details/rneher.html" target="_blanck" title="Personal website of Richard Neher"><span class="glyphicon glyphicon-link"></span></a>
+                                <a href="http://www.eb.tuebingen.mpg.de/nc/research/departments/details/details/rneher.html" target="_blanck" title="Personal website of Richard Neher"><Glyphicon glyph="link"/></a>
                             </Col>
 
                         </Row>
                     </Col>
                 </Row>
-
-                <Row>
+                <div className="bigspacer"/>
+                <Row style={{"margin-top":"40px", "margin-bottom":"40px"}}>
                     <Col xs={4} md={2}>
-                    <img src="/static/svg/pausag.jpg" width="150" />
+                    <img src="/static/svg/pavsag.jpg" width="150" />
                     </Col>
 
                     <Col xs={12} md={8}>
@@ -115,7 +115,7 @@ var Terms = React.createClass({
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                <a href="http://www.eb.tuebingen.mpg.de/nc/research/departments/details/details/rneher.html" target="_blanck" title="Personal website of Richard Neher"><span class="glyphicon glyphicon-link"></span></a>
+                                <a href="http://www.eb.tuebingen.mpg.de/nc/research/departments/details/details/rneher.html" target="_blanck" title="Personal website of Richard Neher"><Glyphicon glyph={"link"}/></a>
                             </Col>
 
                         </Row>
