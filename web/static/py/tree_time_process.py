@@ -117,10 +117,8 @@ class TreeTimeWeb(TreeTime):
         aln = AlignIO.read(get_filepaths(root)['aln'], 'fasta')
         dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'])
         self._metadata = metadata
-
         gtr = 'jc' if webconfig['gtr'] == 'infer' else webconfig['gtr']
-        super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
-                gtr=gtr, *args, **kwargs)
+        super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln, gtr=gtr)
 
     def _write_session_state(self, state, desc=""):
 
