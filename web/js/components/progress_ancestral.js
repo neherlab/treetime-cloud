@@ -8,46 +8,85 @@ import { Glyphicon, Panel, Button, Grid, Row, Col, FormControl} from "react-boot
 var request = require('superagent');
 
 var Banner = React.createClass({
+    renderBanner: function(){
+
+        var mail = "mailto:pavel.sagulenko@tuebingen.mpg.de?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
+
+        var running =
+            <div>
+                <h3>Ancestral reconstruction is running...</h3>
+                <h4>This may take a while. Download link will appear when finished.</h4>
+            </div>;
+
+        var done =
+            <div>
+                <h3>Ancestral reconstruction finished successfully.</h3>
+                <h4>Download the results under the link below:</h4>
+            </div>;
+
+        var error =
+            <div>
+            <h3 id="error_header">Oooops... An error occured.</h3>
+            <div>
+            <p style={{"text-align":"justify"}}>
+                Either the input parameters caused some numerical problems/overflow exceptions, or you encountered a bug in TreeTime.
+                Please, send us an <a href={mail} target="_top">e-mail</a> to help us diagnose and fix the problem. (please keep the session ID in the mail subject). THANK YOU.
+            </p>
+            </div>
+            <div>
+                <p style={{"text-align":"justify"}}>
+                We are sorry for the incovenience and will try to fix the problem as soon as possible.
+                </p>
+            </div>
+            <Panel collapsible defaultCollapsed header="Server output:" id='error_message'>
+                {this.props.appState.error}
+            </Panel>
+            </div>;
+
+        if (this.props.checkError()){
+            return error;
+        }else{
+            return this.props.checkDone() ? done : running;
+        }
+    },
+
     render(){
         return (
             <div>
-            <div>
-                <h3>TreeTime is running...</h3>
-                <h4>This may take a while. You will be redirected to the results page when its done</h4>
+            <Header/>
+            {this.renderBanner()}
             </div>
-            </div>
-            );
+        )
     }
 });
 
-var ErrorBanner = React.createClass({
+// var ErrorBanner = React.createClass({
 
+//     render(){
+//         var glyph_type = "ban-circle"
+//         var mail = "mailto:pavel.sagulenko@tuebingen.mpg.de?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
 
-    render(){
-        var glyph_type = "ban-circle"
-        var mail = "mailto:pavel.sagulenko@tuebingen.mpg.de?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
-
-        return (
-            <div>
-                <h3 id="error_header">Oooops... An error occured.</h3>
-                <div>
-                <p style={{"text-align":"justify"}}>
-                    Either the input parameters caused some numerical problems/overflow exceptions, or you encountered a bug in TreeTime.
-                    Please, send us an <a href={mail} target="_top">e-mail</a> to help us diagnose and fix the problem. (please keep the session ID in the mail subject). THANK YOU.
-                </p>
-                </div>
-                <div>
-                    <p style={{"text-align":"justify"}}>
-                    We are sorry for the incovenience and will try to fix the problem as soon as possible.
-                    </p>
-                </div>
-                <Panel collapsible defaultCollapsed header="Server output:" id='error_message'>
-                    {this.props.appState.error}
-                </Panel>
-            </div>
-        );
-    }
-})
+//         return (
+//             <div>
+//                 <h3 id="error_header">Oooops... An error occured.</h3>
+//                 <div>
+//                 <p style={{"text-align":"justify"}}>
+//                     Either the input parameters caused some numerical problems/overflow exceptions, or you encountered a bug in TreeTime.
+//                     Please, send us an <a href={mail} target="_top">e-mail</a> to help us diagnose and fix the problem. (please keep the session ID in the mail subject). THANK YOU.
+//                 </p>
+//                 </div>
+//                 <div>
+//                     <p style={{"text-align":"justify"}}>
+//                     We are sorry for the incovenience and will try to fix the problem as soon as possible.
+//                     </p>
+//                 </div>
+//                 <Panel collapsible defaultCollapsed header="Server output:" id='error_message'>
+//                     {this.props.appState.error}
+//                 </Panel>
+//             </div>
+//         );
+//     }
+// })
 
 var ProgressTreeTimePage = React.createClass({
 
@@ -102,32 +141,50 @@ var ProgressTreeTimePage = React.createClass({
         }
         console.log("Current state: " + session_state.state)
         this.setAppState({"error":session_state.desc, "state":session_state.state!="error", "current_state" : session_state.state})
-        if (this.checkDone()){
-            window.location.replace("/treetime/" + this.state.UID + "/results");
-        }
+
     },
 
     checkDone: function(){
         return this.state.current_state == "done"
     },
 
-    myXOR : function(a,b) {
-        return ( a || b ) && !( a && b );
+    checkError: function(){
+        return this.state.error == "error";
     },
 
-    stateRenderStyle: function(error_page){
-        return this.myXOR(error_page, this.state.state) ? {"display":"inline-block"} : {"display":"none"}
+    // myXOR : function(a,b) {
+    //     return ( a || b ) && !( a && b );
+    // },
+
+    // stateRenderStyle: function(error_page){
+    //     return this.myXOR(error_page, this.state.state) ? {"display":"inline-block"} : {"display":"none"}
+    // },
+
+    downloadRenderStyle: function(){
+        return this.checkDone() ? {"display":"inline-block"} : {"display":"none"}
     },
 
     render: function(){
         return (
             <div>
-                <div style={this.stateRenderStyle(false)}>
-                    <Banner  />
+                <div>
+                    <Banner
+                        appState={this.state}
+                        checkDone={this.checkDone}
+                        checkError={this.checkError}
+                        />
                 </div>
-                <div style={this.stateRenderStyle(true)}>
-                    <ErrorBanner appState={this.state}/>
+
+                <div>
+                    <a className="btn btn-primary btn-file"
+                       id="results-section_download-btn_download"
+                       href={"/sessions/" + this.state.UID + "/treetime_results.zip"}
+                       target="_blank"
+                       style={this.downloadRenderStyle()}>
+                       Download results (.zip)
+                    </a>
                 </div>
+
             </div>
         )
     }
