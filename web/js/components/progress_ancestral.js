@@ -149,7 +149,7 @@ var ProgressTreeTimePage = React.createClass({
     },
 
     checkError: function(){
-        return this.state.error == "error";
+        return this.state.current_state == "error";
     },
 
     // myXOR : function(a,b) {
