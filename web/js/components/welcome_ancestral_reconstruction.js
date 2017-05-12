@@ -61,10 +61,10 @@ var PanelFiles = React.createClass({
                         {this.props.appState.aln_filename}
                     </Col>
                 </Row>
-                <Row>
-                    <Col>
-                    {/*GTR model*/}
-                    <FormGroup>
+
+                {/*GTR model*/}
+                <Row className="grid-treetime-row">
+                    <Col xs={6} md={4} className="grid-treetime-col-right">
                     <ControlLabel>GTR model</ControlLabel>
                     <FormControl componentClass="select"
                             placeholder="InferFromTree"
@@ -81,9 +81,9 @@ var PanelFiles = React.createClass({
                             //})
                         }
                     </FormControl>
-                    </FormGroup>
                     </Col>
                 </Row>
+
             </Grid>
             </Panel>
             </div>
@@ -248,6 +248,7 @@ var WelcomeAncPage = React.createClass({
         return (
             <div>
                 <Header/>
+                <div className="page_container">
                 <PanelFiles
                     TreeAncConfig={this.state.treeAncConfig}
                     setTreeAncConfig={this.setTreeAncConfig}
@@ -255,9 +256,11 @@ var WelcomeAncPage = React.createClass({
                     uploadTreeFile={this.uploadTreeFile}
                     uploadAlnFile={this.uploadAlnFile}/>
 
-                <Button bsStyle="primary" onClick={this.onRunTreeAnc}>
-                    Run ancestral reconstruction
-                </Button>
+                    <Button bsStyle="primary" className="btn-treetime" onClick={this.onRunTreeAnc}>
+                        Run ancestral reconstruction
+                    </Button>
+                </div>
+
             </div>
         );
     }

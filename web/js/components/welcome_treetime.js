@@ -636,6 +636,7 @@ var WelcomeTreeTimePage = React.createClass({
         return (
             <div>
                 <Header/>
+                <div className="page_container">
                 <PanelText/>
                 <div className='bigspacer'/>
 
@@ -663,7 +664,7 @@ var WelcomeTreeTimePage = React.createClass({
 
                 {/* Run treetime on the server*/}
                 <Button bsStyle="primary" onClick={this.onRunTreeTime}>Run treetime</Button>
-
+                </div>
             </div>
         );
     }

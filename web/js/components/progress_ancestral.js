@@ -52,9 +52,8 @@ var Banner = React.createClass({
 
     render(){
         return (
-            <div>
-            <Header/>
-            {this.renderBanner()}
+            <div >
+                {this.renderBanner()}
             </div>
         )
     }
@@ -167,6 +166,8 @@ var ProgressTreeTimePage = React.createClass({
     render: function(){
         return (
             <div>
+                <Header/>
+                <div className="page_container">
                 <div>
                     <Banner
                         appState={this.state}
@@ -174,7 +175,7 @@ var ProgressTreeTimePage = React.createClass({
                         checkError={this.checkError}
                         />
                 </div>
-
+                <div className="bigspacer"/>
                 <div>
                     <a className="btn btn-primary btn-file"
                        id="results-section_download-btn_download"
@@ -183,6 +184,8 @@ var ProgressTreeTimePage = React.createClass({
                        style={this.downloadRenderStyle()}>
                        Download results (.zip)
                     </a>
+                </div>
+
                 </div>
 
             </div>
