@@ -410,30 +410,30 @@ class TreeTimeWeb(treetime.TreeTime):
         return
 
     def run_treeanc(self, **kwargs):
-        self._write_session_state("reading config")
+        _write_session_state(self._root_dir,"reading config")
         # get the run parameters
         infer_gtr  = self._webconfig['gtr'] == 'infer'
         do_marginal = False if self._webconfig['do_marginal'] == 'False' or not self._webconfig['do_marginal'] else True
 
         # run treeanc
         try:
-            self._write_session_state("running treetime")
+            _write_session_state(self._root_dir,"running treetime")
             super(TreeTimeWeb, self).optimize_seq_and_branch_len(reuse_branch_len=True, prune_short=True, max_iter=5, infer_gtr=infer_gtr, marginal=do_marginal, **kwargs)
         except:
             tb = traceback.format_exc()
-            self._write_session_state("error", desc="TreeTime crashed. {}".format(tb))
+            _write_session_state(self._root_dir,"error", desc="TreeTime crashed. {}".format(tb))
             return
 
         # save results
         try:
             self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
-            self._write_session_state("saving results")
+            _write_session_state(self._root_dir,"saving results")
             self.save_treeanc_results()
-            self._write_session_state("done")
+            _write_session_state(self._root_dir,"done")
             self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
         except:
             tb = traceback.format_exc()
-            self._write_session_state("error\nTreeTime crashed while saving results. {}".format(tb))
+            _write_session_state(self._root_dir,"error\nTreeTime crashed while saving results. {}".format(tb))
             return
 
     def save_treeanc_results(self):
@@ -452,7 +452,7 @@ def run_treetime(root, webconfig):
         ttw = TreeTimeWeb(root, webconfig)
     except:
         tb = traceback.format_exc()
-        _write_session_state(root,"error\nTreeTime crashed while saving results. {}".format(tb))
+        _write_session_state(root,"error\nTreeTime crashed at the initialization phase. {}".format(tb))
         return
     ttw.run()
 
@@ -461,7 +461,7 @@ def run_treeanc(root, webconfig):
         ttw = TreeTimeWeb(root, webconfig, metadata=False)
     except:
         tb = traceback.format_exc()
-        _write_session_state(root,"error\nTreeTime crashed while saving results. {}".format(tb))
+        _write_session_state(root,"error\nTreeTime crashed at the initialization phase. {}".format(tb))
         return
 
     ttw.run_treeanc()
