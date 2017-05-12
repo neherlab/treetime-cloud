@@ -448,11 +448,22 @@ class TreeTimeWeb(treetime.TreeTime):
             out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
 
 def run_treetime(root, webconfig):
-    ttw = TreeTimeWeb(root, webconfig)
+    try:
+        ttw = TreeTimeWeb(root, webconfig)
+    except:
+        tb = traceback.format_exc()
+        _write_session_state(root,"error\nTreeTime crashed while saving results. {}".format(tb))
+        return
     ttw.run()
 
 def run_treeanc(root, webconfig):
-    ttw = TreeTimeWeb(root, webconfig, metadata=False)
+    try:
+        ttw = TreeTimeWeb(root, webconfig, metadata=False)
+    except:
+        tb = traceback.format_exc()
+        _write_session_state(root,"error\nTreeTime crashed while saving results. {}".format(tb))
+        return
+
     ttw.run_treeanc()
 
 if __name__=="__main__":
