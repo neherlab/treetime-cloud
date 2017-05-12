@@ -99,6 +99,12 @@ def read_metadata_from_file(infile):
         raise
         return {}, {}
 
+def _write_session_state(root, state, desc=""):
+
+        dic = {"state":state,
+                "desc": desc}
+        with open (os.path.join(root, "session_state.txt"), 'w') as of:
+            json.dump(dic, of, indent=True)
 
 class TreeTimeWeb(treetime.TreeTime):
 
@@ -126,16 +132,8 @@ class TreeTimeWeb(treetime.TreeTime):
         super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
                 gtr=gtr, *args, **kwargs)
 
-    def _write_session_state(self, state, desc=""):
-
-        dic = {"state":state,
-                "desc": desc}
-        with open (os.path.join(self._root_dir, "session_state.txt"), 'w') as of:
-            json.dump(dic, of, indent=True)
-
-
     def run(self, **kwargs):
-        self._write_session_state("reading config")
+        _write_session_state(self._root_dir, "reading config")
         # get the run parameters
         infer_gtr  = self._webconfig['gtr'] == 'infer'
         root = self._webconfig['root']
@@ -147,25 +145,25 @@ class TreeTimeWeb(treetime.TreeTime):
 
         # run treetime
         try:
-            self._write_session_state("running treetime")
+            _write_session_state(self._root_dir,"running treetime")
             super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
                 resolve_polytomies=resolve_polytomies, max_iter=0, Tc=Tc, fixed_slope=slope,
                 do_marginal=do_marginal, **kwargs)
         except:
             tb = traceback.format_exc()
-            self._write_session_state("error", desc="TreeTime crashed. {}".format(tb))
+            _write_session_state(self._root_dir,"error", desc="TreeTime crashed. {}".format(tb))
             return
 
         # save results
         try:
             self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
-            self._write_session_state("saving results")
+            _write_session_state(self._root_dir,"saving results")
             self.save_treetime_results()
-            self._write_session_state("done")
+            _write_session_state(self._root_dir,"done")
             self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
         except:
             tb = traceback.format_exc()
-            self._write_session_state("error\nTreeTime crashed while saving results. {}".format(tb))
+            _write_session_state(self._root_dir,"error\nTreeTime crashed while saving results. {}".format(tb))
             return
 
 
