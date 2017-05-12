@@ -14,6 +14,8 @@ app.debug=True
 ALLOWED_EXTENSIONS = ['fasta', 'nwk', 'csv', 'png', 'jpg']
 # these modules needed to probe the input data in-place
 
+html_theme_css = "/static/css/bootstrap_spacelab.css"
+
 dn = os.path.dirname(os.path.abspath(__file__))
 sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
@@ -28,7 +30,7 @@ def make_id():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        return render_template('welcome.html')
+        return render_template('welcome.html', html_theme=html_theme_css)
     return None
 
 @app.route('/ancestral_reconstruction_request', methods=['GET', 'POST'])
@@ -52,7 +54,7 @@ def ancestral_reconstruction_request():
 @app.route('/ancestral/<userid>', methods=['GET', 'POST'])
 def ancestral_reconstruction_welcome(userid):
     if request.method == 'GET':
-        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config=treeanc_webconfig)
+        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config=treeanc_webconfig, html_theme=html_theme_css)
     else:
         pass
 
@@ -74,7 +76,7 @@ def treetime_request():
 @app.route('/treetime/<userid>', methods=['GET', 'POST'])
 def render_treetime_welcome(userid):
     if request.method == 'GET':
-        return render_template('welcome_treetime.html', UserId=userid, Config=treetime_webconfig)
+        return render_template('welcome_treetime.html', UserId=userid, Config=treetime_webconfig, html_theme=html_theme_css)
     else:
         pass
 
@@ -178,7 +180,7 @@ def run_treetime(userid):
 @app.route('/treetime/<userid>/progress', methods=['GET'])
 def render_treetime_progress(userid):
     if request.method == 'GET':
-        return render_template('progress_treetime.html', UserId=userid)
+        return render_template('progress_treetime.html', UserId=userid, html_theme=html_theme_css)
 
 @app.route('/treetime/<userid>/get_session_state', methods=['GET'])
 def get_session_state(userid):
@@ -195,7 +197,7 @@ def get_session_state(userid):
 @app.route('/treetime/<userid>/results', methods=['GET'])
 def render_treetime_results(userid):
     if request.method == 'GET':
-        return render_template('results_treetime.html', UserId=userid)
+        return render_template('results_treetime.html', UserId=userid, html_theme=html_theme_css)
 
 
 @app.route('/sessions/<userid>/<filename>', methods=['GET', 'POST'])
@@ -231,7 +233,7 @@ def run_ancestral(userid):
 
 @app.route("/ancestral/<userid>/progress", methods=['GET', 'POST'])
 def render_ancestral_progress(userid):
-    return render_template('progress_ancestral.html', UserId=userid)
+    return render_template('progress_ancestral.html', UserId=userid, html_theme=html_theme_css)
 
 
 if __name__ == "__main__":
