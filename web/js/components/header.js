@@ -33,15 +33,19 @@ var Header  = React.createClass({
     render(){
         const navbarInstance = (
           <Navbar>
-            <Nav>
-                <NavItem eventKey={1} href="/"><Glyphicon glyph={"home"}/></NavItem>
+            <Nav pullLeft>
+                <NavItem eventKey={1} href="/"><Glyphicon glyph={"home"}/>Home</NavItem>
             </Nav>
             <Navbar.Header>
-              <Navbar.Brand>
-                <span> TreeTime: molecular clock phylogenies</span>
+              <Navbar.Brand style={{"font-size":"20pt"}}>
+                TreeTime: molecular clock phylogenies
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
+              <Nav pullRight>
+                <NavItem eventKey={2} href="/about"><Glyphicon glyph={"info-sign"}/>About</NavItem>
+            </Nav>
+
           </Navbar>
         );
 

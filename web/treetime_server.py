@@ -14,7 +14,8 @@ app.debug=True
 ALLOWED_EXTENSIONS = ['fasta', 'nwk', 'csv', 'png', 'jpg']
 # these modules needed to probe the input data in-place
 
-html_theme_css = "/static/css/bootstrap_spacelab.css"
+html_theme_css = "http://bootswatch.com/flatly/bootstrap.css"
+
 
 dn = os.path.dirname(os.path.abspath(__file__))
 sessions_root = os.path.join(dn , 'sessions')
@@ -235,6 +236,9 @@ def run_ancestral(userid):
 def render_ancestral_progress(userid):
     return render_template('progress_ancestral.html', UserId=userid, html_theme=html_theme_css)
 
+@app.route("/about", methods=['GET', 'POST'])
+def render_about_page():
+    return render_template('about.html', html_theme=html_theme_css)
 
 if __name__ == "__main__":
     app.wait_time = {};
