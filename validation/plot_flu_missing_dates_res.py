@@ -124,17 +124,17 @@ def plot_date_dists(res, label="", axes=None):
         numfrac=float(frac[2:])
         x = frac + "_x"
         y = frac + "_y"
-        plt.plot(res[x], res[y], label="{}% Dates known".format(numfrac*100))
+        plt.plot(res[x], res[y], label="{}% dates known".format(numfrac*100), lw=2)
 
     s_x, s_y = [float(k[2:]) for k in fracs], [_fwhm(res[k+"_x"], res[k+"_y"]) for k in fracs]
     #import ipdb; ipdb.set_trace()
 
     # this is an inset axes over the main axes
     a = plt.axes([.65, .65, .22, .22], axisbg='lightgray',frameon=True)
-    a.plot(s_x, s_y, 'o')
+    a.plot(s_x, s_y, 'o', markersize=markersize*0.8)
     a.set_title('FWHM')
-    a.set_xlabel("Fraction of dates known",fontsize=label_fs*.6)
-    a.set_ylabel("Leaf date error, $[\mathrm{years}]$",fontsize=label_fs*.6)
+    a.set_xlabel("Fraction of dates known",fontsize=label_fs*.8)
+    a.set_ylabel("Leaf date error, $[\mathrm{years}]$",fontsize=label_fs*.8)
     a.get_xaxis().set_ticks([0.1,0.5,0.9])
     a.get_yaxis().set_ticks([0.4,0.7,1.])
     for label in a.get_xticklabels():
@@ -146,6 +146,7 @@ def plot_date_dists(res, label="", axes=None):
     #plt.yticks([])
 
     axes.set_xlim(-2, 2)
+    axes.set_ylim(0, 1.4)
     axes.grid('on')
     axes.legend(loc=2,fontsize=legend_fs)
     axes.set_xlabel(r"Error in $\mathrm{T}_{mrca}$ estimation, $[\mathrm{years}]$", fontsize=label_fs)
