@@ -137,7 +137,7 @@ class TreeTimeWeb(treetime.TreeTime):
 
         gtr = 'jc' if webconfig['gtr'] == 'infer' else webconfig['gtr']
         super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
-                gtr=gtr, *args, **kwargs)
+                gtr=str(gtr), *args, **kwargs)
 
     def run(self, **kwargs):
         _write_session_state(self._root_dir, SessionState.reading)
@@ -154,7 +154,7 @@ class TreeTimeWeb(treetime.TreeTime):
         try:
             _write_session_state(self._root_dir, SessionState.running)
             super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
-                resolve_polytomies=resolve_polytomies, max_iter=0, Tc=Tc, fixed_slope=slope,
+                resolve_polytomies=resolve_polytomies, max_iter=5, Tc=Tc, fixed_slope=slope,
                 do_marginal=do_marginal, **kwargs)
         except:
             tb = traceback.format_exc()
