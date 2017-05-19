@@ -1,6 +1,7 @@
 import React from  'react'
 import ReactDOM from 'react-dom'
 import Header from './header.js'
+import GTR from './gtr.js'
 var request = require('superagent');
 import { Panel, PanelGroup, Button, Grid, Row, Col, FormControl, FormGroup, ControlLabel , Checkbox, Table, OverlayTrigger, Tooltip } from "react-bootstrap";
 
@@ -65,22 +66,7 @@ var PanelFiles = React.createClass({
                 {/*GTR model*/}
                 <Row className="grid-treetime-row">
                     <Col xs={6} md={4} className="grid-treetime-col-right">
-                    <ControlLabel>GTR model</ControlLabel>
-                    <FormControl componentClass="select"
-                            placeholder="InferFromTree"
-                            className="select-treetime"
-                            id="welcome-panel_config-select_GTR"
-                            onChange={this.onChange}>
-                        <option value= "infer">Infer from tree</option>
-                        {
-                            this.state.available_gtrs.map(function(d){
-                                return <option key={d.key} value={d.key}>{d.value}</option>;
-                            })
-                            //this.props.TreeTimeConfig.available_gtrs.map(function(d) {
-                            //    return <option key={d.key} value={d.key}>{d.value}</option>;
-                            //})
-                        }
-                    </FormControl>
+                    <GTR AppState={this.state} setTreeAncConfig={this.props.setTreeAncConfig} setGtrState={this.props.setGtrState}/>
                     </Col>
                 </Row>
 
@@ -243,6 +229,23 @@ var WelcomeAncPage = React.createClass({
         window.location.replace("/ancestral/" + this.state.UID + "/progress");
     },
 
+    setGtrState: function(key, param_name, param_value){
+        console.log("Welcome page: setting GTR state")
+        var cfg = this.state.treeAncConfig
+        var gtr = cfg.available_gtrs[key]
+        if (!gtr.params){
+            alert("Cannot set GTR parameter: This GTR has no parameters.")
+            return;
+        }
+        for (var i = 0; i < gtr.params.length; ++i){
+            var param = gtr.params[i];
+            if (param.name == param_name){
+                this.state.treeAncConfig.available_gtrs[key].params[i].value = param_value
+                this.forceUpdate()
+                break;
+            }
+        }
+    },
 
     render:function(){
         return (
@@ -252,6 +255,7 @@ var WelcomeAncPage = React.createClass({
                 <PanelFiles
                     TreeAncConfig={this.state.treeAncConfig}
                     setTreeAncConfig={this.setTreeAncConfig}
+                    setGtrState={this.setGtrState}
                     appState={this.state}
                     uploadTreeFile={this.uploadTreeFile}
                     uploadAlnFile={this.uploadAlnFile}/>
