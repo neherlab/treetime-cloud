@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import Header from './header.js'
 var request = require('superagent');
 import { Panel, PanelGroup, Button, Grid, Row, Col, FormControl, FormGroup, ControlLabel , Checkbox, Table, OverlayTrigger, Tooltip } from "react-bootstrap";
+import GTR from './gtr.js'
 
 var PanelText = React.createClass({
     render: function(){
@@ -310,22 +311,7 @@ var PanelConfig = React.createClass({
 
                 {/*GTR model*/}
                 <FormGroup>
-                    <ControlLabel>GTR model</ControlLabel>
-                    <FormControl componentClass="select"
-                            placeholder="InferFromTree"
-                            className="select-treetime"
-                            id="welcome-panel_config-select_GTR"
-                            onChange={this.onGtrChange}>
-                        <option value= "infer">Infer from tree</option>
-                        {
-                            this.state.available_gtrs.map(function(d){
-                                return <option key={d.key} value={d.key}>{d.value}</option>;
-                            })
-                            //this.props.TreeTimeConfig.available_gtrs.map(function(d) {
-                            //    return <option key={d.key} value={d.key}>{d.value}</option>;
-                            //})
-                        }
-                    </FormControl>
+                    <GTR AppState={this.props.TreeTimeConfig} setTreeAncConfig={this.props.setTreeTimeConfig} setGtrState={this.props.setGtrState}/>
                 </FormGroup>
 
                 {/*Fix substitution rate*/}
@@ -425,7 +411,10 @@ var WelcomeTreeTimePage = React.createClass({
         meta_file:false,
         meta_filename:"Select meta data file",
         // treetime configuration
-        TreeTimeConfig: {}
+        TreeTimeConfig: {
+            'available_gtrs':{},
+            'gtr':null
+        }
       };
     },
 
@@ -631,6 +620,24 @@ var WelcomeTreeTimePage = React.createClass({
         window.location.replace("/treetime/" + this.state.UID + "/progress");
     },
 
+    setGtrState: function(key, param_name, param_value){
+        console.log("Welcome page: setting GTR state")
+        var cfg = this.state.TreeTimeConfig
+        var gtr = cfg.available_gtrs[key]
+        if (!gtr.params){
+            alert("Cannot set GTR parameter: This GTR has no parameters.")
+            return;
+        }
+        for (var i = 0; i < gtr.params.length; ++i){
+            var param = gtr.params[i];
+            if (param.name == param_name){
+                this.state.TreeTimeConfig.available_gtrs[key].params[i].value = param_value
+                this.forceUpdate()
+                break;
+            }
+        }
+    },
+
     render:function(){
         return (
             <div>
@@ -657,6 +664,7 @@ var WelcomeTreeTimePage = React.createClass({
 
                 {/* Advanced configuration*/}
                 <PanelConfig
+                    setGtrState={this.setGtrState}
                     TreeTimeConfig={this.state.TreeTimeConfig}
                     setTreeTimeConfig={this.setTreeTimeConfig}/>
 
