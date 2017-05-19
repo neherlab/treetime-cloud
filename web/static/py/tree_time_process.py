@@ -150,10 +150,16 @@ class TreeTimeWeb(treetime.TreeTime):
         Tc = None if self._webconfig['use_coalescent_prior'] == 'False' or not self._webconfig['use_coalescent_prior'] \
             else float(self._webconfig['coalescent_prior_value'])
 
+        relax_clock = False if self._webconfig['use_relaxed_clock'] == 'False' or not self._webconfig['use_relaxed_clock'] else True
+        # add kwargs only if the relax clock is set to true
+        if relax_clock:
+            kwargs['slack'] = float(self._webconfig['relaxed_clock']['slack'])
+            kwargs['coupling'] = float(self._webconfig['relaxed_clock']['coupling'])
+
         # run treetime
         try:
             _write_session_state(self._root_dir, SessionState.running)
-            super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
+            super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=relax_clock,
                 resolve_polytomies=resolve_polytomies, max_iter=5, Tc=Tc, fixed_slope=slope,
                 do_marginal=do_marginal, **kwargs)
         except:
@@ -304,6 +310,12 @@ class TreeTimeWeb(treetime.TreeTime):
 
     def _node_metadata(self, node):
 
+
+        if hasattr(node, 'branch_length_interpolator') and node.branch_length_interpolator is not None:
+            gamma = node.branch_length_interpolator.gamma
+        else:
+            gamma = 1.0
+
         meta = []
         # if node has user-provided metadata, append it
         if node.name in self._metadata:
@@ -315,20 +327,21 @@ class TreeTimeWeb(treetime.TreeTime):
             meta.append({"name":"numdate", "value":node.numdate})
 
         # append deviation of the branch length from average
+        stretch = np.min([node.branch_length / (node.mutation_length / gamma + 0.000001), 2.])
         meta.append({
                 "name": "Branch length stretch",
-                "value": (node.branch_length) / (node.mutation_length + 0.001)
+                "value": stretch
             })
 
-        if self._webconfig['relaxed_clock'] is not False and self._webconfig['relaxed_clock'] is not None:
+        relax_clock = False if self._webconfig['use_relaxed_clock'] == 'False' or not self._webconfig['use_relaxed_clock'] else True
+        if relax_clock:
             # append mutation rate deviation from average
-            if hasattr(node, 'branch_length_interplator'):
-                meta.append({
-                    "name": "Relaxed mutation rate",
-                    "value": node.branch_length_interpolator.gamma
-                    })
-            else:
-                meta.append({"name": "Relaxed mutation rate", "value":1.0})
+            meta.append({
+                "name": "Local mutation rate",
+                "value": gamma
+                })
+            # else:
+            #     meta.append({"name": "Relaxed mutation rate", "value":1.0})
 
         return meta
 

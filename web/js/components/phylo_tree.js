@@ -83,6 +83,7 @@ var linkTooltip = d3tip()
       var tmp_muts = d.target.muts.split(',');
       var nmuts = tmp_muts.length;
       tmp_muts = tmp_muts.slice(0,Math.min(10, nmuts))
+      string += "MUTATIONS:</br>";
       string += "<li style=\"margin-top: 10px;\" >"+tmp_muts.join(', ');
       if (nmuts>10) {string+=' + '+ (nmuts-10) + ' more';}
       string += "</li>";
@@ -92,7 +93,7 @@ var linkTooltip = d3tip()
     string += "</br>TARGET: " + d.target.name + "</br>";
 
     string += d.target.metadata.map(function(d){
-              return "<li style=\"margin-top: 10px;\">" + d.name + " : " + d.value + "</li>"
+              return "<li style=\"margin-top: 10px;\">" + name_filter(d.name) + " : " + number_filter(d.value) + "</li>"
           }).join("")
 
     string += "</br> click to zoom into clade"
@@ -102,7 +103,16 @@ var linkTooltip = d3tip()
 
   });
 
+var name_filter= function(name){
+  if (name == 'numdate'){
+    return 'Date';
+  }
+  return name;
+}
 
+var number_filter = function(val){
+  return Math.round(val*1000) / 1000;
+}
 var PhyloTree = {};
 
 PhyloTree.state = {};
