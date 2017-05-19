@@ -48,7 +48,7 @@ var GTR = React.createClass({
     //of all GTR models and control their visibility
     gtrParamsVisibility: function(gtr){
         if (this.state.selected_gtr == gtr){
-            return {"width":"100%", "margin-top":"10px"}
+            return {"margin-top":"10px", "float":"none", "display":"block"}
         }else{
             return {"display":"none"}
         }

@@ -294,6 +294,7 @@ var PanelConfig = React.createClass({
             <Panel collapsible defaultCollapsed header="Advanced configuration" className="panel-treetime" id="welcome_panel_config">
 
                 {/*Reroot to best root*/}
+                <Row>
                 <Checkbox
                     checked={this.props.TreeTimeConfig.root != false && this.props.TreeTimeConfig.root != null}
                     onChange={this.onTreeTimeRoot}>
@@ -301,20 +302,26 @@ var PanelConfig = React.createClass({
                     <div>Optimize tree root position</div>
                     </OverlayTrigger>
                 </Checkbox>
+                </Row>
 
                 {/*Polytomies resolution*/}
+                <Row>
                 <Checkbox
                     checked={this.props.TreeTimeConfig.polytomies != false && this.props.TreeTimeConfig.polytomies != null}
                     onChange={this.onTreeTimePoly}>
                     Resolve polytomies using temporal constraints
                 </Checkbox>
+                </Row>
 
                 {/*GTR model*/}
+                <Row>
                 <FormGroup>
                     <GTR AppState={this.props.TreeTimeConfig} setTreeAncConfig={this.props.setTreeTimeConfig} setGtrState={this.props.setGtrState}/>
                 </FormGroup>
+                </Row>
 
                 {/*Fix substitution rate*/}
+                <Row>
                 <FormGroup>
                     <Checkbox
                         onChange={this.onMuSelected}
@@ -335,8 +342,10 @@ var PanelConfig = React.createClass({
                         <span style={{"display":"inline-block"}}>(#/year)</span>
                     </div>
                 </FormGroup>
+                </Row>
 
                 {/*Use coalescent prior*/}
+                <Row>
                 <FormGroup>
                     <Checkbox
                         checked={this.props.TreeTimeConfig.use_coalescent_prior != false && this.props.TreeTimeConfig.use_coalescent_prior != null}
@@ -357,8 +366,10 @@ var PanelConfig = React.createClass({
                         <span style={{"display":"inline-block"}}>(Hamming distance)</span>
                     </div>
                 </FormGroup>
+                </Row>
 
                 {/*Relaxed molecular clock*/}
+                <Row>
                 <FormGroup>
                     <Checkbox
                         onChange={this.onRelaxClockSelected}
@@ -390,7 +401,11 @@ var PanelConfig = React.createClass({
                         </div>
                     </div>
                 </FormGroup>
+                </Row>
+
+                <Row>
                 Additional features such as skyline inference are available in the treetime package but not accessible via the web interface.
+                </Row>
             </Panel>
             </div>
         );
