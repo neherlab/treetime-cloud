@@ -1,8 +1,9 @@
 import React from  'react'
 import ReactDOM from 'react-dom'
 import Header from './header.js'
+import Footer from './footer.js'
 var request = require('superagent');
-import { Button } from "react-bootstrap";
+import { Button, Row, Col, Panel } from "react-bootstrap";
 
 var WelcomePage = React.createClass({
 
@@ -86,12 +87,62 @@ var WelcomePage = React.createClass({
 
             <div>
                 <Header/>
-                <div style={{"position":"absolute", "text-align": "center", "width":"100%", "top":"50%", "display":"inline-block", "margin-left":"auto", "margin-right":"auto"}}>
-                    <div >
-                        <Button bsStyle="primary" style={btn_size} onClick={this.ancestral_reconstruction_request}>Ancestral state<br/>&#13;&#10;reconstruction</Button>
-                        <Button bsStyle="primary" style={btn_size} onClick={this.treetime_request}>TreeTime run</Button>
+                <div className="page_container">
+                    <div id="welcome_description">
+                        <Panel collapsible defaultExpanded header="Time-tree inference">
+                        <Row>
+                            <Col md={3}>
+                                <div style={{"height":"30px"}}></div>
+                                <Button bsStyle="primary" style={btn_size} onClick={this.treetime_request}>Timetree inference</Button>
+                            </Col>
+
+                            <Col md={5}>
+                                <h4>Features</h4>
+                                <ul>
+                                    <li>Approximate maximum-likelihood time tree inference</li>
+                                    <li>Inference of GTR models</li>
+                                    <li>Rerooting to obtain best root-to-tip regression</li>
+                                    <li>Coalesent priors</li>
+                                    <li>Auto-correlated molecular clocks</li>
+                                </ul>
+                            </Col>
+                            <Col md={3}>
+                                <h4>Requires</h4>
+                                <ul>
+                                    <li>Alignment as fasta</li>
+                                    <li>Tip dates as csv</li>
+                                    <li>Tree as newick (optional)</li>
+                                </ul>
+                            </Col>
+                        </Row>
+                        </Panel>
+                        <Panel collapsible defaultExpanded header="Ancestral state reconstruction">
+                        <Row>
+                            <Col md={3}>
+                                <div style={{"height":"30px"}}></div>
+                                <Button bsStyle="primary" style={btn_size} onClick={this.ancestral_reconstruction_request}>Ancestral sequence<br/>&#13;&#10;reconstruction</Button>
+                            </Col>
+
+                            <Col md={5}>
+                                <h4>Features</h4>
+                                <ul>
+                                    <li>Ancestral sequence reconstruction</li>
+                                    <li>Branch length optimization</li>
+                                    <li>Inference of GTR models</li>
+                                </ul>
+                            </Col>
+                            <Col md={3}>
+                                <h4>Requires</h4>
+                                <ul>
+                                    <li>Alignment as fasta</li>
+                                    <li>Tree as newick (optional)</li>
+                                </ul>
+                            </Col>
+                        </Row>
+                        </Panel>
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

@@ -12,17 +12,16 @@ var PanelText = React.createClass({
 
                 <h4>Features</h4>
                     <ul>
-                        <li>Ancestral sequence reconstruction</li>
-                        <li>Molecular clock tree inference</li>
+                        <li>Approximate maximum-likelihood time tree inference</li>
                         <li>Inference of GTR models</li>
                         <li>Rerooting to obtain best root-to-tip regression</li>
-                        <li>Auto-correlated relaxed molecular clock (with normal prior)</li>
+                        <li>Coalesent priors</li>
+                        <li>Auto-correlated molecular clocks</li>
                     </ul>
 
                 TreeTime source code is available on <a href='https://github.com/neherlab/treetime'>Github</a>.
 
                 </div>
-
 
             </div>
         );
@@ -62,12 +61,12 @@ var PanelFiles = React.createClass({
 
                 <li>The first column should contain the <strong>name</strong> of the sequences.</li>
 
-                <li>The first column with "date" in the name is used as tip dates.
+                <li>The first column with "date" in the name is interpreted as tip dates.
                 Admissible formats are: (i) numeric date as "2015.7", (ii) date string, e.g. "YYYY-MM-DD".
                 </li>
 
                 <li>Other columns may contain arbitrary data of any format and have arbitrary names.
-                The server will try to parse these columns and show it in the results section.</li>
+                The server will try to parse these columns and show them in the results section.</li>
                 </ul>
 
             </Tooltip>
@@ -133,12 +132,12 @@ var PanelExamples = React.createClass({
                             <Table striped condensed hove>
                             <thead>
                               <tr>
-                                <th>Specie</th>
-                                <th>Region</th>
-                                <th>Seq Len</th>
-                                <th>#Seq</th>
-                                <th>Dates range</th>
-                                <th>Load</th>
+                                <th>Species</th>
+                                <th>Genomic region</th>
+                                <th>Length</th>
+                                <th>Size</th>
+                                <th>Date range</th>
+                                <th></th>
                               </tr>
                             </thead>
                             <tbody>
@@ -405,7 +404,7 @@ var PanelConfig = React.createClass({
                         </div>
                     </div>
                 </FormGroup>
-
+                Additional features such as skyline inference are available in the treetime package but not accessible via the web interface.
             </Panel>
             </div>
         );
@@ -637,7 +636,6 @@ var WelcomeTreeTimePage = React.createClass({
             <div>
                 <Header/>
                 <div className="page_container">
-                <PanelText/>
                 <div className='bigspacer'/>
 
                 {/* Upload files*/}
