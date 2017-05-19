@@ -1,12 +1,18 @@
 
-concentration_params = [{"name": "[A]", "value":0.25}, {"name": "[C]", "value":0.25}, {"name": "[G]", "value":0.25}, {"name": "[T]", "value":0.25}]
+concentration_params = [{"name": "[A]", "value":0.25, "tip":"Relative concentration of A"},
+                        {"name": "[C]", "value":0.25, "tip":"Relative concentration of C"},
+                        {"name": "[G]", "value":0.25, "tip":"Relative concentration of G"},
+                        {"name": "[T]", "value":0.25, "tip":"Relative concentration of T"}]
+
+kappa = {"name":"kappa", "value":0.1, "tip":"Transition-transversion ratio"}
+
 available_gtrs =  {
             "infer":{"value":"Infer from tree"},
             "jc": {"value": "Jukes, Cantor 1969"},
-            "k80": {"value": 'Kimura 1980', 'params': [{"name":"kappa", "value":0.1}]},
+            "k80": {"value": 'Kimura 1980', 'params': [kappa]},
             'f81': {"value": 'Felsenstein 1981','params':concentration_params},
-            'hky': {"value": 'Hasegawa, Kishino, Yano 1985', 'params':concentration_params + [{"name":"kappa", "value":0.1}]},
-            't92': {"value": 'Tamura 1992', 'params':[{"name":"[G+C]", "value":0.3}, {"name":"kappa", "value":0.1}]},
+            'hky': {"value": 'Hasegawa, Kishino, Yano 1985', 'params':concentration_params + [kappa]},
+            't92': {"value": 'Tamura 1992', 'params':[{"name":"[G+C]", "value":0.3, "tip":"Ratio of the G+C content in the genome"}, kappa]},
             'tn93': {"value": 'Tamura, Nei 1993', 'params':concentration_params + [{"name":"kappa1", "value":0.1}, {"name":"kappa2", "value":0.5}]},
             'jtt': {"value": 'Jones, Taylor, Thronton'},
         }

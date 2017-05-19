@@ -1,5 +1,5 @@
 import React from 'react'
-import {FormControl, ControlLabel, Grid, Row, Col} from "react-bootstrap";
+import {FormControl, ControlLabel, Grid, Row, Col, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 var GTR = React.createClass({
 
@@ -84,19 +84,53 @@ var GTR = React.createClass({
             this.onParamChanged(key, param.name, evt)
         }.bind(this)
 
-        return (
-            <span style={{"display":"inline-block", "float":"left", "margin-right":"10px", "margin-top":"10px"}}>
-            <span style={{"display":"inline-block"}}>{param.name} = </span>
+        var tip = param.tip
+        var tooltip = (
+        <Tooltip id="tooltip">
+            {tip}
+        </Tooltip>
+        );
+        var overlay={tooltip}
+
+        var fc = (
             <FormControl
                 type="number"
                 step="1e-3"
                 maxlength="5"
                 min="0"
-                max="1e-1"
+                max="1"
                 disabled={false}
                 style={{"display":"inline-block"}}
                 onChange={change_callback}
-                />
+                value={param.value}>
+
+            </FormControl>
+        );
+
+        // in case there is no tip- do not show the tooltip
+        var fc_component = tip ? (
+            <OverlayTrigger placement="top"  overlay={tooltip}>
+                <FormControl
+                type="number"
+                step="1e-3"
+                maxlength="5"
+                min="0"
+                max="1"
+                disabled={false}
+                style={{"display":"inline-block"}}
+                onChange={change_callback}
+                value={param.value}>
+
+            </FormControl>
+            </OverlayTrigger>): fc;
+
+        return (
+            <span style={{"display":"inline-block", "float":"left", "margin-right":"10px", "margin-top":"10px"}} overlay={overlay}>
+
+            <span style={{"display":"inline-block"}}>{param.name} =
+
+            </span>
+            {fc_component}
             </span>
         );
     },
