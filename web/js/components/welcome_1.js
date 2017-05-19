@@ -80,11 +80,18 @@ var WelcomePage = React.createClass({
     },
 
     render:function(){
+        var btn_size={"width":"200px", "height":"80px", "margin-right":"25px", "margin-left":"25px", "display":"inline-block", "vertical-alignment":"middle"};
         return (
+
+
             <div>
                 <Header/>
-                <Button bsStyle="primary" onClick={this.ancestral_reconstruction_request}>Ancestral state reconstruction</Button>
-                <Button bsStyle="primary" onClick={this.treetime_request}>TreeTime run</Button>
+                <div style={{"position":"absolute", "text-align": "center", "width":"100%", "top":"50%", "display":"inline-block", "margin-left":"auto", "margin-right":"auto"}}>
+                    <div >
+                        <Button bsStyle="primary" style={btn_size} onClick={this.ancestral_reconstruction_request}>Ancestral state<br/>&#13;&#10;reconstruction</Button>
+                        <Button bsStyle="primary" style={btn_size} onClick={this.treetime_request}>TreeTime run</Button>
+                    </div>
+                </div>
             </div>
         );
     }

@@ -99,10 +99,23 @@ def read_metadata_from_file(infile):
         raise
         return {}, {}
 
+class SessionState(object):
+    saving = "saving results"
+    error = "error"
+    running = "running"
+    reading = "reading config"
+    done = "done"
 
-class TreeTimeWeb(TreeTime):
+def _write_session_state(root, state, desc=""):
 
-    def __init__(self, root, webconfig, *args, **kwargs):
+        dic = {"state":state,
+                "desc": desc}
+        with open (os.path.join(root, "session_state.txt"), 'w') as of:
+            json.dump(dic, of, indent=True)
+
+class TreeTimeWeb(treetime.TreeTime):
+
+    def __init__(self, root, webconfig, metadata=True, *args, **kwargs):
 
         self._webconfig = webconfig
 
@@ -115,21 +128,19 @@ class TreeTimeWeb(TreeTime):
         # run treetime with the specified parameters:
         tree = Phylo.read(get_filepaths(root)['tree'], 'newick')
         aln = AlignIO.read(get_filepaths(root)['aln'], 'fasta')
-        dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'])
-        self._metadata = metadata
+
+        if metadata:
+            dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'])
+            self._metadata = metadata
+        else:
+            dates = {}
+
         gtr = 'jc' if webconfig['gtr'] == 'infer' else webconfig['gtr']
-        super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln, gtr=gtr)
-
-    def _write_session_state(self, state, desc=""):
-
-        dic = {"state":state,
-                "desc": desc}
-        with open (os.path.join(self._root_dir, "session_state.txt"), 'w') as of:
-            json.dump(dic, of, indent=True)
-
+        super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
+                gtr=gtr, *args, **kwargs)
 
     def run(self, **kwargs):
-        self._write_session_state("reading config")
+        _write_session_state(self._root_dir, SessionState.reading)
         # get the run parameters
         infer_gtr  = self._webconfig['gtr'] == 'infer'
         root = self._webconfig['root']
@@ -141,29 +152,29 @@ class TreeTimeWeb(TreeTime):
 
         # run treetime
         try:
-            self._write_session_state("running treetime")
+            _write_session_state(self._root_dir, SessionState.running)
             super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=False,
                 resolve_polytomies=resolve_polytomies, max_iter=0, Tc=Tc, fixed_slope=slope,
                 do_marginal=do_marginal, **kwargs)
         except:
             tb = traceback.format_exc()
-            self._write_session_state("error", desc="TreeTime crashed. {}".format(tb))
+            _write_session_state(self._root_dir, SessionState.error, desc="TreeTime crashed. {}".format(tb))
             return
 
         # save results
         try:
             self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
-            self._write_session_state("saving results")
-            self.save_results()
-            self._write_session_state("done")
+            _write_session_state(self._root_dir, SessionState.saving)
+            self.save_treetime_results()
+            _write_session_state(self._root_dir, SessionState.done)
             self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
         except:
             tb = traceback.format_exc()
-            self._write_session_state("error\nTreeTime crashed while saving results. {}".format(tb))
+            _write_session_state(self._root_dir, SessionState.error, desc="TreeTime crashed while saving results. {}".format(tb))
             return
 
 
-    def save_results(self):
+    def save_treetime_results(self):
 
         from Bio import Align
         #  files to be displayed in the web interface
@@ -405,11 +416,62 @@ class TreeTimeWeb(TreeTime):
 
         return
 
+    def run_treeanc(self, **kwargs):
+        _write_session_state(self._root_dir, SessionState.reading)
+        # get the run parameters
+        infer_gtr  = self._webconfig['gtr'] == 'infer'
+        do_marginal = False if self._webconfig['do_marginal'] == 'False' or not self._webconfig['do_marginal'] else True
+
+        # run treeanc
+        try:
+            _write_session_state(self._root_dir, SessionState.running)
+            super(TreeTimeWeb, self).optimize_seq_and_branch_len(reuse_branch_len=True, prune_short=True, max_iter=5, infer_gtr=infer_gtr, marginal=do_marginal, **kwargs)
+        except:
+            tb = traceback.format_exc()
+            _write_session_state(self._root_dir, SessionState.error, desc="TreeTime crashed. {}".format(tb))
+            return
+
+        # save results
+        try:
+            self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
+            _write_session_state(self._root_dir, SessionState.saving)
+            self.save_treeanc_results()
+            _write_session_state(self._root_dir, SessionState.done)
+            self.logger("###TreeTimeWeb.run: All tasks completed successfully, exiting...",0)
+        except:
+            tb = traceback.format_exc()
+            _write_session_state(self._root_dir, SessionState.error, desc="TreeTime crashed while saving results. {}".format(tb))
+            return
+
+    def save_treeanc_results(self):
+        from Bio import Align
+        #  files to be displayed in the web interface
+        Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nwk), 'newick')
+        self._save_alignment()
+        self._save_gtr()
+        with zipfile.ZipFile(os.path.join(self._root_dir, zipname), 'w') as out_zip:
+            out_zip.write(os.path.join(self._root_dir, out_tree_nwk), arcname=out_tree_nwk)
+            out_zip.write(os.path.join(self._root_dir, out_aln_fasta), arcname=out_aln_fasta)
+            out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
 
 def run_treetime(root, webconfig):
-    ttw = TreeTimeWeb(root, webconfig)
+    try:
+        ttw = TreeTimeWeb(root, webconfig)
+    except:
+        tb = traceback.format_exc()
+        _write_session_state(root,SessionState.error, desc="TreeTime crashed at the initialization phase. {}".format(tb))
+        return
     ttw.run()
 
+def run_treeanc(root, webconfig):
+    try:
+        ttw = TreeTimeWeb(root, webconfig, metadata=False)
+    except:
+        tb = traceback.format_exc()
+        _write_session_state(root, SessionState.error, desc="TreeTime crashed at the initialization phase. {}".format(tb))
+        return
+
+    ttw.run_treeanc()
 
 if __name__=="__main__":
 

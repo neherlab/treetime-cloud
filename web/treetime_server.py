@@ -14,14 +14,16 @@ app.debug=True
 ALLOWED_EXTENSIONS = ['fasta', 'nwk', 'csv', 'png', 'jpg']
 # these modules needed to probe the input data in-place
 
+html_theme_css = "http://bootswatch.com/flatly/bootstrap.css"
+
+
 dn = os.path.dirname(os.path.abspath(__file__))
 sessions_root = os.path.join(dn , 'sessions')
 sys.path.append(os.path.join(dn, "static/py"))
 
-
-from tree_time_config import treetime_webconfig
+from tree_time_config import treetime_webconfig, treeanc_webconfig
 from tree_time_process import run_treetime as RUN_TREETIME
-
+from tree_time_process import run_treeanc as RUN_TREEANC
 
 def make_id():
     return "".join([chr(random.randint(65,90)) for ii in range(12)])
@@ -29,7 +31,7 @@ def make_id():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        return render_template('welcome.html')
+        return render_template('welcome.html', html_theme=html_theme_css)
     return None
 
 @app.route('/ancestral_reconstruction_request', methods=['GET', 'POST'])
@@ -53,7 +55,7 @@ def ancestral_reconstruction_request():
 @app.route('/ancestral/<userid>', methods=['GET', 'POST'])
 def ancestral_reconstruction_welcome(userid):
     if request.method == 'GET':
-        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config={})
+        return render_template('welcome_ancestral_reconstruction.html', UserId=userid, Config=treeanc_webconfig, html_theme=html_theme_css)
     else:
         pass
 
@@ -75,7 +77,7 @@ def treetime_request():
 @app.route('/treetime/<userid>', methods=['GET', 'POST'])
 def render_treetime_welcome(userid):
     if request.method == 'GET':
-        return render_template('welcome_treetime.html', UserId=userid, Config=treetime_webconfig)
+        return render_template('welcome_treetime.html', UserId=userid, Config=treetime_webconfig, html_theme=html_theme_css)
     else:
         pass
 
@@ -179,7 +181,7 @@ def run_treetime(userid):
 @app.route('/treetime/<userid>/progress', methods=['GET'])
 def render_treetime_progress(userid):
     if request.method == 'GET':
-        return render_template('progress_treetime.html', UserId=userid)
+        return render_template('progress_treetime.html', UserId=userid, html_theme=html_theme_css)
 
 @app.route('/treetime/<userid>/get_session_state', methods=['GET'])
 def get_session_state(userid):
@@ -196,7 +198,7 @@ def get_session_state(userid):
 @app.route('/treetime/<userid>/results', methods=['GET'])
 def render_treetime_results(userid):
     if request.method == 'GET':
-        return render_template('results_treetime.html', UserId=userid)
+        return render_template('results_treetime.html', UserId=userid, html_theme=html_theme_css)
 
 
 @app.route('/sessions/<userid>/<filename>', methods=['GET', 'POST'])
@@ -204,39 +206,39 @@ def send_file(userid, filename):
     uploads = os.path.join(sessions_root, userid)
     return send_from_directory(uploads, filename) #with open(os.path.join(uploads, filename), 'r') as inf:
 
+@app.route("/ancestral/<userid>/run", methods=['POST'])
+def run_ancestral(userid):
+    if (request.method != "POST"):
+        abort(404)
 
-# @app.route('/<userid>/progress', methods=['GET', 'POST'])
-# def progress(userid):
-#     if request.method =='GET':
-#         return render_template('progress.html', UserId=userid)
+    # save settings
+    root = os.path.join(sessions_root, userid)
+    if not os.path.exists(root):
+        os.makedirs(root)
 
-# @app.route('/<userid>/session_state', methods=['GET', 'POST'])
-# def get_session_state(userid):
+    #save config, run treetime in a separate thread
+    if 'config' in request.get_json():
+        config = request.get_json()['config']
 
-#     root = os.path.join (sessions_root, userid)
-#     inf = os.path.join(root, "session_state.json")
-#     if not os.path.exists(inf):
-#         abort(404)
-#     with open (inf, 'r') as infile:
-#         json_data = json.load(infile)
-#         print (json_data)
-#     #return Response(json.dumps(json_data),  mimetype='application/json')
-#     return jsonify(**{"steps": json_data})
+        with open(os.path.join(root, "config.json"), 'w') as of:
+            json.dump(config, of, True)
+        app.threads[userid] = threading.Thread(target=RUN_TREEANC, args=(root,config))
+        app.threads[userid].start()
+        return jsonify({'res':'OK', 'mesage':'You can redirect to the wait page'})
 
+    # error: server did not send us config for treetime run
+    else:
+        return jsonify({'res':'error',
+            'message': 'Client-server error: server cannot find proper '
+                        'config in the request'})
 
+@app.route("/ancestral/<userid>/progress", methods=['GET', 'POST'])
+def render_ancestral_progress(userid):
+    return render_template('progress_ancestral.html', UserId=userid, html_theme=html_theme_css)
 
-    #return render_template('results.html', username=username)
-    #return "Hello World!"
-
-# # @app.route('/<userid>/results', methods=['GET', 'POST'])
-# # def results(userid):
-# #     print (userid)
-# #     return render_template('results.html', UserId=userid)
-
-
-# @app.route('/terms.html/')
-# def send_terms():
-#     return render_template('terms.html')
+@app.route("/about", methods=['GET', 'POST'])
+def render_about_page():
+    return render_template('about.html', html_theme=html_theme_css)
 
 if __name__ == "__main__":
     app.wait_time = {};

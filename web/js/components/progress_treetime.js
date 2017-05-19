@@ -122,11 +122,14 @@ var ProgressTreeTimePage = React.createClass({
     render: function(){
         return (
             <div>
-                <div style={this.stateRenderStyle(false)}>
-                    <Banner  />
-                </div>
-                <div style={this.stateRenderStyle(true)}>
-                    <ErrorBanner appState={this.state}/>
+            <Header/>
+                <div className='page_container'>
+                    <div style={this.stateRenderStyle(false)}>
+                        <Banner  />
+                    </div>
+                    <div style={this.stateRenderStyle(true)}>
+                        <ErrorBanner appState={this.state}/>
+                    </div>
                 </div>
             </div>
         )
