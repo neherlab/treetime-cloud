@@ -28,19 +28,19 @@ var Terms = React.createClass({
 
                         <Row>
                             <Col xs={6} md={4} style={{"text-align":"right"}}>
-                                Institute
-                            </Col>
-
-                            <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                Max Planck Institute
-                            </Col>
-
-                             <Col xs={6} md={4} style={{"text-align":"right"}}>
                                 Department
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                Developmental Biology
+                                Biozentrum
+                            </Col>
+
+                             <Col xs={6} md={4} style={{"text-align":"right"}}>
+                                Institution
+                            </Col>
+
+                            <Col xs={10} md={8} style={{"text-align":"left"}}>
+                                University of Basel
                             </Col>
 
                             <Col xs={6} md={4} style={{"text-align":"right"}}>
@@ -48,21 +48,21 @@ var Terms = React.createClass({
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                Spemannstrasse 35, 72076 Tuebingen, Germany
+                                Klingelbergstrasse 50/70, 4056 Basel, Switzerland
                             </Col>
                             <Col xs={6} md={4} style={{"text-align":"right"}}>
                                 Email
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                richard.neher _AT_ tuebingen.mpg.de
+                                richard.neher _AT_ unibas.ch
                             </Col>
                             <Col xs={6} md={4} style={{"text-align":"right"}}>
                                 Website
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                <a href="http://www.eb.tuebingen.mpg.de/nc/research/departments/details/details/rneher.html" target="_blanck" title="Personal website of Richard Neher"><Glyphicon glyph="link"/></a>
+                                <a href="https://neherlab.org/richard-neher.html" target="_blank" title="Personal website of Richard Neher"><Glyphicon glyph="link"/></a>
                             </Col>
 
                         </Row>
@@ -80,20 +80,21 @@ var Terms = React.createClass({
                         </Row>
 
                         <Row>
-                            <Col xs={6} md={4} style={{"text-align":"right"}}>
-                                Institute
-                            </Col>
-
-                            <Col xs={10} md={8}  style={{"text-align":"left"}}>
-                                Max Planck Institute
-                            </Col>
 
                              <Col xs={6} md={4} style={{"text-align":"right"}}>
                                 Department
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                Developmental Biology
+                                Evolutionary Dynamics and Biophysics group
+                            </Col>
+
+                             <Col xs={6} md={4} style={{"text-align":"right"}}>
+                                Institution
+                            </Col>
+
+                            <Col xs={10} md={8} style={{"text-align":"left"}}>
+                                Max Planck Institute for Developmental Biology
                             </Col>
 
                             <Col xs={6} md={4} style={{"text-align":"right"}}>
@@ -115,7 +116,7 @@ var Terms = React.createClass({
                             </Col>
 
                             <Col xs={10} md={8} style={{"text-align":"left"}}>
-                                <a href="http://www.eb.tuebingen.mpg.de/nc/research/departments/details/details/rneher.html" target="_blanck" title="Personal website of Richard Neher"><Glyphicon glyph={"link"}/></a>
+                                <a href="http://neherlab.org/pavel-sagulenko.html" target="_blanck" title="Personal website of Pavel Sagulenko"><Glyphicon glyph={"link"}/></a>
                             </Col>
 
                         </Row>
@@ -123,14 +124,19 @@ var Terms = React.createClass({
                 </Row>
                 <Row>
 
-                <Col  xs={6} md={4}>
+                <Col  xs={3} md={4}>
                 <a href="http://erc.europa.eu/intra-patient-evolution-hiv" target="_blank" title="European Research Council">
                             <img src="/static/svg/logo-erc.jpg" width="100" /></a>
                 </Col>
 
-                <Col  xs={6} md={4}>
+                <Col  xs={3} md={3}>
                  <a href="http://www.mpg.de" target="_blank" title="Max-Planck-Gesellschaft">
                             <img src="/static/svg/mpg.png" width="120" /></a>
+                </Col>
+
+                <Col  xs={3} md={4}>
+                 <a href="http://www.unibas.ch" target="_blank" title="University of Basel">
+                            <img src="/static/svg/unibas_logo.png" width="180" /></a>
                 </Col>
 
                 </Row>
@@ -138,10 +144,13 @@ var Terms = React.createClass({
                 </Grid>
             </Panel>
 
-            <Panel collapsible defaultExpanded header="Source code and issues">
+            <Panel collapsible defaultCollapsed header="Source code and issues">
                 <div style={{"text-align":"left"}}>
-                    Please visit the <a href="https://github.com/neherlab/treetime">Github</a> project, which is open source.
-                    </div>
+                    The treetime code is available under an MIT license on <a href="https://github.com/neherlab/treetime">Github</a>. Please submit any issues there.
+                </div>
+                <div style={{"text-align":"left"}}>
+                    The web server is built using <a href="http://flask.pocoo.org/" target="_blank">flask</a>. Our code can be found at <a href="https://github.com/pausag/treetime_web">github.com/pausag/treetime_web</a>.
+                </div>
             </Panel>
 
             <Panel collapsible defaultCollapsed header="Data protection advice">
