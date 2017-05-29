@@ -147,7 +147,7 @@ def plot_raw_data(df):
 
     ax.legend(loc=0, fontsize=legend_fs)
     plt.xlabel("Total evolution time,  $T/N$")
-    plt.ylabel("Relative error in Tmrca estimation, $\Delta T_{mrca} / N$")
+    plt.ylabel("Relative error in $T_{mrca}$ estimation, $\Delta T_{mrca} / N$")
 
 def plot_mutation_rate_distributions(df, TN_min=3, TN_max=10, plot_title=""):
     """
@@ -407,7 +407,7 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     axes.legend(loc=0,fontsize=legend_fs)
     #axes.set_title(title)
     axes.set_ylabel(ylabel, fontsize = label_fs)
-    axes.set_xlabel('$\mathrm{N}\cdot\mu$', fontsize = label_fs)
+    axes.set_xlabel('Diversity, $\mathrm{N}\cdot\mu$', fontsize = label_fs)
     for label in axes.get_xticklabels():
             label.set_fontsize(tick_fs)
     for label in axes.get_yticklabels():
