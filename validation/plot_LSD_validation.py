@@ -73,4 +73,4 @@ for rate_type in ["strict", "relaxed"]:
     plt.figure()
     plt.hlines(0, -1, len(df), lw=3)
     sns.violinplot(data=df)
-    plt.ylabel('TMRCA error [years]')
+    plt.ylabel('TMRCA error [$\mathrm{Years}$]')

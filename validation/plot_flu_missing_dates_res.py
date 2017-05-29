@@ -56,10 +56,10 @@ def make_results_pivot(df):
 
 def plot_results(df, what, label="", axes=None,shift_points=None):
     if what == 'Tmrca':
-        ylabel = r'$\mathrm{T}_{mrca}, [year]$'
+        ylabel = r'$\mathrm{T_{mrca}}, [\mathrm{Year}]$'
         title = 'Dependence of $\mathrm{T}_{mrca}$ prediction on the fraction of the known dates'
     elif what == 'Mu':
-        ylabel = 'Mutation rate, $[\mathrm{year}^{-1}]$'
+        ylabel = 'Mutation rate, $[\mathrm{Year}^{-1}]$'
         title = 'Dependence of Mutation rate assessment on the fraction of the known dates'
     elif what == 'R2':
         ylabel = 'Molecular clock regression'
@@ -136,7 +136,7 @@ def plot_date_dists(res, label="", axes=None):
     a.plot(s_x, s_y, 'o', markersize=markersize*0.8)
     a.set_title('FWHM')
     a.set_xlabel("Fraction of dates known",fontsize=label_fs*.8)
-    a.set_ylabel("Leaf date error, $[\mathrm{years}]$",fontsize=label_fs*.8)
+    a.set_ylabel("Leaf date error, $[\mathrm{Years}]$",fontsize=label_fs*.8)
     a.get_xaxis().set_ticks([0.1,0.5,0.9])
     a.get_yaxis().set_ticks([0.4,0.7,1.])
     for label in a.get_xticklabels():
@@ -151,7 +151,7 @@ def plot_date_dists(res, label="", axes=None):
     axes.set_ylim(0, 1.4)
     axes.grid('on')
     axes.legend(loc=2,fontsize=legend_fs)
-    axes.set_xlabel(r"Error in leaf dates reconstruction, $[\mathrm{years}]$", fontsize=label_fs)
+    axes.set_xlabel(r"Error in leaf dates reconstruction, $[\mathrm{Years}]$", fontsize=label_fs)
 
     for label in axes.get_xticklabels():
             label.set_fontsize(tick_fs)

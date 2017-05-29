@@ -1,10 +1,10 @@
 import pandas
 import numpy as np
-from scipy.stats import linregress
+#from scipy.stats import linregress
 import matplotlib.pyplot as plt
-import os, sys
-import shutil
-from Bio import Phylo
+import os
+#import shutil
+#from Bio import Phylo
 
 import utility_functions_flu as flu_utils
 import utility_functions_beast as beast_utils
@@ -180,14 +180,14 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
     if what == 'Tmrca':
         mean = 'Tmrca_mean'
         err = 'Tmrca_err'
-        title = "Estimated Tmrca as function of sample size\nLSD params: -{}".format(suffix)
+        #title = "Estimated Tmrca as function of sample size\nLSD params: -{}".format(suffix)
 
         ylabel = "$T_{mrca}, [year]$"
 
     elif what == "Mu":
         mean = 'Mu_mean'
         err =  'Mu_err'
-        title =  "Estimated Mutation rate as function of sample size\nLSD params: -{}".format(suffix)
+        #title =  "Estimated Mutation rate as function of sample size\nLSD params: -{}".format(suffix)
 
         ylabel = "Mutation rate, $[\mathrm{year}^{-1}]$"
 
@@ -201,14 +201,14 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
             x, y = shift_point_by_markersize (axes, tt['Ns'], tt[mean], markersize/2.0)
         else:
             x, y = tt['Ns'], tt[mean]
-        axes.errorbar(x, y, tt[err]/2, markersize=markersize, marker='o', c='b', label='TreeTime')
+        axes.errorbar(x, y, tt[err]/2, markersize=markersize, marker='o', c=tt_color, label='TreeTime')
 
     if lsd is not None:
         if scatter_points:
             x, y = shift_point_by_markersize (axes, lsd['Ns'], lsd[mean], -1.*markersize/2.0)
         else:
             x, y = lsd['Ns'], lsd[mean]
-        axes.errorbar(x, y, lsd[err]/2, markersize=markersize, marker='o', c='g', label='LSD')
+        axes.errorbar(x, y, lsd[err]/2, markersize=markersize, marker='o', c=lsd_color, label='LSD')
 
     if beast is not None:
         #  beast points stay in the center
@@ -217,13 +217,12 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
         #     shift_point_by_markersize (axes, beast['Ns'], beast[mean], -1.*markersize/2.0)
         # else:
         #     x, y = beast['Ns'], beast[mean]
-        axes.errorbar(x, y, beast[err]/2, markersize=markersize, marker='o', c='r', label='BEAST')
+        axes.errorbar(x, y, beast[err]/2, markersize=markersize, marker='o', c=beast_color, label='BEAST')
 
     axes.grid('on')
     axes.legend(loc=0,fontsize=legend_fs)
-
     axes.set_ylabel(ylabel, fontsize=label_fs)
-    axes.set_xlabel("Tree size, #sequences",fontsize=label_fs)
+    axes.set_xlabel("Tree size, $\mathrm{#sequences}$",fontsize=label_fs)
     #axes.set_title(title)
 
     for label in axes.get_xticklabels():
