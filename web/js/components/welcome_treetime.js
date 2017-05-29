@@ -142,6 +142,8 @@ var PanelExamples = React.createClass({
                               </tr>
                             </thead>
                             <tbody>
+
+                            {/*Influenza-H3N2-NA 20 seq example*/}
                             <tr>
                               <th>Influenza H3N2</th>
                               <th>NA</th>
@@ -150,14 +152,38 @@ var PanelExamples = React.createClass({
                               <th>2000-2013</th>
                               <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_H3N2_NA_20}>Load</Button></th>
                             </tr>
-                            <tr className="info-treetime">
+
+                            {/*Influenza-H3N2-HA 100 seq example*/}
+                            <tr>
                               <th>Influenza H3N2</th>
-                              <th>NA</th>
-                              <th>1409</th>
-                              <th>500</th>
-                              <th>1968-2010</th>
-                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_H3N2_NA_500}>Load</Button></th>
+                              <th>HA</th>
+                              <th>1701</th>
+                              <th>100</th>
+                              <th>2011-2013</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_H3N2_HA_100}>Load</Button></th>
                             </tr>
+
+                            {/*HIV RT 200 seq  example*/}
+                            <tr>
+                              <th>HIV subtype B</th>
+                              <th>RT</th>
+                              <th>1320</th>
+                              <th>186</th>
+                              <th>1978-2016</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_HIV_RT_200}>Load</Button></th>
+                            </tr>
+
+                            {/*HIV p17 200 seq  example*/}
+                            <tr>
+                              <th>HIV subtype B</th>
+                              <th>p17</th>
+                              <th>435</th>
+                              <th>183</th>
+                              <th>1978-2016</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_HIV_p17_200}>Load</Button></th>
+                            </tr>
+
+                            {/*Zika virus example*/}
                             <tr>
                               <th>Zika</th>
                               <th>Full genome</th>
@@ -165,6 +191,16 @@ var PanelExamples = React.createClass({
                               <th>65</th>
                               <th>2013-2016</th>
                               <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_zika_65}>Load</Button></th>
+                            </tr>
+
+                            {/*Ebola virus example*/}
+                            <tr>
+                              <th>Ebola</th>
+                              <th>Full genome</th>
+                              <th>19006</th>
+                              <th>362</th>
+                              <th>2014-2016</th>
+                              <th><Button bsStyle="primary" className="btn-treetime" onClick={this.props.onExample_ebola}>Load</Button></th>
                             </tr>
                             </tbody>
                             </Table>
@@ -574,12 +610,29 @@ var WelcomeTreeTimePage = React.createClass({
         this.runExample("H3N2_NA_20");
     },
 
+    onExample_H3N2_HA_100 : function(){
+        console.log("Running example for H3N2_100")
+        this.runExample("H3N2_HA_100")
+    },
+
+    onExample_HIV_RT_200: function(){
+        this.runExample("HIV_RT_200")
+    },
+
+    onExample_HIV_p17_200: function(){
+        this.runExample("HIV_p17_200")
+    },
+
     onExample_H3N2_NA_500 : function(){
         this.runExample("H3N2_NA_500");
     },
 
     onExample_zika_65 : function(){
         this.runExample("zika_65");
+    },
+
+    onExample_ebola : function(){
+        this.runExample("ebola");
     },
 
     runExample : function(example){
@@ -673,8 +726,11 @@ var WelcomeTreeTimePage = React.createClass({
                 {/* Choose predefined example dataset*/}
                 <PanelExamples
                     onExample_H3N2_NA_20={this.onExample_H3N2_NA_20}
-                    onExample_H3N2_NA_500={this.onExample_H3N2_NA_500}
+                    onExample_H3N2_HA_100={this.onExample_H3N2_HA_100}
+                    onExample_HIV_RT_200={this.onExample_HIV_RT_200}
+                    onExample_HIV_p17_200={this.onExample_HIV_p17_200}
                     onExample_zika_65={this.onExample_zika_65}
+                    onExample_ebola={this.onExample_ebola}
                 />
 
                 {/* Advanced configuration*/}
