@@ -447,7 +447,7 @@ def corr_points(basename, beast_dir=None):
             return None
         import dendropy
         import StringIO
-        trees = dendropy.TreeList.get(path=beast_file, schema="nexus")
+        trees = dendropy.TreeList.get_from_path(beast_file, schema="nexus")
         tree = trees[-1]
         out = StringIO.StringIO()
         tree.write_to_stream(out, 'newick')
@@ -505,9 +505,11 @@ def correlation_dataset(root_dir, beast_root_dir, Mu=['0.0001'], Ts=['50'], **kw
 
 
 
-def plot_correlation(root_dir, beast_root_dir, axes=None, include_fast_tree=True, **kwargs):
+def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=True, **kwargs):
 
-    tt_corr, ft_corr, bt_corr = correlation_dataset(root_dir, beast_root_dir, **kwargs)
+    tt_corrcoeff = np.corrcoef(tt_corr[:, 0], tt_corr[:, 1])
+    bt_corrcoeff = np.corrcoef(bt_corr[:, 0], bt_corr[:, 1])
+    ft_corrcoeff = np.corrcoef(ft_corr[:, 0], ft_corr[:, 1])
 
     if axes is None:
         fig = plt.figure(figsize=onecolumn_figsize)
@@ -519,19 +521,21 @@ def plot_correlation(root_dir, beast_root_dir, axes=None, include_fast_tree=True
                 marker='o',
                 markersize=markersize,
                 c=ft_color,
-                label="Maximum-likelihood tree (FastTree)")
+                label="Maximum-likelihood reconstruction (FastTree). Correlation coefficient: " + format(ft_corrcoeff[0, 1], '.3f'))
+
     axes.plot(bt_corr[:, 0], bt_corr[:, 1], 'o',
             alpha=0.5,
             marker='o',
             markersize=markersize,
             c=beast_color,
-            label="BEAST tree")
+            label="BEAST estimation. Correlation coefficient: "+ format(bt_corrcoeff[0, 1], '.3f'))
+
     axes.plot(tt_corr[:, 0], tt_corr[:, 1], 'o',
             alpha=0.5,
             marker='o',
             markersize=markersize,
             c=tt_color,
-            label="TreeTime tree")
+            label="TreeTime estimation. Correlation coefficient: " + format(tt_corrcoeff[0, 1], '.3f'))
 
     axes.legend(loc=0,fontsize=legend_fs)
     axes.grid('on')
@@ -615,12 +619,13 @@ if __name__ == '__main__':
 
 
     if PLOT_CORRELATION:
-        INCLUDE_FAST_TREE=False
+        INCLUDE_FAST_TREE=True
         root_dir = './simulated_data/dataset'
         beast_root_dir = './simulated_data/2017-04-19_beast/'
+        tt_corr, ft_corr, bt_corr = correlation_dataset(root_dir, beast_root_dir)
         fig = plt.figure(figsize=onecolumn_figsize)
         axes = fig.add_subplot(111)
-        plot_correlation(root_dir, beast_root_dir, axes, include_fast_tree=INCLUDE_FAST_TREE)
+        plot_correlation(tt_corr, ft_corr, bt_corr, axes, include_fast_tree=INCLUDE_FAST_TREE)
         if save_fig:
             ft = '_ft' if INCLUDE_FAST_TREE else ""
             fig.savefig("./figs/simdata_BranchLenCorr{}.svg".format(ft))

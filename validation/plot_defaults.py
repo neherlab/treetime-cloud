@@ -19,7 +19,7 @@ markersize = 10
 tt_color = colors[0]
 lsd_color = colors[1]
 beast_color = colors[2]
-ft_color = colors[3]
+ft_color = colors[4]
 
 def shift_point_by_markersize(axes, x, y, markersize):
     """

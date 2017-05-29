@@ -182,14 +182,14 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
         err = 'Tmrca_err'
         #title = "Estimated Tmrca as function of sample size\nLSD params: -{}".format(suffix)
 
-        ylabel = "$T_{mrca}, [year]$"
+        ylabel = "T$\mathrm{_{mrca}}, [\mathrm{Year}]$"
 
     elif what == "Mu":
         mean = 'Mu_mean'
         err =  'Mu_err'
         #title =  "Estimated Mutation rate as function of sample size\nLSD params: -{}".format(suffix)
 
-        ylabel = "Mutation rate, $[\mathrm{year}^{-1}]$"
+        ylabel = "Mutation rate, [$\mathrm{Year}^{-1}$]"
 
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
@@ -222,7 +222,7 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
     axes.grid('on')
     axes.legend(loc=0,fontsize=legend_fs)
     axes.set_ylabel(ylabel, fontsize=label_fs)
-    axes.set_xlabel("Tree size, $\mathrm{#sequences}$",fontsize=label_fs)
+    axes.set_xlabel("Tree size, [#$\mathrm{Sequences}$]",fontsize=label_fs)
     #axes.set_title(title)
 
     for label in axes.get_xticklabels():
