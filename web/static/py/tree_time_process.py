@@ -150,11 +150,13 @@ class TreeTimeWeb(treetime.TreeTime):
         Tc = None if self._webconfig['use_coalescent_prior'] == 'False' or not self._webconfig['use_coalescent_prior'] \
             else float(self._webconfig['coalescent_prior_value'])
 
-        relax_clock = False if self._webconfig['use_relaxed_clock'] == 'False' or not self._webconfig['use_relaxed_clock'] else True
-        # add kwargs only if the relax clock is set to true
-        if relax_clock:
-            kwargs['slack'] = float(self._webconfig['relaxed_clock']['slack'])
-            kwargs['coupling'] = float(self._webconfig['relaxed_clock']['coupling'])
+        if self._webconfig['use_relaxed_clock'] == 'False' or not self._webconfig['use_relaxed_clock']:
+            relax_clock = False
+        else:
+            relax_clock = {
+                'slack':  float(self._webconfig['relaxed_clock']['slack']),
+                'coupling':  float(self._webconfig['relaxed_clock']['coupling'])
+            }
 
         # run treetime
         try:
