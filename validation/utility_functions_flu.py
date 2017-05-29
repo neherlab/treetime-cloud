@@ -17,6 +17,10 @@ from collections import Counter
 import StringIO
 import treetime
 from utility_functions_general import remove_polytomies
+from utility_functions_beast import run_beast, create_beast_xml
+import xml.etree.ElementTree as XML
+from external_binaries import BEAST_BIN
+
 
 def date_from_seq_name(name):
     """
@@ -294,6 +298,64 @@ def create_subtree(tree, n_seqs, out_file, st_type='equal_sampling'):
         tree = Phylo.read(tree, 'newick')
 
     pass
+
+def correct_beast_xml_for_missing_dates(config_xml):
+
+    def create_leafHeight(strain):
+        xml_leafHeightParam = XML.Element('parameter')
+        xml_leafHeightParam.attrib={'id': strain+".height"}
+
+        xml_leafHeight = XML.Element('leafHeight')
+        xml_leafHeight.attrib={"taxon": strain}
+        xml_leafHeight.append(xml_leafHeightParam)
+        return xml_leafHeight
+
+    def create_leafHeight_operator(strain, weight):
+        #<parameter idref="A/Yurimaguas/FLU4785/2006.height"/>
+        xml_param = XML.Element('parameter')
+        xml_param.attrib = {'idref': strain+'.height'}
+
+        #<uniformOperator weight="0.024154589371980676">
+        xml_operator = XML.Element('uniformOperator')
+        xml_operator.attrib = {'weight': str(weight)}
+        xml_operator.append(xml_param)
+        return xml_operator
+
+    def create_taxon_date():
+        xml_date = XML.Element('date')
+        xml_date.attrib={'value': '2011', 'direction':"forwards", 'units':"years", 'precision':'4.0'}
+        return xml_date
+
+    xml_treeModel = config_xml.find('treeModel')
+    xml_operators = config_xml.find('operators')
+    xml_taxa = config_xml.find('taxa').findall('taxon')
+    xml_filelog = config_xml.findall('mcmc')[0].findall('log')[np.argmax([k.attrib['id']=='filelog' for k in config_xml .findall('mcmc')[0].findall('log')])]
+    operator_weight = 1. / np.sum([k.find('date') is None for k in xml_taxa])
+
+    #import ipdb; ipdb.set_trace()
+    for t in xml_taxa:
+        if t.find('date') is None:
+            strain = t.attrib['id']
+
+            t.append(create_taxon_date())
+            xml_treeModel.append(create_leafHeight(strain))
+            xml_operators.append(create_leafHeight_operator(strain, operator_weight))
+
+            parameter = XML.Element("parameter")
+            parameter.attrib = {"idref" : strain+".height"}
+            xml_filelog.append(parameter)
+
+    return config_xml
+
+def run_beast(tree_name, aln_name, dates, beast_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml"):
+    config_filename = beast_prefix + ".config.xml"
+    config_xml = create_beast_xml(tree_name, aln_name, dates, beast_prefix, template_file)
+    config_xml = correct_beast_xml_for_missing_dates(config_xml)
+    config_xml.write(config_filename)
+    #print (config_filename)
+    #return  config_xml
+    call = ["java", "-jar", BEAST_BIN, "-beagle_off", "-overwrite",  config_filename]
+    subprocess.call(call)
 
 if __name__ == '__main__':
     pass

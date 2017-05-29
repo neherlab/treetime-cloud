@@ -16,9 +16,10 @@ label_fs = fs
 legend_fs = 0.8*fs
 
 markersize = 10
-tt_col = colors[0]
-lsd_col = colors[1]
-beast_col = colors[2]
+tt_color = colors[0]
+lsd_color = colors[1]
+beast_color = colors[2]
+ft_color = colors[3]
 
 def shift_point_by_markersize(axes, x, y, markersize):
     """

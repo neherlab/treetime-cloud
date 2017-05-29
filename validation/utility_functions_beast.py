@@ -11,6 +11,7 @@ import subprocess
 from Bio import AlignIO, Phylo
 import StringIO
 from external_binaries import BEAST_BIN
+import treetime
 
 def read_beast_log(logfile, nearest_leaf_date, take_last_lines=500):
     """
@@ -84,12 +85,11 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
             Returns:
              - xml_taxon: Taxon data as XML structure ready to be plugged to the BEAST xml
             """
-
             xml_taxon = XML.Element('taxon')
             xml_taxon.attrib = {"id" : name}
             if date is not None:
                 xml_date = XML.Element("date")
-                xml_date.attrib = {"value": str(date), "direction" : "forward", "units":"years"}
+                xml_date.attrib = {"value": str(date), "direction" : "forwards", "units":"years"}
                 xml_taxon.append(xml_date)
             return xml_taxon
 

@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # Directory to store results
     res_dir = "./simulated_data/dataset"
     # File prefix to store the formatted output for further processing/comparison
-    outfile = "./simulated_data/2017-04-19"
+    outfile = "./simulated_data/2017-05-16"
 
     # FFPopSim simulation parameters
     L = 1e4

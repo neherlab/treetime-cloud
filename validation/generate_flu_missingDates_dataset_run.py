@@ -1,17 +1,17 @@
 #!/usr/bin/env python
-import treetime
-import numpy as np
 import datetime
 import utility_functions_flu as flu_utils
-from utility_functions_beast import run_beast
+import utility_functions_general as gen_utils
+
 from Bio import AlignIO
 import os,sys
-import treetime
 if __name__ == "__main__":
 
 
     RUN_BEAST = True
     RUN_TREETIME = False
+
+    print sys.argv[0]
 
     knonw_dates_fraction = float(sys.argv[1])
     out_dir = sys.argv[2]
@@ -36,7 +36,7 @@ if __name__ == "__main__":
                 str(myTree.tree.root.numdate),
                 str(myTree.date2dist.slope),
                 str(myTree.date2dist.r_val),
-                str(analysis.internal_regress(myTree)),
+                str(gen_utils.internal_regress(myTree)),
                 str((end-start).total_seconds()) ))
 
         # precision of the date inference
@@ -64,6 +64,6 @@ if __name__ == "__main__":
             except:
                 pass
         beast_prefix = os.path.join(beast_out_dir, os.path.split(tree_name)[-1].replace('.nwk', filename_suffix))  # truncate '.nwk'
-        run_beast(tree_name, aln_name, dates, beast_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml")
+        flu_utils.run_beast(tree_name, aln_name, dates, beast_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml")
 
 

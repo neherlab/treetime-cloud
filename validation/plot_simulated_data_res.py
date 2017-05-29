@@ -145,7 +145,7 @@ def plot_raw_data(df):
         #ax.plot(df["T"]/df['N'], df.dTmrca / (2016.5 - df.Tmrca), 'o', label="MU = " + str(MU), alpha=0.7)
         ax.plot(df["T"]/df['N']*(1+np.random.normal(size=len(df))*0.1), df.dTmrca / df["N"], 'o', label="MU = " + str(MU), alpha=0.6)
 
-    ax.legend(loc=0)
+    ax.legend(loc=0, fontsize=legend_fs)
     plt.xlabel("Total evolution time,  $T/N$")
     plt.ylabel("Relative error in Tmrca estimation, $\Delta T_{mrca} / N$")
 
@@ -184,7 +184,7 @@ def plot_mutation_rate_distributions(df, TN_min=3, TN_max=10, plot_title=""):
         plt.hist(dMu, label="$N\cdot\mu = $" + str(MU), alpha=.5, bins=20)
 
     ax.set_title(plot_title)
-    plt.legend(loc=0)
+    plt.legend(loc=0, fontsize=legend_fs)
 
 def T_over_N_from_filename(filename):
     return 1. * int(filename.split('_')[4][2:]) * int(filename.split('_')[3][2:]) / int(filename.split('_')[2][1:])
@@ -353,7 +353,7 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
         axes.errorbar(beast["Nmu"].loc[plot_idxs].values, beast[mean].loc[plot_idxs].values, beast[err].loc[plot_idxs].values,
             marker='o',
             markersize=markersize,
-            c=beast_col,
+            c=beast_color,
             label="Beast")
 
     if tt is not None:
@@ -364,7 +364,7 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             fmt='--',
             marker='o',
             markersize=markersize,
-            c=tt_col,
+            c=tt_color,
             label="TreeTime, original tree")
 
     if tt_f is not None:
@@ -375,9 +375,9 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             marker='o',
             markersize=markersize,
             markerfacecolor='w',
-            markeredgecolor=tt_col,
+            markeredgecolor=tt_color,
             mew=1.3,
-            c=tt_col, label="TreeTime, FastTree")
+            c=tt_color, label="TreeTime, FastTree")
 
     if lsd is not None:
         x, y = shift_point_by_markersize(axes, lsd["Nmu"], lsd[mean], +markersize/2)
@@ -387,7 +387,7 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             fmt='--',
             marker='o',
             markersize=markersize,
-            c=lsd_col,
+            c=lsd_color,
             label="LSd, original tree")
 
     if lsd_f is not None:
@@ -398,13 +398,13 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             marker='o',
             markersize=markersize,
             markerfacecolor='w',
-            markeredgecolor=lsd_col,
+            markeredgecolor=lsd_color,
             mew=1.3,
-            c=lsd_col, label="LSD, FastTree")
+            c=lsd_color, label="LSD, FastTree")
 
 
     plt.hlines(0, 0, 1)
-    axes.legend(loc=0)
+    axes.legend(loc=0,fontsize=legend_fs)
     #axes.set_title(title)
     axes.set_ylabel(ylabel, fontsize = label_fs)
     axes.set_xlabel('$\mathrm{N}\cdot\mu$', fontsize = label_fs)
@@ -414,65 +414,215 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             label.set_fontsize(tick_fs)
 
 
+def get_beast_tree_from_file(beast_file):
+    import dendropy
+    import StringIO
+    trees = dendropy.TreeList.get(path=beast_file, schema="nexus")
+    tree = trees[-1]
+    out = StringIO.StringIO()
+    tree.write_to_stream(out, 'newick')
+    biotree = Phylo.read(StringIO.StringIO(out.getvalue()), 'newick')
+    return biotree
+
+
+    pass
+
+def corr_points(basename, beast_dir=None):
+
+    def initialize_splits(tree):
+
+        all_tips = set(tree.get_terminals())
+        for c in tree.find_clades(order='postorder'):
+            if c.is_terminal():
+                c.tips = [c.name]
+            else:
+                c.tips = set(sum([list(k.tips) for k in c.clades],[]))
+            c.non_tips = set.difference(all_tips, c.tips)
+
+        return tree
+
+    def get_beast_tree_from_file(beast_file):
+        print ("reading BEAST tree from file: " + beast_file)
+        if beast_file is None:
+            return None
+        import dendropy
+        import StringIO
+        trees = dendropy.TreeList.get(path=beast_file, schema="nexus")
+        tree = trees[-1]
+        out = StringIO.StringIO()
+        tree.write_to_stream(out, 'newick')
+        biotree = Phylo.read(StringIO.StringIO(out.getvalue()), 'newick')
+        return biotree
+
+    def basename_to_beast_file(basename, beast_dir):
+        if beast_dir is None:
+            return None
+        return os.path.join(beast_dir, os.path.split(basename)[-1] + '.trees.txt')
+
+
+    treetime_tree = initialize_splits(Phylo.read(basename + '.treetrime.ft.nwk', 'newick'))
+    original_tree = initialize_splits(Phylo.read(basename + '.nwk', 'newick'))
+    fasttree_tree = initialize_splits(Phylo.read(basename + '.ft.nwk', 'newick'))
+    beast_tree = get_beast_tree_from_file(basename_to_beast_file(basename, beast_dir))
+    if beast_tree is not None:
+        beast_tree = initialize_splits(beast_tree)
+
+    tt_corr = []
+    ft_corr = []
+    bt_corr = []
+
+    for orig_split in original_tree.find_clades():
+        for c1 in treetime_tree.find_clades():
+            if c1.tips == orig_split.tips:
+                tt_corr.append((orig_split.branch_length, c1.branch_length))
+                break
+        for c2 in fasttree_tree.find_clades():
+            if c2.tips == orig_split.tips:
+                ft_corr.append((orig_split.branch_length, c2.branch_length))
+        if beast_tree is not None:
+            for c3 in beast_tree.find_clades():
+                if c3.tips == orig_split.tips:
+                    bt_corr.append((orig_split.branch_length, c3.branch_length))
+
+    return tt_corr, ft_corr, bt_corr
+
+def correlation_dataset(root_dir, beast_root_dir, Mu=['0.0001'], Ts=['50'], **kwargs):
+
+    basenames = [os.path.join(root_dir, k[:-17]) for k in os.listdir(root_dir)
+        if 'treetrime.ft.nwk' in k
+        and 'Ts{}'.format(Ts[0]) in k
+        and 'Mu{}'.format(Mu[0]) in k]
+
+    #basenames = [basenames[0]]
+
+    cors = [corr_points(basename, beast_root_dir) for basename in basenames]
+    tt_corr = np.array(sum([k[0] for k in cors], []))
+    ft_corr = np.array(sum([k[1] for k in cors], []))
+    bt_corr = np.array(sum([k[2] for k in cors], []))
+    tt_corr[:, 1] /= float(Mu[0])
+    ft_corr[:, 1] /= float(Mu[0])
+    return tt_corr, ft_corr, bt_corr
+
+
+
+def plot_correlation(root_dir, beast_root_dir, axes=None, include_fast_tree=True, **kwargs):
+
+    tt_corr, ft_corr, bt_corr = correlation_dataset(root_dir, beast_root_dir, **kwargs)
+
+    if axes is None:
+        fig = plt.figure(figsize=onecolumn_figsize)
+        axes = fig.add_subplot(111)
+
+    if include_fast_tree:
+        axes.plot(ft_corr[:, 0], ft_corr[:, 1], 'o',
+                alpha=0.5,
+                marker='o',
+                markersize=markersize,
+                c=ft_color,
+                label="Maximum-likelihood tree (FastTree)")
+    axes.plot(bt_corr[:, 0], bt_corr[:, 1], 'o',
+            alpha=0.5,
+            marker='o',
+            markersize=markersize,
+            c=beast_color,
+            label="BEAST tree")
+    axes.plot(tt_corr[:, 0], tt_corr[:, 1], 'o',
+            alpha=0.5,
+            marker='o',
+            markersize=markersize,
+            c=tt_color,
+            label="TreeTime tree")
+
+    axes.legend(loc=0,fontsize=legend_fs)
+    axes.grid('on')
+    #axes.set_title(title)
+    axes.set_ylabel('Reconstructed branch length, [$\mathrm{Years}$]', fontsize = label_fs)
+    axes.set_xlabel('Simulated branch length, [$\mathrm{Years}$]', fontsize = label_fs)
+    for label in axes.get_xticklabels():
+            label.set_fontsize(tick_fs)
+    for label in axes.get_yticklabels():
+            label.set_fontsize(tick_fs)
+    axes.set_xlim(0, 200)
+    axes.set_ylim(0, 200)
+
 if __name__ == '__main__':
 
     T_over_N = 2.
     mean_or_median = 'median'
-    PLOT_TREETIME = True
-    PLOT_LSD = True
-    PLOT_BEAST = True
-    save_fig = False
+
+    PLOT_SIM_RESULTS = False
+    PLOT_CORRELATION = True
+
+    PLOT_TREETIME = False
+    PLOT_LSD = False
+    PLOT_BEAST = False
+    save_fig = True
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
-    res_dir = "./simulated_data"
-    res_lsd = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_res.csv')
-    res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_fasttree_res.csv')
+    if PLOT_SIM_RESULTS:
+        res_dir = "./simulated_data"
+        res_lsd = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_res.csv')
+        res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_fasttree_res.csv')
 
-    res_tt = read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_res.csv')
-    res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_fasttree_res.csv')
+        res_tt = read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_res.csv')
+        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_fasttree_res.csv')
 
-    beast_logs_dir = os.path.join(res_dir, '2017-04-19_beast')
-    beast_trees_dir = os.path.join(res_dir, 'dataset')
+        beast_logs_dir = os.path.join(res_dir, '2017-04-19_beast')
+        beast_trees_dir = os.path.join(res_dir, 'dataset')
 
 
-    if PLOT_LSD:
-        pivot_lsd = None #create_lsd_tt_pivot(res_lsd, T_over_N=T_over_N, mean_or_median=mean_or_median)
-        pivot_lsd_f = create_lsd_tt_pivot(res_lsd_f, T_over_N=T_over_N, mean_or_median=mean_or_median)
-    else:
-        pivot_lsd = None
-        pivot_lsd_f = None
+        if PLOT_LSD:
+            pivot_lsd = None #create_lsd_tt_pivot(res_lsd, T_over_N=T_over_N, mean_or_median=mean_or_median)
+            pivot_lsd_f = create_lsd_tt_pivot(res_lsd_f, T_over_N=T_over_N, mean_or_median=mean_or_median)
+        else:
+            pivot_lsd = None
+            pivot_lsd_f = None
 
-    if PLOT_TREETIME:
-        pivot_tt = None #create_lsd_tt_pivot(res_tt, T_over_N=T_over_N, mean_or_median=mean_or_median)
-        pivot_tt_f =  create_lsd_tt_pivot(res_tt_f, T_over_N=T_over_N, mean_or_median=mean_or_median)
-    else:
-        pivot_tt = None
-        pivot_tt_f = None
+        if PLOT_TREETIME:
+            pivot_tt = None #create_lsd_tt_pivot(res_tt, T_over_N=T_over_N, mean_or_median=mean_or_median)
+            pivot_tt_f =  create_lsd_tt_pivot(res_tt_f, T_over_N=T_over_N, mean_or_median=mean_or_median)
+        else:
+            pivot_tt = None
+            pivot_tt_f = None
 
-    if PLOT_BEAST:
-        beast_df = read_all_beast_logs(beast_logs_dir, beast_trees_dir, T_over_N=T_over_N)
-        pivot_beast = create_beast_log_pivot(beast_df)
-    else:
-        pivot_beast=None
+        if PLOT_BEAST:
+            beast_df = read_all_beast_logs(beast_logs_dir, beast_trees_dir, T_over_N=T_over_N)
+            pivot_beast = create_beast_log_pivot(beast_df)
+        else:
+            pivot_beast=None
 
-    fig = plt.figure(figsize=onecolumn_figsize)
-    axes = fig.add_subplot(111)
-    plot_data_stat('Mu', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
-    fig.text(0.15, 0.85, '$\mathrm{\mu}$ overestimated', fontsize=tick_fs)
-    fig.text(0.15, 0.15, '$\mathrm{\mu}$ underestimated', fontsize=tick_fs)
+        fig = plt.figure(figsize=onecolumn_figsize)
+        axes = fig.add_subplot(111)
+        plot_data_stat('Mu', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
+        fig.text(0.15, 0.85, '$\mathrm{\mu}$ overestimated', fontsize=tick_fs)
+        fig.text(0.15, 0.15, '$\mathrm{\mu}$ underestimated', fontsize=tick_fs)
 
-    if save_fig:
-        fig.savefig("./figs/simdata_Mu_TN{}_{}.svg".format(T_over_N, mean_or_median))
-        fig.savefig("./figs/simdata_Mu_TN{}_{}.png".format(T_over_N, mean_or_median))
-        fig.savefig("./figs/simdata_Mu_TN{}_{}.pdf".format(T_over_N, mean_or_median))
+        if save_fig:
+            fig.savefig("./figs/simdata_Mu_TN{}_{}.svg".format(T_over_N, mean_or_median))
+            fig.savefig("./figs/simdata_Mu_TN{}_{}.png".format(T_over_N, mean_or_median))
+            fig.savefig("./figs/simdata_Mu_TN{}_{}.pdf".format(T_over_N, mean_or_median))
 
-    fig = plt.figure(figsize=onecolumn_figsize)
-    axes = fig.add_subplot(111)
-    plot_data_stat('Tmrca', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
-    fig.text(0.15, 0.85, '$\mathrm{T_{mrca}}$ overestimated', fontsize=tick_fs)
-    fig.text(0.15, 0.15, '$\mathrm{T_{mrca}}$ underestimated', fontsize=tick_fs)
+        fig = plt.figure(figsize=onecolumn_figsize)
+        axes = fig.add_subplot(111)
+        plot_data_stat('Tmrca', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
+        fig.text(0.15, 0.85, '$\mathrm{T_{mrca}}$ overestimated', fontsize=tick_fs)
+        fig.text(0.15, 0.15, '$\mathrm{T_{mrca}}$ underestimated', fontsize=tick_fs)
 
-    if save_fig:
-        fig.savefig("./figs/simdata_Tmrca_TN{}_{}.svg".format(T_over_N, mean_or_median))
-        fig.savefig("./figs/simdata_Tmrca_TN{}_{}.png".format(T_over_N, mean_or_median))
-        fig.savefig("./figs/simdata_Tmrca_TN{}_{}.pdf".format(T_over_N, mean_or_median))
+        if save_fig:
+            fig.savefig("./figs/simdata_Tmrca_TN{}_{}.svg".format(T_over_N, mean_or_median))
+            fig.savefig("./figs/simdata_Tmrca_TN{}_{}.png".format(T_over_N, mean_or_median))
+            fig.savefig("./figs/simdata_Tmrca_TN{}_{}.pdf".format(T_over_N, mean_or_median))
+
+
+    if PLOT_CORRELATION:
+        INCLUDE_FAST_TREE=False
+        root_dir = './simulated_data/dataset'
+        beast_root_dir = './simulated_data/2017-04-19_beast/'
+        fig = plt.figure(figsize=onecolumn_figsize)
+        axes = fig.add_subplot(111)
+        plot_correlation(root_dir, beast_root_dir, axes, include_fast_tree=INCLUDE_FAST_TREE)
+        if save_fig:
+            ft = '_ft' if INCLUDE_FAST_TREE else ""
+            fig.savefig("./figs/simdata_BranchLenCorr{}.svg".format(ft))
+            fig.savefig("./figs/simdata_BranchLenCorr{}.png".format(ft))
+            fig.savefig("./figs/simdata_BranchLenCorr{}.pdf".format(ft))

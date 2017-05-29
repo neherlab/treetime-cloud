@@ -172,7 +172,7 @@
             </down>
         </upDownOperator>
     </operators>
-    <mcmc id="mcmc" chainLength="5000000" autoOptimize="true" operatorAnalysis="h3_small_tree.ops">
+    <mcmc id="mcmc" chainLength="20000000" autoOptimize="true" operatorAnalysis="h3_small_tree.ops">
         <posterior id="posterior">
             <prior id="prior">
                 <logNormalPrior mean="1.0" stdev="1.25" offset="0.0" meanInRealSpace="false">

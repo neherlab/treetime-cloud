@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import subprocess as sp
-import numpy as np
 import os
-import utility_functions_flu as flu_utils
 
 CLUSTER = True
 
@@ -22,6 +20,9 @@ if __name__ =="__main__":
     nseqs = [100] # files for these number of leaves (sequences) must be produces beforehand
     dates_knonwn_fraction = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     Npoints = 20
+    #nseqs = [100] # files for these number of leaves (sequences) must be produces beforehand
+    #dates_knonwn_fraction = [0.1, 0.5, 0.9]
+    #Npoints = 1
 
     for nseq in nseqs:
         for frac in dates_knonwn_fraction:

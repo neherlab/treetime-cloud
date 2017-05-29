@@ -7,10 +7,10 @@ import utility_functions_simulated_data as utils_sim
 
 if  __name__ == '__main__':
 
-    GENERATE_SIMULATED_DATA = True
+    GENERATE_SIMULATED_DATA = False
     RUN_TREETIME = True
-    RUN_LSD = True
-    RUN_BEAST = True
+    RUN_LSD = False
+    RUN_BEAST = False
 
     sys.stderr.write ("  ".join(sys.argv) + "\n")
 
@@ -44,12 +44,12 @@ if  __name__ == '__main__':
         # run treetime for original tree:
         print ("Running TreeTime, original tree")
         outfile = outfile_prefix + "_treetime_res.csv"
-        utils_sim.run_treetime(basename, outfile, fasttree=False, failed=None, max_iter=1, long_branch=long_branch)
+        utils_sim.run_treetime(basename, outfile, fasttree=False, failed=None, max_iter=1)
 
         # run treetime for FastTree-reconstructed tree:
         print ("Running TreeTime, FastTree tree")
         outfile = outfile_prefix + "_treetime_fasttree_res.csv"
-        utils_sim.run_treetime(basename, outfile, fasttree=True, failed=None, max_iter=1, long_branch=long_branch)
+        utils_sim.run_treetime(basename, outfile, fasttree=True, failed=None, max_iter=1)
 
     if RUN_LSD:
         # run LSD for original tree:

@@ -220,7 +220,7 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
         axes.errorbar(x, y, beast[err]/2, markersize=markersize, marker='o', c='r', label='BEAST')
 
     axes.grid('on')
-    axes.legend(loc=0)
+    axes.legend(loc=0,fontsize=legend_fs)
 
     axes.set_ylabel(ylabel, fontsize=label_fs)
     axes.set_xlabel("Tree size, #sequences",fontsize=label_fs)

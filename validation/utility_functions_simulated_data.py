@@ -14,7 +14,7 @@ import subprocess
 
 NEAREST_DATE = 2016.5
 
-def evolve_seq(treefile, basename, mu=0.0001, L=1000, mygtr = treetime.GTR.standard()):
+def evolve_seq(treefile, basename, mu=0.0001, L=1000, mygtr = treetime.GTR.standard('jc')):
     """
     Generate a random sequence of a given length, and evolve it on the tree
 
@@ -186,14 +186,17 @@ def run_treetime(basename, outfile, fasttree=False, failed=None, **kwargs):
     """
     if fasttree:
         treefile = basename + ".ft.nwk"
+        outtree = basename + ".treetrime.ft.nwk"
     else:
         treefile = basename + ".opt.nwk"
+        outtree = basename + ".treetrime.nwk"
     aln = basename+'.nuc.fasta'
     Tmrca, dates = dates_from_ffpopsim_tree(Phylo.read(treefile, "newick"))
     myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = treefile,
         aln = aln, verbose = 4, dates = dates, debug=False)
 
     myTree.run(root='best', **kwargs)
+    Phylo.write(myTree.tree, outtree, 'newick')
     with open(outfile, 'a') as of:
         of.write("{},{},{},{},{},{}\n".format(
             basename,

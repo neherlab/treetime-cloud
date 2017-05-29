@@ -31,4 +31,4 @@ figs/
 # results are placed in the datasets in the results branch:
 #!simulated_data/*.csv
 
-
+*.ops

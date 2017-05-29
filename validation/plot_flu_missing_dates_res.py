@@ -13,6 +13,8 @@ import pandas
 from plot_defaults import *
 from scipy.interpolate import interp1d
 from plot_defaults import shift_point_by_markersize
+import utility_functions_beast as beast_utils
+import utility_functions_flu as flu_utils
 
 def read_results_dataframe(inf):
     cols = ['File', 'Frac', 'Tmrca', 'Mu', 'Mu_R2', 'Internal_R2', 'Runtime']
@@ -78,7 +80,7 @@ def plot_results(df, what, label="", axes=None,shift_points=None):
     axes.set_ylabel(ylabel, fontsize=label_fs)
     axes.set_title(title)
     axes.grid('on')
-    axes.legend(loc=0)
+    axes.legend(loc=0, fontsize=legend_fs)
     for label in axes.get_xticklabels():
             label.set_fontsize(tick_fs)
     for label in axes.get_yticklabels():
@@ -148,14 +150,82 @@ def plot_date_dists(res, label="", axes=None):
     axes.set_xlim(-2, 2)
     axes.grid('on')
     axes.legend(loc=2,fontsize=legend_fs)
-    axes.set_xlabel(r"Error in $\mathrm{T}_{mrca}$ estimation, $[\mathrm{years}]$", fontsize=label_fs)
+    axes.set_xlabel(r"Error in leaf dates reconstruction, $[\mathrm{years}]$", fontsize=label_fs)
 
     for label in axes.get_xticklabels():
             label.set_fontsize(tick_fs)
     for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
 
+##  Make statistics on the pure datasets
+def beast_logs_stat(logsdir, treepath, nseqs):
+    """
+    logsdir: directory with beast log files
+    treedir: directory with the initial trees used for the beast run
+    """
 
+    Ns = []
+    LH_mean = []
+    LH_err = []
+    Tmrca_mean = []
+    Tmrca_err = []
+    Mu_mean = []
+    Mu_err = []
+
+    logsfiles = [k for k in os.listdir(logsdir) if k.endswith('.log.txt')
+                    if '{}seqs'.format (nseqs) in k]
+    max_date = np.max(flu_utils.dates_from_flu_tree(treepath).values())
+
+    for log in logsfiles:
+        logpath = os.path.join(logsdir, log)
+        df = beast_utils.read_beast_log(logpath, max_date)
+        if df is None or df.shape[0] < 300:
+            continue
+
+#        import ipdb; ipdb.set_trace();
+        new_Ns = float(log.split('_')[-2][2:])
+        Ns.append(new_Ns)
+
+        LH_mean.append(df['likelihood'].mean())
+        LH_err.append(df['likelihood'].std())
+
+        Mu_mean.append(df['clock.rate'].mean())
+        Mu_err.append(df['clock.rate'].std()) # * Mu_mean[-1] / 2.)
+
+        Tmrca_mean.append(df['treeModel.rootHeight'].mean())
+        Tmrca_err.append(df['treeModel.rootHeight'].std())
+
+    res = pandas.DataFrame({
+        "Frac" : Ns,
+        "Tmrca_mean" : Tmrca_mean,
+        "Tmrca_err" : Tmrca_err,
+        "Mu_mean" : Mu_mean,
+        "Mu_err" : Mu_err,
+        "LH_mean" : LH_mean,
+        "LH_err" : LH_err
+        })
+
+    res = res.sort('Frac')
+    return res
+
+def make_beast_pivot(beast_res):
+    out_Ns = np.unique(beast_res['Frac'])
+    out = pandas.DataFrame({
+        "Frac" : out_Ns,
+        "Tmrca" : [np.mean(beast_res[beast_res['Frac'] == x]['Tmrca_mean'])
+                            for x in out_Ns],
+        "Tmrca_err" : [np.std(beast_res[beast_res['Frac'] == x]['Tmrca_mean'])
+                            for x in out_Ns],
+        "Mu" : [np.mean(beast_res[beast_res['Frac'] == x]['Mu_mean'])
+                            for x in out_Ns],
+        "Mu_err" : [np.std(beast_res[beast_res['Frac'] == x]['Mu_mean'])
+                            for x in out_Ns],
+        "LH" : [np.mean(beast_res[beast_res['Frac'] == x]['LH_mean'])
+                            for x in out_Ns],
+        "LH_err" : [np.std(beast_res[beast_res['Frac'] == x]['LH_mean'])
+                            for x in out_Ns],
+        })
+    return out
 
 if __name__ == '__main__':
 
@@ -163,13 +233,22 @@ if __name__ == '__main__':
 
     work_dir = './flu_H3N2/missing_dates'
     fname_format = 'H3N2_HA_2011_2013_{}seqs_res.csv'
-    fname_dates_format = 'H3N2_HA_2011_2013_{}seqs_res.csv_dates.csv'
+    fname_dates_format = 'H3N2_HA_2011_2013_{}seqs_dates_res.csv'
 
     df_100 = make_results_pivot(read_results_dataframe(os.path.join(work_dir, fname_format.format(100))))
-    df_500 = make_results_pivot(read_results_dataframe(os.path.join(work_dir, fname_format.format(500))))
+    #df_500 = make_results_pivot(read_results_dataframe(os.path.join(work_dir, fname_format.format(500))))
 
+    print ("Reading beast output for 100 seqs leaves")
+    beast_100 = beast_logs_stat('./flu_H3N2/missing_dates/beast_out', './flu_H3N2/missing_dates/subtrees/H3N2_HA_2011_2013_100seqs.nwk', 100)
+    beast_pivot_100 = make_beast_pivot(beast_100)
     dates_100 = make_dates_pivot(read_dates_stat( os.path.join(work_dir, fname_dates_format.format(100))))
 
+    #print ("Reading beast output for 500 seqs leaves")
+    #beast_500 = beast_logs_stat('./flu_H3N2/missing_dates/beast_out', './flu_H3N2/missing_dates/subtrees/H3N2_HA_2011_2013_100seqs.nwk', 500)
+    #east_pivot_500 = make_beast_pivot(beast_500)
+    #ates_500 = make_dates_pivot(read_dates_stat( os.path.join(work_dir, fname_dates_format.format(500))))
+
+    print ("Plotting the results")
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_dates = fig.add_subplot(111)
     plot_date_dists(dates_100,axes=ax_dates)
@@ -178,10 +257,16 @@ if __name__ == '__main__':
         fig.savefig("./figs/fluH3N2_missingDates_leafDates.png")
         fig.savefig("./figs/fluH3N2_missingDates_leafDates.pdf")
 
+
+
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_tmrca = fig.add_subplot(111)
     plot_results(df_100, 'Tmrca', label='100 nodes tree', axes=ax_tmrca, shift_points=+markersize/2)
-    plot_results(df_500, 'Tmrca', label='500 nodes tree', axes=ax_tmrca, shift_points=-markersize/2)
+    #plot_results(df_500, 'Tmrca', label='500 nodes tree', axes=ax_tmrca, shift_points=-markersize/2)
+    plot_results(beast_pivot_100, 'Tmrca', label='BEAST: 100 nodes', axes = ax_tmrca)
+    #plot_results(beast_pivot_500, 'Tmrca', label='BEAST: 500 nodes', axes = ax_tmrca)
+
+
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_Tmrca.svg")
         fig.savefig("./figs/fluH3N2_missingDates_Tmrca.png")
@@ -191,7 +276,10 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_mu = fig.add_subplot(111)
     plot_results(df_100, 'Mu', label='100 nodes tree', axes=ax_mu, shift_points=+markersize/2)
-    plot_results(df_500, 'Mu', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
+    #plot_results(df_500, 'Mu', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
+    plot_results(beast_pivot_100, 'Mu', label='BEAST: 100 nodes', axes = ax_mu)
+    #plot_results(beast_pivot_500, 'Mu', label='BEAST: 500 nodes', axes = ax_mu)
+
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_Mu.svg")
         fig.savefig("./figs/fluH3N2_missingDates_Mu.png")
@@ -200,7 +288,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=onecolumn_figsize)
     ax_mu = fig.add_subplot(111)
     plot_results(df_100, 'R2', label='100 nodes tree', axes=ax_mu, shift_points=+markersize/2)
-    plot_results(df_500, 'R2', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
+    #plot_results(df_500, 'R2', label='500 nodes tree', axes=ax_mu, shift_points=-markersize/2)
     if save_fig:
         fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.svg")
         fig.savefig("./figs/fluH3N2_missingDates_MolClockR2.png")
