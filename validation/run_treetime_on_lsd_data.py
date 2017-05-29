@@ -33,15 +33,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
             description="Run treetime on simulated data used to test LSD in To et al")
     parser.add_argument('--tree', required = True, type = str,  help ="Which tree to use, one of D750_3_25, D750_11_10, D995_11_10, D995_3_25")
-    parser.add_argument('--tree_method', type = str, default="true" help ="Which reconstruction method to use. one of true or Phyml")
-    parser.add_argument('--tree_rooting', type = str, default="unrooted" help ="Use rooted trees or not")
+    parser.add_argument('--tree_method', type = str, default="true_trees", help ="Which reconstruction method to use. one of true or Phyml")
+    parser.add_argument('--tree_rooting', type = str, default="unrooted", help ="Use rooted trees or not")
     parser.add_argument('--clock', type = str, default='strict',
                         help ="strict or relaxed molecular clock")
     parser.add_argument('--relax',nargs='*', default = False,
                         help='use an autocorrelated molecular clock. Prior strength and coupling of parent '
                              'and offspring rates can be specified e.g. as --relax 1.0 0.5')
 
-    args = parser.parse()
+    args = parser.parse_args()
     data_set = args.tree
     rate_type = args.clock
     # specify relaxed clock if desired -> make dict to pass to treetime
@@ -52,10 +52,10 @@ if __name__ == '__main__':
 
     # convert input arguments to the method of tree reconstruction which differs by type
     # currently only Phyml and true trees included
-    if args.tree_method=='true':
-        tree_set = ['true', 'out']
-    elif args.tree_method=='Phyml':
-        tree_set = ['Phyml', args.tree_rooting]
+    if args.tree_method=='true_trees':
+        tree_set = ['true_trees', 'out']
+    elif args.tree_method=='Phyml_free':
+        tree_set = ['Phyml_free', args.tree_rooting]
 
     # true rate
     rate = 0.006
