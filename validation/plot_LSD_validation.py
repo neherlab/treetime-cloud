@@ -74,9 +74,9 @@ for rate_type in ["strict", "relaxed"]:
             tick_label.set_fontsize(tick_fs)
 
     if save_fig:
-        fig.savefig("./figs/Reconstruction_comparison_LSD_data_{}_clock.svg".format(rate_type))
-        fig.savefig("./figs/Reconstruction_comparison_LSD_data_{}_clock.png".format(rate_type))
-        fig.savefig("./figs/Reconstruction_comparison_LSD_data_{}_clock.pdf".format(rate_type))
+        fig.savefig("./figs/LSD_data_{}.svg".format(data_set))
+        fig.savefig("./figs/LSD_data_{}.png".format(data_set))
+        fig.savefig("./figs/LSD_data_{}.pdf".format(data_set))
 
     tmp = {'TT':TT_data[label][:,1],
             'BSMC':TMRCAs[(rate_type, "BSMC", "True\ntopology")]}
