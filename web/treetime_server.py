@@ -8,6 +8,8 @@ import os,sys
 import StringIO
 
 app = Flask(__name__)
+app.threads = {};
+app.debug=True
 ALLOWED_EXTENSIONS = ['fasta', 'nwk', 'csv', 'png', 'jpg']
 
 # html theme is controlled by the server
