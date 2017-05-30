@@ -5,6 +5,7 @@ import seaborn as sns
 import argparse
 
 from plot_defaults import *
+save_fig = True
 
 parser = argparse.ArgumentParser(
         description="Run treetime on simulated data used to test LSD in To et al")
@@ -55,6 +56,7 @@ for rate_type in ["strict", "relaxed"]:
     bl_factor = 1.0 #np.exp(4.*TT_data[label].mean(axis=0)[2])
     tree_type = "PhyML"
     methods = set([x for x in method_map.values() if len(x) and x[-1]!='*'])
+
     tmp = {'TT':(TT_data[label][:,0]*bl_factor-rate)/rate,
             'BSMC':(rates[(rate_type, "BSMC", "True\ntopology")]-rate)/rate}
     tmp.update({m:(rates[(rate_type, m, tree_type)]-rate)/rate for m in methods if (rate_type, m, tree_type) in rates})
@@ -64,16 +66,17 @@ for rate_type in ["strict", "relaxed"]:
     axes = fig.add_subplot(111)
     axes.hlines(0, -1, len(df), lw=3)
     sns.violinplot(df)
-    #plt.figure()
     axes.set_title('Evolution model: %s'%rate_type)
-    #plt.hlines(0, -1, len(df), lw=3)
-    #sns.violinplot(df)
-    #sns.stripplot(data=df, jitter=True)
     plt.ylabel('relative rate error', fontsize=label_fs)
     for tick_label in axes.get_xticklabels():
             tick_label.set_fontsize(label_fs)
     for tick_label in axes.get_yticklabels():
             tick_label.set_fontsize(tick_fs)
+
+    if save_fig:
+        fig.savefig("./figs/Reconstruction_comparison_LSD_data_{}_clock.svg".format(rate_type))
+        fig.savefig("./figs/Reconstruction_comparison_LSD_data_{}_clock.png".format(rate_type))
+        fig.savefig("./figs/Reconstruction_comparison_LSD_data_{}_clock.pdf".format(rate_type))
 
     tmp = {'TT':TT_data[label][:,1],
             'BSMC':TMRCAs[(rate_type, "BSMC", "True\ntopology")]}
@@ -82,6 +85,7 @@ for rate_type in ["strict", "relaxed"]:
 
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
+    axes.set_title('Evolution model: %s'%rate_type)
     axes.hlines(0, -1, len(df), lw=3)
     sns.violinplot(df)
     axes.set_ylabel('TMRCA error [$\mathrm{Years}$]', fontsize=label_fs)
@@ -89,4 +93,6 @@ for rate_type in ["strict", "relaxed"]:
             tick_label.set_fontsize(label_fs)
     for tick_label in axes.get_yticklabels():
             tick_label.set_fontsize(tick_fs)
+
+
 
