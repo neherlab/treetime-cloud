@@ -30,5 +30,22 @@ figs/
 
 # results are placed in the datasets in the results branch:
 #!simulated_data/*.csv
-
 *.ops
+
+# LSD validation data 
+LSD_validation_data/
+#exclude LSD csv tables:
+!LSD_validation_data/Simulation_results_750_11_10.csv
+!LSD_validation_data/Simulation_results_750_3_25.csv
+!LSD_validation_data/Simulation_results_995_11_10.csv
+!LSD_validation_data/Simulation_results_995_3_25.csv
+!LSD_validation_data/TT_D750_11_10_relaxed_sc.txt
+!LSD_validation_data/TT_D750_11_10_strict_sc.txt
+!LSD_validation_data/TT_D750_3_25_relaxed_rc.txt
+!LSD_validation_data/TT_D750_3_25_relaxed_sc.txt
+!LSD_validation_data/TT_D750_3_25_strict_rc.txt
+!LSD_validation_data/TT_D750_3_25_strict_sc.txt
+!LSD_validation_data/TT_D995_11_10_relaxed_sc.txt
+!LSD_validation_data/TT_D995_11_10_strict_sc.txt
+!LSD_validation_data/TT_D995_3_25_relaxed_sc.txt
+!LSD_validation_data/TT_D995_3_25_strict_sc.txt
