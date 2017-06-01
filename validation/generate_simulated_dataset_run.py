@@ -7,10 +7,10 @@ import utility_functions_simulated_data as utils_sim
 
 if  __name__ == '__main__':
 
-    GENERATE_SIMULATED_DATA = False
+    GENERATE_SIMULATED_DATA = True
     RUN_TREETIME = True
-    RUN_LSD = False
-    RUN_BEAST = False
+    RUN_LSD = True
+    RUN_BEAST = True
 
     sys.stderr.write ("  ".join(sys.argv) + "\n")
 
@@ -30,7 +30,7 @@ if  __name__ == '__main__':
         basename = utils_sim.run_ffpopsim_simulation(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, res_dir, suffix, optimize_branch_len=True)
 
         print ("Running FastTree reconstruction")
-        utils_sim.reconstruct_fasttree(basename)
+        utils_sim.reconstruct_fasttree(basename, optimize_branch_len=False)
 
     else:  # use previously generated data
         basename = "FFpopSim_L{}_N{}_Ns{}_Ts{}_Nv{}_Mu{}".format(str(L), str(N),

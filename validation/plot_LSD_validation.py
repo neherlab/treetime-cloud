@@ -74,9 +74,9 @@ for rate_type in ["strict", "relaxed"]:
             tick_label.set_fontsize(tick_fs)
 
     if save_fig:
-        fig.savefig("./figs/LSD_data_{}.svg".format(data_set))
-        fig.savefig("./figs/LSD_data_{}.png".format(data_set))
-        fig.savefig("./figs/LSD_data_{}.pdf".format(data_set))
+        fig.savefig("./figs/LSD_data_{}_Mu.svg".format(data_set))
+        fig.savefig("./figs/LSD_data_{}_Mu.png".format(data_set))
+        fig.savefig("./figs/LSD_data_{}_Mu.pdf".format(data_set))
 
     tmp = {'TT':TT_data[label][:,1],
             'BSMC':TMRCAs[(rate_type, "BSMC", "True\ntopology")]}
@@ -93,6 +93,11 @@ for rate_type in ["strict", "relaxed"]:
             tick_label.set_fontsize(label_fs)
     for tick_label in axes.get_yticklabels():
             tick_label.set_fontsize(tick_fs)
+
+    if save_fig:
+        fig.savefig("./figs/LSD_data_{}_Tmrca.svg".format(data_set))
+        fig.savefig("./figs/LSD_data_{}_Tmrca.png".format(data_set))
+        fig.savefig("./figs/LSD_data_{}_Tmrca.pdf".format(data_set))
 
 
 

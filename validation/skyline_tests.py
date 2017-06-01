@@ -86,7 +86,7 @@ def estimate_skyline(base_name, plot=False):
     x = skyline.x
     truePopSize = N*(1.0 + amp*np.cos(2.0*np.pi*x/N/period))
     if plot:
-        plt.figure()
+        plt.figure(figsize=onecolumn_figsize)
         plt.plot(x, skyline.y)
         plt.plot(skyline_em.x, skyline_em.y)
         plt.plot(x, truePopSize)

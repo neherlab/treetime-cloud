@@ -251,6 +251,7 @@ def run_lsd(treefile, datesfile, outfile, res_file):
 
     with open(res_file, "a") as of:
         of.write(",".join([treefile, str(Tmrca), tmrca, mu, objective]))
+        of.write("\n")
 
 def run_ffpopsim_simulation(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, res_dir, res_suffix, failed=None, **kwargs):
     """
@@ -406,17 +407,17 @@ def _ffpopsim_tree_aln_postprocess(basename, optimize_branch_len=False, prefix='
 
     if optimize_branch_len:
         import treetime
-        gtr = treetime.GTR.standard()
+        gtr = treetime.GTR.standard('jc')
         tanc = treetime.TreeAnc(aln=aln,tree=t,gtr=gtr)
         tanc.optimize_seq_and_branch_len(reuse_branch_len=False,prune_short=False,infer_gtr=False)
         Phylo.write(tanc.tree, basename+".opt.nwk", "newick")
 
-def reconstruct_fasttree(basename):
+def reconstruct_fasttree(basename, optimize_branch_len=False):
     """
     Run the fast tree reconstruction given the alignment produced by FFPopSim
     simulations
     """
-    def fasttree_post_process(aln, basename):
+    def fasttree_post_process(aln, basename, optimize_branch_len):
         ffpopsim_treefile = basename + ".nwk"
         treefile = basename + ".ft.nwk"
         tree = Phylo.read(treefile, 'newick')
@@ -426,18 +427,20 @@ def reconstruct_fasttree(basename):
         tree.root.name = "FFPOPsim_Tmrca_DATE_" + str(Tmrca)
 
         # optimize branch lengths (mainly, to remove the fasttree zero-lengths artefacts)
-        gtr = treetime.GTR.standard()
-        tanc = treetime.TreeAnc(tree=tree, aln=aln, gtr=gtr)
-        tanc.optimize_seq_and_branch_len(reuse_branch_len=True,prune_short=False,infer_gtr=False,max_iter=5)
-        return tanc.tree
+        if optimize_branch_len:
+            gtr = treetime.GTR.standard('jc')
+            tanc = treetime.TreeAnc(tree=tree, aln=aln, gtr=gtr)
+            tanc.optimize_seq_and_branch_len(reuse_branch_len=True,prune_short=False,infer_gtr=False,max_iter=5)
+            return tanc.tree
+        else:
+            return tree
 
     fasta = basename + ".nuc.fasta"
     outfile = fasta.replace('.nuc.fasta', ".ft.nwk")
     # call FastTree to reconstruct newick tree
     call = [FAST_TREE_BIN, "-nt", fasta, ">", outfile]
     os.system(' '.join([str(k) for k in call]))
-    #subprocess.call(FAST_TREE_BIN +  " -nt " + fasta + " > " + outfile, shell=False)
-    tree = fasttree_post_process(fasta, basename)
+    tree = fasttree_post_process(fasta, basename, optimize_branch_len=optimize_branch_len)
     os.remove(outfile)
     Phylo.write(tree, outfile, 'newick')
 

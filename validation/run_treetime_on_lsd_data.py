@@ -14,7 +14,7 @@ def load_dates(data_set):
     return dates
 
 def plot_stretch(tt):
-    fig = plt.figure()
+    fig = plt.figure(figsize=onecolumn_figsize)
     ax = plt.subplot(111)
     vmin, vmax = 0.5, 1.5 # color branches according to the rate deviation
     for n in tt.tree.find_clades():

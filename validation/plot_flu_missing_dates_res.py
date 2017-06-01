@@ -146,7 +146,7 @@ def plot_date_dists(res, label="", axes=None, idx=[0.05, 0.2, 0.4, 0.8]):
     for label in a.get_xticklabels():
             label.set_fontsize(tick_fs*.8)
     for label in a.get_yticklabels():
-            label.set_fontsize(tick_fs*.6)
+            label.set_fontsize(tick_fs*.8)
 
     #plt.xticks([])
     #plt.yticks([])

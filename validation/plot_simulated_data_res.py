@@ -137,7 +137,7 @@ def plot_raw_data(df):
     scalarMap = mplcm.ScalarMappable(norm=cNorm, cmap=cm)
 
     # plot results
-    fig = plt.figure()
+    fig = plt.figure(figsize=onecolumn_figsize)
     ax = fig.add_subplot(111)
     ax.set_prop_cycle(color=[scalarMap.to_rgba(i) for i in range(NUM_COLORS)])
 
@@ -166,7 +166,7 @@ def plot_mutation_rate_distributions(df, TN_min=3, TN_max=10, plot_title=""):
 
     DF = df[ (df['T']/df['N'] > TN_min) & (df['T']/df['N'] < TN_max) ]
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=onecolumn_figsize)
     ax = fig.add_subplot(111)
     ax.set_prop_cycle(color=[scalarMap.to_rgba(i) for i in range(NUM_COLORS)])
 
@@ -346,11 +346,12 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
         ylabel = "Relative Tmrca error, $[\Delta\mathrm{T_{mrca}} / \mathrm{N}]$"
 
     if beast is not None:
-
         if plot_idxs is None:
-            plot_idxs = np.ones(beast.shape[0] ,dtype=bool)
+            beast_plot_idxs = np.ones(beast.shape[0] ,dtype=bool)
+        else:
+            beast_plot_idxs = plot_idxs
 
-        axes.errorbar(beast["Nmu"].loc[plot_idxs].values, beast[mean].loc[plot_idxs].values, beast[err].loc[plot_idxs].values,
+        axes.errorbar(beast["Nmu"].loc[beast_plot_idxs].values, beast[mean].loc[beast_plot_idxs].values, beast[err].loc[beast_plot_idxs].values,
             marker='o',
             markersize=markersize,
             c=beast_color,
@@ -359,8 +360,11 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     if tt is not None:
         x, y = shift_point_by_markersize(axes, tt["Nmu"], tt[mean], -markersize/4)
         if plot_idxs is None:
-            plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-        axes.errorbar(x[plot_idxs], y[plot_idxs], tt[err]/2,
+            tt_plot_idxs = np.ones(x.shape[0] ,dtype=bool)
+        else:
+            tt_plot_idxs = plot_idxs
+
+        axes.errorbar(x[tt_plot_idxs], y[tt_plot_idxs], tt[err]/2,
             fmt='--',
             marker='o',
             markersize=markersize,
@@ -370,8 +374,11 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     if tt_f is not None:
         x, y = shift_point_by_markersize(axes, tt_f["Nmu"], tt_f[mean], +markersize*.75)
         if plot_idxs is None:
-            plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-        axes.errorbar(x[plot_idxs], y[plot_idxs], (tt_f[err].values/2)[plot_idxs],
+            ttf_plot_idxs = np.ones(x.shape[0] ,dtype=bool)
+        else:
+            ttf_plot_idxs = plot_idxs
+
+        axes.errorbar(x[ttf_plot_idxs], y[ttf_plot_idxs], (tt_f[err].values/2)[ttf_plot_idxs],
             marker='o',
             markersize=markersize,
             markerfacecolor='w',
@@ -382,8 +389,11 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     if lsd is not None:
         x, y = shift_point_by_markersize(axes, lsd["Nmu"], lsd[mean], +markersize/2)
         if plot_idxs is None:
-            plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-        axes.errorbar(x[plot_idxs], y[plot_idxs], (lsd[err].values/2)[plot_idxs],
+            lsd_plot_idxs = np.ones(x.shape[0] ,dtype=bool)
+        else:
+            lsd_plot_idxs = plot_idxs
+
+        axes.errorbar(x[lsd_plot_idxs], y[lsd_plot_idxs], (lsd[err].values/2)[lsd_plot_idxs],
             fmt='--',
             marker='o',
             markersize=markersize,
@@ -393,8 +403,11 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     if lsd_f is not None:
         x, y = shift_point_by_markersize(axes, lsd_f["Nmu"], lsd_f[mean], -markersize*.75)
         if plot_idxs is None:
-            plot_idxs = np.ones(x.shape[0] ,dtype=bool)
-        axes.errorbar(x[plot_idxs], y[plot_idxs], (lsd_f[err].values/2)[plot_idxs],
+            lsdf_plot_idxs = np.ones(x.shape[0] ,dtype=bool)
+        else:
+            lsdf_plot_idxs = plot_idxs
+
+        axes.errorbar(x[lsdf_plot_idxs], y[lsdf_plot_idxs], (lsd_f[err].values/2)[lsdf_plot_idxs],
             marker='o',
             markersize=markersize,
             markerfacecolor='w',
@@ -546,8 +559,10 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=Tru
             label.set_fontsize(tick_fs)
     for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
-    axes.set_xlim(0, 200)
-    axes.set_ylim(0, 200)
+    axes.set_xlim(0.1, 200)
+    axes.set_ylim(0.1, 200)
+    axes.set_xscale('log')
+    axes.set_yscale('log')
 
 if __name__ == '__main__':
 
@@ -557,19 +572,19 @@ if __name__ == '__main__':
     PLOT_SIM_RESULTS = False
     PLOT_CORRELATION = True
 
-    PLOT_TREETIME = False
-    PLOT_LSD = False
+    PLOT_TREETIME = True
+    PLOT_LSD = True
     PLOT_BEAST = False
-    save_fig = True
-    plot_idxs = np.array([1,2,4,6,7,9,10])
+    save_fig = False
+    plot_idxs = None #np.array([1,2,4,6,7,9,10])
 
     if PLOT_SIM_RESULTS:
         res_dir = "./simulated_data"
-        res_lsd = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_res.csv')
-        res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-04-19_lsd_fasttree_res.csv')
+        res_lsd = read_lsd_results_dataset('./simulated_data/2017-05-16_lsd_res.csv')
+        res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-05-16_lsd_fasttree_res.csv')
 
-        res_tt = read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_res.csv')
-        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-04-19_treetime_fasttree_res.csv')
+        res_tt = read_treetime_results_dataset('./simulated_data/2017-05-16_treetime_res.csv')
+        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-05-16_treetime_fasttree_res.csv')
 
         beast_logs_dir = os.path.join(res_dir, '2017-04-19_beast')
         beast_trees_dir = os.path.join(res_dir, 'dataset')
