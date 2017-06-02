@@ -169,7 +169,7 @@ if __name__=="__main__":
     fig = plt.figure(figsize=onecolumn_figsize)
 
     # common Y label
-    fig.text(0.05,0.5, 'Population size estimate',
+    fig.text(0.05,0.5, 'Coalescent population size estimate',
         rotation='vertical',
         fontsize=label_fs,
         verticalalignment='center',
@@ -201,7 +201,7 @@ if __name__=="__main__":
 
 
     #axes.set_ylabel('Population size estimate', fontsize=label_fs)
-    axs[1].set_xlabel('Evolution time, [Generations]', fontsize = label_fs)
+    axs[1].set_xlabel('Time in simulated generations', fontsize = label_fs)
 
     if SAVE_FIG:
         plt.savefig('./figs/skyline.pdf')

@@ -534,7 +534,7 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=Tru
                 marker='o',
                 markersize=markersize,
                 c=ft_color,
-                label="Maximum-likelihood reconstruction (FastTree). Correlation coefficient: " + format(ft_corrcoeff[0, 1], '.3f'))
+                label="ML reconstruction (FastTree). Correlation coefficient: " + format(ft_corrcoeff[0, 1], '.3f'))
 
     axes.plot(bt_corr[:, 0], bt_corr[:, 1], 'o',
             alpha=0.5,
