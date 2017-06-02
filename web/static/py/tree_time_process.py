@@ -149,6 +149,7 @@ class TreeTimeWeb(treetime.TreeTime):
         slope = None if self._webconfig['slope'] == 'False' or not self._webconfig['slope'] else float(self._webconfig['slope_value'])
         Tc = None if self._webconfig['use_coalescent_prior'] == 'False' or not self._webconfig['use_coalescent_prior'] \
             else float(self._webconfig['coalescent_prior_value'])
+        max_iter = int(self._webconfig['max_iter']) if 'max_iter' in self._webconfig and self._webconfig['max_iter']  else 2
 
         if self._webconfig['use_relaxed_clock'] == 'False' or not self._webconfig['use_relaxed_clock']:
             relax_clock = False
@@ -162,7 +163,7 @@ class TreeTimeWeb(treetime.TreeTime):
         try:
             _write_session_state(self._root_dir, SessionState.running)
             super(TreeTimeWeb, self).run(root=root, infer_gtr=infer_gtr, relaxed_clock=relax_clock,
-                resolve_polytomies=resolve_polytomies, max_iter=5, Tc=Tc, fixed_slope=slope,
+                resolve_polytomies=resolve_polytomies, max_iter=max_iter, Tc=Tc, fixed_slope=slope,
                 do_marginal=do_marginal, **kwargs)
         except:
             tb = traceback.format_exc()

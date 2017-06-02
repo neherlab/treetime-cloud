@@ -35,7 +35,8 @@ treetime_webconfig = {
         {'slack' : 0.01,
          'coupling':0.005
         },
-    'available_gtrs': available_gtrs
+    'available_gtrs': available_gtrs,
+    'max_iter':2
 }
 
 
