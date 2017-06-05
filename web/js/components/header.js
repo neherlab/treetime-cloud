@@ -33,16 +33,14 @@ var Header  = React.createClass({
     render(){
         const navbarInstance = (
           <Navbar>
-            <Nav pullLeft>
-                <NavItem eventKey={1} href="/"><Glyphicon glyph={"home"}/> Home</NavItem>
-            </Nav>
             <Navbar.Header>
-              <Navbar.Brand style={{"fontSize":"20pt", "textAlign":"center"}}>
-                TreeTime: Maximum-likelihood dating of phylogenies
+              <Navbar.Brand style={{"fontSize":"20pt"}}>
+                TreeTime: Maximum-likelihood phylodynamic analysis
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
-              <Nav pullRight>
+            <Nav pullRight>
+                <NavItem eventKey={1} href="/"><Glyphicon glyph={"home"}/> Home</NavItem>
                 <NavItem eventKey={2} href="/about"><Glyphicon glyph={"info-sign"}/> About</NavItem>
             </Nav>
 
