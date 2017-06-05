@@ -5,10 +5,10 @@ Web server deploy script
 import os
 import subprocess
 
-host = 'treetime_test' # destination server
-host_location = '/var/www/treetime_web' # location in the destination server
-treetime_admin = 'root'
-treetime_user = 'ttime'
+host = 'bc2-resit-tt01.bc2.unibas.ch' # destination server
+host_location = '/var/www/treetime' # location in the destination server
+treetime_admin = 'tt_admin'
+treetime_user = 'tt_user'
 
 if __name__ == '__main__':
 
