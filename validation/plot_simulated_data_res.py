@@ -417,7 +417,7 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
 
 
     plt.hlines(0, 0, 1)
-    axes.legend(loc=0,fontsize=legend_fs)
+    axes.legend(loc=1,fontsize=legend_fs)
     #axes.set_title(title)
     axes.set_ylabel(ylabel, fontsize = label_fs)
     axes.set_xlabel('Diversity, $\mathrm{N}\cdot\mu$', fontsize = label_fs)
@@ -566,7 +566,7 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=Tru
 
 if __name__ == '__main__':
 
-    T_over_N = 2.
+    T_over_N = 4.
     mean_or_median = 'median'
 
     PLOT_SIM_RESULTS = True
@@ -575,7 +575,7 @@ if __name__ == '__main__':
     PLOT_TREETIME = True
     PLOT_LSD = True
     PLOT_BEAST = True
-    save_fig = False
+    save_fig = True
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
     if PLOT_SIM_RESULTS:
@@ -635,8 +635,8 @@ if __name__ == '__main__':
 
     if PLOT_CORRELATION:
         INCLUDE_FAST_TREE=True
-        root_dir = './simulated_data/dataset'
-        beast_root_dir = './simulated_data/2017-04-19_beast/'
+        root_dir = beast_trees_dir
+        beast_root_dir = beast_logs_dir
         tt_corr, ft_corr, bt_corr = correlation_dataset(root_dir, beast_root_dir)
         fig = plt.figure(figsize=onecolumn_figsize)
         axes = fig.add_subplot(111)

@@ -60,12 +60,12 @@ if __name__ == '__main__':
     # scatter root to tip divergence vs sampling date
     ebola.plot_root_to_tip(add_internal=True)
     t=np.array([2014,2016])
-    plt.plot(t, t*ebola.date2dist.slope+ ebola.date2dist.intercept,
-             label="y = %1.5f t%1.3f"%(ebola.date2dist.slope, ebola.date2dist.intercept))
+    plt.plot(t, t*ebola.date2dist.clock_rate + ebola.date2dist.intercept,
+             label="y = %1.5f t%1.3f"%(ebola.date2dist.clock_rate, ebola.date2dist.intercept))
     plt.legend(loc=2)
 
     # rescale branch length to years and plot in axis 0
-    from treetime.io import plot_vs_years
+    from treetime import plot_vs_years
     fig, axs = plt.subplots(2,1, sharex=True, figsize=(10,12))
     plot_vs_years(ebola, years=1, ax=axs[0], confidence=(0.05,0.95), label_func = lambda x:"")
     axs[0].set_xlim(0, 2.5)
