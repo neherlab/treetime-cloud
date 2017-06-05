@@ -18,20 +18,23 @@ if __name__ == '__main__':
     CLUSTER = True
 
     # Directory to store results
-    res_dir = "./simulated_data/dataset"
+    res_dir = "./simulated_data/dataset_05-31"
     # File prefix to store the formatted output for further processing/comparison
-    outfile = "./simulated_data/2017-05-16"
+    outfile = "./simulated_data/2017-05-31"
 
     # FFPopSim simulation parameters
     L = 1e4
     N = 100
     SAMPLE_VOL = 10
     SAMPLE_NUM = 20
+    N_0 = 0
+
     SAMPLE_FREQS = [10, 20, 50] # T/N = [2, 4, 10]
     MUS = [7e-6, 1e-5, 2e-5, 5e-5, 7e-5, 1e-4, 2e-4, 5e-4, 7e-4, 1e-3, 2e-3]
-    # MUS= [2e-4, 5e-4, 7e-4, 1e-3, 2e-3]
     N_POINTS = 20
-    N_0 = 0
+    #SAMPLE_FREQS = [10]
+    #MUS = [2e-4]
+    #N_POINTS = 1
 
     # run treetime in-place:
     Ncalls = 0
@@ -48,7 +51,7 @@ if __name__ == '__main__':
                 if CLUSTER:
                     call = ['qsub', '-cwd', '-b','y',
                            '-l', 'h_rt=23:59:0', # BEAST might run long
-                            #'-o', './stdout.txt',
+                              #'-o', './stdout.txt',
                               #'-e', './stderr.txt',
                             '-l', 'h_vmem=50G', # BEAST requires A LOT
                              './generate_simulated_dataset_run.py']

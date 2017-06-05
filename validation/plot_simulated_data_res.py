@@ -561,32 +561,32 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=Tru
             label.set_fontsize(tick_fs)
     axes.set_xlim(0.1, 200)
     axes.set_ylim(0.1, 200)
-    axes.set_xscale('log')
-    axes.set_yscale('log')
+    #axes.set_xscale('log')
+    #axes.set_yscale('log')
 
 if __name__ == '__main__':
 
     T_over_N = 2.
     mean_or_median = 'median'
 
-    PLOT_SIM_RESULTS = False
-    PLOT_CORRELATION = True
+    PLOT_SIM_RESULTS = True
+    PLOT_CORRELATION = False
 
     PLOT_TREETIME = True
     PLOT_LSD = True
-    PLOT_BEAST = False
+    PLOT_BEAST = True
     save_fig = False
-    plot_idxs = None #np.array([1,2,4,6,7,9,10])
+    plot_idxs = np.array([1,2,4,6,7,9,10])
 
     if PLOT_SIM_RESULTS:
         res_dir = "./simulated_data"
-        res_lsd = read_lsd_results_dataset('./simulated_data/2017-05-16_lsd_res.csv')
-        res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-05-16_lsd_fasttree_res.csv')
+        res_lsd = read_lsd_results_dataset('./simulated_data/2017-05-31_lsd_res.csv')
+        res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-05-31_lsd_fasttree_res.csv')
 
-        res_tt = read_treetime_results_dataset('./simulated_data/2017-05-16_treetime_res.csv')
-        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-05-16_treetime_fasttree_res.csv')
+        res_tt = read_treetime_results_dataset('./simulated_data/2017-05-31_treetime_res.csv')
+        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-05-31_treetime_fasttree_res.csv')
 
-        beast_logs_dir = os.path.join(res_dir, '2017-04-19_beast')
+        beast_logs_dir = os.path.join(res_dir, '2017-05-16_beast')
         beast_trees_dir = os.path.join(res_dir, 'dataset')
 
 

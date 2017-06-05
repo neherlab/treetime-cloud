@@ -197,12 +197,13 @@ def run_treetime(basename, outfile, fasttree=False, failed=None, **kwargs):
 
     myTree.run(root='best', **kwargs)
     Phylo.write(myTree.tree, outtree, 'newick')
+
     with open(outfile, 'a') as of:
         of.write("{},{},{},{},{},{}\n".format(
             basename,
             str(Tmrca),
             str(myTree.tree.root.numdate),
-            str(myTree.date2dist.slope),
+            str(myTree.date2dist.clock_rate),
             str(myTree.date2dist.r_val),
             str(internal_regress(myTree)) ))
 
