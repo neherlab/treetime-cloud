@@ -9,6 +9,7 @@ host = 'bc2-resit-tt01.bc2.unibas.ch' # destination server
 host_location = '/var/www/treetime' # location in the destination server
 treetime_admin = 'tt_admin'
 treetime_user = 'tt_user'
+root = 'neher'
 
 if __name__ == '__main__':
 
@@ -21,7 +22,7 @@ if __name__ == '__main__':
         os.system('ssh -t {}@{}  "chown -R {}:{} {}/sessions"'.format(treetime_admin, host, treetime_user, treetime_user, host_location))
 
     #change permissions of the wsgi script:
-    os.system('ssh -t {}@{}  "chown {}:{} {}/treetime.wsgi"'.format(treetime_admin, host, treetime_user, treetime_user, host_location))
+    os.system('ssh -t {}@{}  "sudo chown {}:{} {}/treetime.wsgi"'.format(root, host, treetime_user, treetime_user, host_location))
 
 
 
