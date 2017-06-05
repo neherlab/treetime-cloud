@@ -336,14 +336,14 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     if what == 'Mu':
         mean = 'dMu_mean'
         err = 'dMu_err'
-        title = "Mutation rate deviation"
-        ylabel = "Relative mutation rate error, $[\Delta\mu / \mu]$"
+        title = "Clock rate deviation"
+        ylabel = "Relative clock rate error, $[\Delta\mu / \mu]$"
 
     elif what == 'Tmrca':
         mean = 'dTmrca_mean'
         err = 'dTmrca_err'
         title = "Accuracy of Tmrca prediction"
-        ylabel = "Relative Tmrca error, $[\Delta\mathrm{T_{mrca}} / \mathrm{N}]$"
+        ylabel = "Relative $T_{mrca}$ error, $[\Delta\mathrm{T_{mrca}} / \mathrm{N}]$"
 
     if beast is not None:
         if plot_idxs is None:
@@ -534,7 +534,7 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=Tru
                 marker='o',
                 markersize=markersize,
                 c=ft_color,
-                label="Maximum-likelihood reconstruction (FastTree). Correlation coefficient: " + format(ft_corrcoeff[0, 1], '.3f'))
+                label="ML reconstruction (FastTree). Correlation coefficient: " + format(ft_corrcoeff[0, 1], '.3f'))
 
     axes.plot(bt_corr[:, 0], bt_corr[:, 1], 'o',
             alpha=0.5,
@@ -624,8 +624,8 @@ if __name__ == '__main__':
         fig = plt.figure(figsize=onecolumn_figsize)
         axes = fig.add_subplot(111)
         plot_data_stat('Tmrca', axes, beast=pivot_beast, tt=pivot_tt, tt_f=pivot_tt_f, lsd=pivot_lsd, lsd_f=pivot_lsd_f, plot_idxs=plot_idxs)
-        fig.text(0.15, 0.85, '$\mathrm{T_{mrca}}$ overestimated', fontsize=tick_fs)
-        fig.text(0.15, 0.15, '$\mathrm{T_{mrca}}$ underestimated', fontsize=tick_fs)
+        fig.text(0.15, 0.85, '$\mathrm{T_{mrca}}$ too late', fontsize=tick_fs)
+        fig.text(0.15, 0.15, '$\mathrm{T_{mrca}}$ too early', fontsize=tick_fs)
 
         if save_fig:
             fig.savefig("./figs/simdata_Tmrca_TN{}_{}.svg".format(T_over_N, mean_or_median))

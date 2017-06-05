@@ -59,6 +59,8 @@ for rate_type in ["strict", "relaxed"]:
 
     tmp = {'TT':(TT_data[label][:,0]*bl_factor-rate)/rate,
             'BSMC':(rates[(rate_type, "BSMC", "True\ntopology")]-rate)/rate}
+    if rate_type=='relaxed':
+        tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
     tmp.update({m:(rates[(rate_type, m, tree_type)]-rate)/rate for m in methods if (rate_type, m, tree_type) in rates})
     df = pd.DataFrame(tmp)
 
@@ -66,26 +68,27 @@ for rate_type in ["strict", "relaxed"]:
     axes = fig.add_subplot(111)
     axes.hlines(0, -1, len(df), lw=3)
     sns.violinplot(df)
-    axes.set_title('Evolution model: %s'%rate_type)
-    plt.ylabel('relative rate error', fontsize=label_fs)
+    #axes.set_title('Evolution model: %s'%rate_type)
+    plt.ylabel('relative clock rate error, $[\Delta \mu/\mu]$', fontsize=label_fs)
     for tick_label in axes.get_xticklabels():
             tick_label.set_fontsize(label_fs)
     for tick_label in axes.get_yticklabels():
             tick_label.set_fontsize(tick_fs)
 
     if save_fig:
-        fig.savefig("./figs/LSD_data_{}_Mu.svg".format(data_set))
-        fig.savefig("./figs/LSD_data_{}_Mu.png".format(data_set))
-        fig.savefig("./figs/LSD_data_{}_Mu.pdf".format(data_set))
+        for fmt in ['pdf', 'png', 'svg']:
+            fig.savefig("./figs/LSD_data_%s_%s_Mu.%s"%(data_set, rate_type, fmt))
 
     tmp = {'TT':TT_data[label][:,1],
             'BSMC':TMRCAs[(rate_type, "BSMC", "True\ntopology")]}
+    if rate_type=='relaxed':
+        tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
     tmp.update({m:TMRCAs[(rate_type, m, tree_type)] for m in methods if (rate_type, m, tree_type) in TMRCAs})
     df = pd.DataFrame(tmp)
 
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
-    axes.set_title('Evolution model: %s'%rate_type)
+    # axes.set_title('Evolution model: %s'%rate_type)
     axes.hlines(0, -1, len(df), lw=3)
     sns.violinplot(df)
     axes.set_ylabel('TMRCA error [$\mathrm{Years}$]', fontsize=label_fs)
@@ -95,9 +98,8 @@ for rate_type in ["strict", "relaxed"]:
             tick_label.set_fontsize(tick_fs)
 
     if save_fig:
-        fig.savefig("./figs/LSD_data_{}_Tmrca.svg".format(data_set))
-        fig.savefig("./figs/LSD_data_{}_Tmrca.png".format(data_set))
-        fig.savefig("./figs/LSD_data_{}_Tmrca.pdf".format(data_set))
+        for fmt in ['pdf', 'png', 'svg']:
+            fig.savefig("./figs/LSD_data_%s_%s_Tmrca.%s"%(data_set, rate_type, fmt))
 
 
 
