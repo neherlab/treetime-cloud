@@ -574,7 +574,7 @@ if __name__ == '__main__':
 
     PLOT_TREETIME = True
     PLOT_LSD = True
-    PLOT_BEAST = True
+    PLOT_BEAST = False
     save_fig = True
     plot_idxs = np.array([1,2,4,6,7,9,10])
 

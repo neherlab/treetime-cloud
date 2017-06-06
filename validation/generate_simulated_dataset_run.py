@@ -9,7 +9,7 @@ if  __name__ == '__main__':
 
     GENERATE_SIMULATED_DATA = False
     RUN_TREETIME = True
-    RUN_LSD = False
+    RUN_LSD = True
     RUN_BEAST = False
 
     sys.stderr.write ("  ".join(sys.argv) + "\n")
@@ -27,29 +27,30 @@ if  __name__ == '__main__':
     # run evolution simulation, produce basic tree and alignment
     if GENERATE_SIMULATED_DATA:
         print ("Running FFpopSim")
-        basename = utils_sim.run_ffpopsim_simulation(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, res_dir, suffix, optimize_branch_len=True)
+        basename = utils_sim.run_ffpopsim_simulation(L, N, SAMPLE_VOL, SAMPLE_NUM,
+                                SAMPLE_FREQ, MU, res_dir, suffix, optimize_branch_len=True)
 
         print ("Running FastTree reconstruction")
         utils_sim.reconstruct_fasttree(basename, optimize_branch_len=False)
 
     else:  # use previously generated data
-        basename = "FFpopSim_L{}_N{}_Ns{}_Ts{}_Nv{}_Mu{}".format(str(L), str(N),
+        label = "FFpopSim_L{}_N{}_Ns{}_Ts{}_Nv{}_Mu{}".format(str(L), str(N),
                  str(SAMPLE_NUM), str(SAMPLE_FREQ), str(SAMPLE_VOL), str(MU))
 
-        basename = os.path.join(res_dir, basename)
+        basename = os.path.join(res_dir, label)
         if suffix != "":
              basename = basename + "_" + suffix
 
     if RUN_TREETIME:
         # run treetime for original tree:
         print ("Running TreeTime, original tree")
-        outfile = outfile_prefix + "_treetime_res.csv"
-        utils_sim.run_treetime(basename, outfile, fasttree=False, failed=None, max_iter=3, use_input_branch_length=True)
-
-        # run treetime for FastTree-reconstructed tree:
-        print ("Running TreeTime, FastTree tree")
-        outfile = outfile_prefix + "_treetime_fasttree_res.csv"
-        utils_sim.run_treetime(basename, outfile, fasttree=True, failed=None, max_iter=3, use_input_branch_length=True)
+        for fasttree in [False, True]:
+            outfile = outfile_prefix + '_' + label +"_treetime_%sres.csv"%('fasttree_' if fasttree else "")
+            if not os.path.isfile(outfile):
+                with open(outfile, 'w') as of:
+                    of.write(",".join(['#file name', 'true Tmrca', 'estimated Tmrca', 'clock rate', 'r^2', 'r^2'])+'\n')
+            utils_sim.run_treetime(basename, outfile, fasttree=fasttree, failed=None,
+                                   max_iter=3, use_input_branch_length=True)
 
     if RUN_LSD:
         # run LSD for original tree:
@@ -60,19 +61,17 @@ if  __name__ == '__main__':
         except:
             pass
 
-        # file to store formatted results of LSD run
-        print ("Running LSd, original tree")
-        outfile = outfile_prefix + "_lsd_res.csv"
-        treefile = basename + ".opt.nwk"
-        lsd_res_file = os.path.join(outfile_prefix + "_lsd", os.path.split(basename)[-1])
-        utils_sim.run_lsd(treefile, basename+".lsd_dates.txt", lsd_res_file, outfile)
+        for fasttree in [False, True]:
+            outfile = outfile_prefix + '_' + label +"_lsd_%sres.csv"%('fasttree_' if fasttree else "")
+            if not os.path.isfile(outfile):
+                with open(outfile, 'w') as of:
+                    of.write(",".join(['#file name', 'true Tmrca', 'estimated Tmrca', 'clock rate', 'objective'])+'\n')
 
-        # run LSD for fast-tree tree:
-        print ("Running LSD, FastTree tree")
-        outfile = outfile_prefix + "_lsd_fasttree_res.csv"
-        treefile = basename + ".ft.nwk"
-        lsd_res_file = os.path.join(outfile_prefix + "_lsd", os.path.split(basename)[-1] + "_fasttree")
-        utils_sim.run_lsd(treefile, basename+"lsd_dates.txt", lsd_res_file, outfile)
+            # file to store formatted results of LSD run
+            print ("Running LSD, treetype %s"%("fasttree" if fasttree else "original"))
+            treefile = basename + "%s.nwk"%('.ft' if fasttree else "")
+            lsd_res_file = os.path.join(outfile_prefix + "_lsd", os.path.split(basename)[-1])
+            utils_sim.run_lsd(treefile, basename+".lsd_dates.txt", lsd_res_file, outfile)
 
 
     if RUN_BEAST:

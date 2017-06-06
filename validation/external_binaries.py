@@ -8,7 +8,8 @@ FFPOPSIM_BIN  = "/ebio/ag-neher/share/users/psagulenko/projects/TreeTime/validat
 FFPOPSIM_SKYLINE_BIN = "/ebio/ag-neher/share/users/psagulenko/projects/TreeTime/validation/resources/src/FFPopSim_skyline.bin"
 
 FAST_TREE_BIN = "/ebio/ag-neher/share/programs/bin/fasttree"
-LSD_BIN       = "/ebio/ag-neher/share/users/psagulenko/programs/LSD/lsd-0.2/bin/lsd"
+#LSD_BIN       = "/ebio/ag-neher/share/users/psagulenko/programs/LSD/lsd-0.2/bin/lsd"
+LSD_BIN       = "/home/richard/Projects/treetime_validation/other_programs/lsd-0.2/src/lsd"
 BEAST_BIN     = "/ebio/ag-neher/share/programs/bundles/BEASTv1.8.4/lib/beast.jar"
 
 if __name__ == '__main__':
