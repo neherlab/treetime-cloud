@@ -67,22 +67,21 @@ if __name__ == '__main__':
 
     # loop over 100 trees and collect treetime results
     res = []
-    for ti in range(len(trees)):
+    for ti in range(len(trees))[:1]:
         T = trees[ti]
         out_groups = [n for n in T.get_terminals() if n.name=='out']
         if len(out_groups):
             T.prune(out_groups[0])
         tt = TreeTime(tree=T, aln=alns[ti], dates=dates, gtr='JC69')
         tt.run(root='best', infer_gtr=True, max_iter=1, n_iqd=4,
-               relaxed_clock=rc, use_input_branch_length=True)
+               relaxed_clock=rc, use_input_branch_length=False)
         div = [n.branch_length for n in tt.tree.find_clades() if n.up]
         W = tt.gtr.W
         # this stores the clock rate, the root date, the average branch length
         # GTR.Pi and the transition/transversion rates
-        res.append([tt.date2dist.slope, tt.tree.root.numdate, np.mean(div)]
+        res.append([tt.date2dist.clock_rate, tt.tree.root.numdate, np.mean(div)]
                      + list(tt.gtr.Pi[:4]) + [W[0,2], W[1,3]] +
                     [(W[0,1]+W[0,3]+W[1,2]+W[2,3])/4.0])
-
 
     res = np.array(res)
     rate_bias = np.mean(res[:,0]-rate)

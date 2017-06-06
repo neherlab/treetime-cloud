@@ -63,7 +63,7 @@ if __name__ == "__main__":
                 subtree_filename,
                 str(N_leaves),
                 str(myTree.tree.root.numdate),
-                str(myTree.date2dist.slope),
+                str(myTree.date2dist.clock_rate),
                 str(myTree.date2dist.r_val),
                 str(gen_utils.internal_regress(myTree)),
                 str((end-start).total_seconds())    ))

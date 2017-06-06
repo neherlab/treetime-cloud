@@ -34,7 +34,7 @@ if __name__ == "__main__":
                 tree_name,
                 str(knonw_dates_fraction),
                 str(myTree.tree.root.numdate),
-                str(myTree.date2dist.slope),
+                str(myTree.date2dist.clock_rate),
                 str(myTree.date2dist.r_val),
                 str(gen_utils.internal_regress(myTree)),
                 str((end-start).total_seconds()) ))
