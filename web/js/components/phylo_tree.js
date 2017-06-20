@@ -98,7 +98,7 @@ var linkTooltip = d3tip()
 
     string += "</br> click to zoom into clade"
     string += "</div>";
-    console.log(string)
+    //console.log(string)
     return string;
 
   });
@@ -162,7 +162,7 @@ PhyloTree._create_data = function(props){
     ////console.log(props.root)
     this.root = props.root;
     console.log("Creating tree data...")
-    console.log(this.root)
+    //console.log(this.root)
     this.layout = d3.layout.tree();
     this.vis_nodes = this.layout.nodes(this.root);
     this.vis_links = this.layout.links(this.vis_nodes);
@@ -170,7 +170,7 @@ PhyloTree._create_data = function(props){
     this.vis_tips = []
     this.gatherTips(this.root, this.vis_tips);
     this.vis_tips.map(function(d){d.selected=false;});
-    console.log(this.vis_tips)
+    //console.log(this.vis_tips)
     this._update_vis(this.root);
 };
 
@@ -396,10 +396,10 @@ PhyloTree._drawTips = function(el, scales, dispatcher) {
     var tip = g.selectAll('.d3-tip')
         .data(this.vis_tips);
 
-    console.log("VIS TIPS")
-    console.log(this.vis_tips)
-    console.log(this.vis_tips.map(function(d){return d.strain}))
-    console.log(d3.sum(this.vis_tips.map(function(d){if (typeof d.strain == 'undefined') return 1; else return 0;}) ) )
+    // console.log("VIS TIPS")
+    // console.log(this.vis_tips)
+    // console.log(this.vis_tips.map(function(d){return d.strain}))
+    // console.log(d3.sum(this.vis_tips.map(function(d){if (typeof d.strain == 'undefined') return 1; else return 0;}) ) )
     tip.enter()
       .append("circle")
       .attr("class", "d3-tip")

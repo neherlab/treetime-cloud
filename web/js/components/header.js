@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { Row, Navbar, Nav, NavItem, Glyphicon } from "react-bootstrap";
 
 <h4>Maximum-Likelihood molecular clock phylogenies</h4>
@@ -60,5 +60,4 @@ var Header  = React.createClass({
         );
     }
 });
-
 export default Header;

@@ -12,7 +12,6 @@ var Globals = require('./globals.js')
 var colors = Globals.colors;
 
 import Header from './header.js'
-import Footer from './footer.js'
 
 var DefaultScale = function(){
     this.get_color = function(x){
@@ -225,8 +224,6 @@ var TreeLeftPane = React.createClass({
 
         default:
 
-            console.log(value)
-
             var cValFunc = function(d){
                 var md = d.metadata.filter(function(d){return d.name==value})
                 if (md.length == 0) return null;
@@ -235,7 +232,6 @@ var TreeLeftPane = React.createClass({
             var tips = []
             PhyloTree.gatherAllNodes(this.props.root, tips)
             var all_values = tips.map(cValFunc).filter(function(d){return d;})
-            console.log(all_values)
             // get all types of the metadata entries
             all_values = all_values.filter(function(d, index){return all_values.indexOf(d) == index})
             var all_types = all_values.map(function(d){return typeof(d)})
@@ -722,7 +718,6 @@ var Results = React.createClass({
     on_root : function (err, root){
 
         //console.log("ROOT node came")
-        console.log(root)
         if (err){
             console.warn("Can not get root node for the tree");
             console.warn(err);
@@ -834,7 +829,6 @@ var Results = React.createClass({
                     appState={this.state}
                     setAppState={this.setAppState}/>
                 </div>
-                <Footer/>
             </div>
         );
     },

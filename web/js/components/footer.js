@@ -32,7 +32,7 @@ var Footer  = React.createClass({
 
     render (){
         return (
-            <div id="footer_wrapper" style={{"position":"absolute",  "bottom":"0", "left":"0"}} >
+            <div id="footer_wrapper" style={{"position":"absolute",  "bottom":"0%", "left":"0"}}>
                 <a href='/about' id="impressum">About/Impressum</a>
                 <div id="footer">
                     <Authors/>
