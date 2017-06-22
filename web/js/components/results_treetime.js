@@ -140,7 +140,7 @@ var TreeContainer = React.createClass({
         );
     },
     resetLayout:function(){
-        console.log("RessetLayout")
+        console.log("ResetLayout")
         var trp = this.refs.TreeRightPane
         trp.resetLayout()
     },
@@ -442,7 +442,7 @@ var MuLeftPane = React.createClass({
         return (
             <div className="results-section-left_pane" id="results-section_mu-left_pane">
             <h2>Molecular clock</h2>
-            <h4>Average mutation rate:<br/> &mu; = {this.mu()} year<sup>-1</sup></h4>
+            <h4>Average substition rate:<br/> &mu; = {this.mu()} year<sup>-1</sup></h4>
             <h4>Correlation coefficient:<br/> R<sup>2</sup> = {this.r2()}</h4>
             </div>
             );
@@ -655,7 +655,7 @@ var DownloadRightPane = React.createClass({
                                 In addition, inferred dates of all nodes of the tree are given (column "numdate").
                                 The dates are given as floating point values in units of years.
                                 Other columns contain the branch specific rate estimated by the relaxed molecular method
-                                (given as fold-change relative to average, column "mutation_rate/avg"),
+                                (given as fold-change relative to average, column "substitution_rate/avg"),
                                 the ratio of estimated branch length of optimal branch length ("branch_len/opt")
                                 and the time since MRCA in numeric date format.</td>
                             </tr>
@@ -701,7 +701,7 @@ var Results = React.createClass({
 
     getInitialState : function (){
         return ({
-            treetime:false,
+            treetime:true,
             cvalue : function(d){
                 return "";
             },

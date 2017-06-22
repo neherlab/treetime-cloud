@@ -5,10 +5,16 @@ import numpy as np
 from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
 import zipfile
 import time
-import os, sys, json
+import os, sys, json, gzip
 from treetime import utils
 from treetime.treetime import TreeTime
 import traceback
+
+def myopen(fname, mode):
+    if fname[-3:]=='.gz':
+        return gzip.open(fname, mode)
+    else:
+        return open(fname, mode)
 
 dirname = (os.path.dirname(__file__))
 
@@ -26,10 +32,10 @@ in_meta = "in_meta.csv"
 in_cfg = "config.json"
 
 log_filename = "log.txt"
-out_tree_json = "out_tree.json"
+out_tree_json = "out_tree.json.gz"
 out_likelihoods_json = "out_likelihoods.json"
 out_tree_nwk = "out_tree.nwk"
-out_aln_fasta = "out_aln.fasta"
+out_aln_fasta = "out_aln.fasta.gz"
 out_metadata_csv = "out_metadata.csv"
 out_mol_clock_csv = 'molecular_clock.csv'
 out_gtr = "out_GTR.txt"
@@ -194,7 +200,7 @@ class TreeTimeWeb(treetime.TreeTime):
         Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nwk), 'newick')
         self._save_alignment()
         self._save_metadata_to_csv()
-        self._save_molecular_clock_to_csv()
+        #self._save_molecular_clock_to_csv()
         self._save_gtr()
         # zip all results to one file
         with zipfile.ZipFile(os.path.join(self._root_dir, zipname), 'w') as out_zip:
@@ -203,14 +209,15 @@ class TreeTimeWeb(treetime.TreeTime):
             out_zip.write(os.path.join(self._root_dir, out_metadata_csv), arcname=out_metadata_csv)
             out_zip.write(os.path.join(self._root_dir, out_tree_json), arcname=out_tree_json)
             #out_zip.write(os.path.join(self._root_dir, in_cfg), arcname=in_cfg)
-            out_zip.write(os.path.join(self._root_dir, out_mol_clock_csv), arcname=out_mol_clock_csv)
+            #out_zip.write(os.path.join(self._root_dir, out_mol_clock_csv), arcname=out_mol_clock_csv)
             out_zip.write(os.path.join(self._root_dir, out_likelihoods_json), arcname=out_likelihoods_json)
             out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
 
     def _save_alignment(self):
         aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence)), id=n.name, name=n.name, description="")
             for n in self.tree.find_clades ()])
-        AlignIO.write(aln, os.path.join(self._root_dir, out_aln_fasta), "fasta")
+        with myopen(os.path.join(self._root_dir, out_aln_fasta), 'w') as ofile:
+            AlignIO.write(aln, ofile, "fasta")
 
     def _save_metadata_to_csv(self):
         meta = {node: self._node_metadata(node) for node in self.tree.find_clades()}
@@ -275,7 +282,7 @@ class TreeTimeWeb(treetime.TreeTime):
 
         # save the result in the json file:
         outf = os.path.join(self._root_dir, out_tree_json)
-        with open (outf,'w') as of:
+        with myopen(outf,'w') as of:
             json.dump(tree_json, of, indent=False)
 
     def _layout(self):
@@ -340,7 +347,7 @@ class TreeTimeWeb(treetime.TreeTime):
         if relax_clock:
             # append mutation rate deviation from average
             meta.append({
-                "name": "Local mutation rate",
+                "name": "Local substitution rate",
                 "value": gamma
                 })
             # else:
