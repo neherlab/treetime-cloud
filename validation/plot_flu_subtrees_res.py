@@ -187,9 +187,9 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
     elif what == "Mu":
         mean = 'Mu_mean'
         err =  'Mu_err'
-        #title =  "Estimated Mutation rate as function of sample size\nLSD params: -{}".format(suffix)
+        #title =  "Estimated substitution rate as function of sample size\nLSD params: -{}".format(suffix)
 
-        ylabel = "Mutation rate, [$\mathrm{Year}^{-1}$]"
+        ylabel = "Substitution rate, [$\mathrm{Year}^{-1}$]"
 
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)

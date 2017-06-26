@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 from plot_defaults import *
-cols = sns.color_palette(n_colors=6)
+cols = sns.color_palette(n_colors=3)
 
 def run_ffpopsim_simulation_skyline(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, amplitude,
                             period, res_dir, res_suffix, failed=None, **kwargs):
@@ -145,10 +145,10 @@ if __name__=="__main__":
     DeltaT = N/40
     SampleSize = 20
     periods = [0.5, 2.0]
-
+    bottle_necks = [0.5, 0.8, 0.9]
     if RUN_FFPOPSIM:
         for period in periods:
-            for amp in [0.5, 0.8, 0.9]:
+            for amp in bottle_necks:
                 run_ffpopsim_simulation_skyline(L, N, SampleSize, Nsamples, DeltaT, mu, amp, period, sim_dir, 'fluct')
 
 
@@ -182,10 +182,11 @@ if __name__=="__main__":
             continue
 
         axidx = periods.index(p)
+        colidx = bottle_necks.index(amp)
         ax = axs[axidx]
         print(p,amp, np.corrcoef(s,t)[0,1])
-        ax.plot(x, s, c=cols[ri%len(cols)], ls='-')
-        ax.plot(x, t, c=cols[ri%len(cols)], ls='--')
+        ax.plot(x, s, c=cols[colidx], ls='-', label ="bottleneck: %1.1f"%(((1-amp))))
+        ax.plot(x, t, c=cols[colidx], ls='--')
         ax.set_xlim(4300,4800)
 
 
@@ -198,7 +199,7 @@ if __name__=="__main__":
         else:
             for label in ax.get_xticklabels():
                 label.set_fontsize(tick_fs)
-
+    axs[0].legend(loc=2, fontsize=legend_fs)
 
     #axes.set_ylabel('Population size estimate', fontsize=label_fs)
     axs[1].set_xlabel('Time in simulated generations', fontsize = label_fs)
