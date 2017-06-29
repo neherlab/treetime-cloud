@@ -60,7 +60,13 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
 
      - dates(dict): dictionary of the leaf dates.
 
-     - log_file(str): path to save the resulting configuration
+     - log_file(str): path to save the BEAST configuration and log files. Only
+     basename is needed. The following files will be produced after the successful
+     BEAST run:
+        - <log_file>.log.txt - the log of the BEAST operation, which represents
+        the main results of the BEAST run. Can be opened with BEAST Tracer program
+        - <log_file>.config.xml - the configuration file to run BEAST
+        - <log_file>.trees.txt - tree samples taken every 1e6 iterations.
 
      - template_file(str):  path to the template XML to be used to produce
      config.
@@ -194,7 +200,7 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
 
         xml_logtree = XML.Element("logTree")
         xml_logtree.attrib = {"id" : "treeFileLog",
-                    "logEvery" : "10000",
+                    "logEvery" : "1000000",
                     "nexusFormat" : "true",
                     "fileName" : log_file + ".trees.txt",
                     "sortTranslationTable": "true"}
@@ -231,7 +237,7 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
 
     return xml
 
-def run_beast(tree, aln, dates, out_filename_prefix, template_file):
+def run_beast(tree, aln, dates, out_filename_prefix, template_file, log_post_process = None):
     """
     Run Beast for the specified tree, alignmentm, dates. It first prouces the
     Beast template using the specified data, and then calls Beast binary in a
@@ -265,6 +271,15 @@ def run_beast(tree, aln, dates, out_filename_prefix, template_file):
     config_xml.write(config_filename)
     call = ["java", "-jar", BEAST_BIN, "-beagle_off", "-overwrite",  config_filename]
     subprocess.call(call)
+
+    #  process log, save the data to a pivot table
+    if log_post_process is not None:
+        print ("BEAST log post-processing...")
+        # get log file
+        log_file = out_filename_prefix + ".log.txt"
+        # processing the log file using the external callable:
+        log_post_process(log_file)
+
 
 if __name__ == '__main__':
     pass
