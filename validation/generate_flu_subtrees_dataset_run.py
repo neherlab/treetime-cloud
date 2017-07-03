@@ -8,7 +8,7 @@ import re
 
 import utility_functions_flu as flu_utils
 import utility_functions_general as gen_utils
-from utility_functions_beast import run_beast
+from utility_functions_beast import run_beast, read_beast_log
 
 aln_name = "./resources/flu_H3N2/H3N2_HA_2011_2013.fasta"
 tree_name = "./resources/flu_H3N2/H3N2_HA_2011_2013.nwk"
@@ -17,6 +17,42 @@ RUN_TREETIME = True
 RUN_LSD = True
 RUN_BEAST = True
 
+
+def _run_beast(N_leaves, subtree_filename, out_dir, res_file):
+
+    def beast_log_post_process(log_file):
+        df = read_beast_log(log_file, np.max(dates.values()))
+        if df is None or df.shape[0] < 200:
+            print ("Beast log {} is corrupted or BEAST run did not finish".format(log_file))
+            return
+        inferred_LH = df['likelihood'][-50:].mean()
+        inferred_LH_std = df['likelihood'][-50:].std()
+        inferred_Tmrca = df['treeModel.rootHeight'][-50:].mean()
+        inferred_Tmrca_std = df['treeModel.rootHeight'][-50:].std()
+        inferred_Mu = df['clock.rate'][-50:].mean()
+        inferred_Mu_std = df['clock.rate'][-50:].std()
+        with open(res_file, 'a') as of:
+            of.write("{},{},{},{},{},{},{},{}\n".format(
+                subtree_filename,
+                N_leaves,
+                inferred_LH,
+                inferred_LH_std,
+                inferred_Tmrca,
+                inferred_Tmrca_std,
+                inferred_Mu,
+                inferred_Mu_std))
+
+    dates = flu_utils.dates_from_flu_tree(subtree_filename)
+    beast_out_dir = os.path.join(out_dir, 'beast_out')
+    if not os.path.exists(beast_out_dir):
+        try:
+            os.makedirs(beast_out_dir)
+        except:
+            pass
+    beast_prefix = os.path.join(beast_out_dir, os.path.split(subtree_filename)[-1][:-4])  # truncate '.nwk'
+    run_beast(subtree_filename, aln_name, dates, beast_prefix,
+    template_file="./resources/beast/template_bedford_et_al_2015.xml",
+    log_post_process=beast_log_post_process)
 
 def sample_subtree(out_dir, N_leaves, subtree_fname_suffix):
     subtrees_dir = os.path.join(out_dir, "subtrees")
@@ -38,9 +74,10 @@ if __name__ == "__main__":
     subtree_fname_suffix = sys.argv[3]
     treetime_res_file = sys.argv[4]
     lsd_res_file = sys.argv[5]
+    beast_res_file = sys.argv[6]
 
-    if len(sys.argv) > 6:
-        lsd_params = sys.argv[6].split("|")
+    if len(sys.argv) > 7:
+        lsd_params = sys.argv[7].split("|")
     else:
         lsd_params = ['-c', '-r', 'a', '-v']
 
@@ -63,7 +100,7 @@ if __name__ == "__main__":
                 subtree_filename,
                 str(N_leaves),
                 str(myTree.tree.root.numdate),
-                str(myTree.date2dist.slope),
+                str(myTree.date2dist.clock_rate),
                 str(myTree.date2dist.r_val),
                 str(gen_utils.internal_regress(myTree)),
                 str((end-start).total_seconds())    ))
@@ -99,15 +136,9 @@ if __name__ == "__main__":
         print ("Skip LSD run")
 
     if RUN_BEAST:
-        dates = flu_utils.dates_from_flu_tree(tree_name)
-        beast_out_dir = os.path.join(out_dir, 'beast_out')
-        if not os.path.exists(beast_out_dir):
-            try:
-                os.makedirs(beast_out_dir)
-            except:
-                pass
-        beast_prefix = os.path.join(beast_out_dir, os.path.split(subtree_filename)[-1][:-4])  # truncate '.nwk'
-        run_beast(subtree_filename, aln_name, dates, beast_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml")
+        _run_beast(N_leaves, subtree_filename, out_dir, beast_res_file)
+
+
 
 
 
