@@ -160,7 +160,6 @@ def gtr_comparison(basename, mu_avg_t, L=1e3):
 
     return KL
 
-
 def run_treetime(basename, outfile, fasttree=False, failed=None, **kwargs):
     """
     Infer the dates of the internal nodes using the TreeTime package.
@@ -195,8 +194,16 @@ def run_treetime(basename, outfile, fasttree=False, failed=None, **kwargs):
     myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = treefile,
         aln = aln, verbose = 4, dates = dates, debug=False)
 
+    print ("Use input branch length is set to: {}".format(kwargs['use_input_branch_length']))
     myTree.run(root='best', **kwargs)
     Phylo.write(myTree.tree, outtree, 'newick')
+
+    if not os.path.exists(outfile):
+        try:
+            with open(outfile, 'w') as of:
+                of.write("#File,Tmrca_real,Tmrca,Mu,R^2(initial_clock),R^2(internal_nodes)\n")
+        except:
+            pass
 
     with open(outfile, 'a') as of:
         of.write("{},{},{},{},{},{}\n".format(
@@ -250,9 +257,15 @@ def run_lsd(treefile, datesfile, outfile, res_file):
     if float(mu) <= 0:
         return
 
+    if not os.path.exists(res_file):
+        try:
+            with open(res_file, 'w') as of:
+                of.write("#File,Tmrca_real,Tmrca,Mu,objective\n")
+        except:
+            pass
+
     with open(res_file, "a") as of:
-        of.write(",".join([treefile, str(Tmrca), tmrca, mu, objective]))
-        of.write("\n")
+        of.write("{},{},{},{},{}\n".format(treefile, str(Tmrca), tmrca, mu, objective))
 
 def run_ffpopsim_simulation(L, N, SAMPLE_VOL, SAMPLE_NUM, SAMPLE_FREQ, MU, res_dir, res_suffix, failed=None, **kwargs):
     """
@@ -479,7 +492,7 @@ def dates_from_ffpopsim_tree(t):
     except:
         return NEAREST_DATE, {}
 
-def run_beast(basename, out_dir, fast_tree=False):
+def run_beast(basename, out_dir, res_file, fast_tree=True):
     """
     From basename, compose names for the tree, dates and lignment, and call
     run_beast from the beast_utilities.py module
@@ -501,8 +514,51 @@ def run_beast(basename, out_dir, fast_tree=False):
     Tmrca, dates = dates_from_ffpopsim_tree(Phylo.read(treename, "newick"))
     beast_res_prefix = os.path.join(out_dir, os.path.split(basename)[-1])
 
-    beast_utils.run_beast(treename, alnname, dates, beast_res_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml")
+    # define log post-processing:
+    def process_results(log_file):
+        """
+        Read BEAST log file, extract results and save them to the resulting csv file
+        """
+        df = beast_utils.read_beast_log(log_file, np.max(dates.values()))
+        if df is None or df.shape[0] < 200 :
+            print ("Beast log {} is corrupted or BEAST run did not finish".format(log_file))
+            return
 
+        Sim_Mu = float(log_file.split("/")[-1].split('_')[6][2:])
+        Ns = int(log_file.split("/")[-1].split('_')[3][2:])
+        Ts = int(log_file.split("/")[-1].split('_')[4][2:])
+        N = int(log_file.split("/")[-1].split('_')[2][1:])
+        T = Ns * Ts
+        Nmu = N * Sim_Mu
+
+        inferred_LH = df['likelihood'][-50:].mean()
+        inferred_LH_std = df['likelihood'][-50:].std()
+        inferred_Tmrca = df['treeModel.rootHeight'][-50:].mean()
+        inferred_Tmrca_std = df['treeModel.rootHeight'][-50:].std()
+        inferred_Mu = df['clock.rate'][-50:].mean()
+        inferred_Mu_std = df['clock.rate'][-50:].std()
+
+        #dTmrca = -(Sim_Tmrca[-1] - Tmrca[-1])
+        #dMu =  Sim_Mu[-1] - Mu[-1]
+
+        res_str = "{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(
+            os.path.split(basename)[-1],
+            N,Tmrca,Sim_Mu,Ns,Ts,T,Nmu,
+            inferred_LH,inferred_LH_std,inferred_Tmrca,inferred_Tmrca_std,inferred_Mu,inferred_Mu_std)
+
+        if not os.path.exists(res_file):
+            try:
+                with open(res_file, 'w') as of:
+                    of.write("#Filename,PopSize,Tmrca_real,ClockRate_real,SamplesNum,SampleFreq,TotEvoTime(Ns*Ts),Nmu,LH,LH_std,Tmrca,Tmrca_std,Mu,Mu_std\n")
+            except:
+                pass
+
+        with open(res_file, 'a') as outfile:
+            outfile.write(res_str)
+
+    beast_utils.run_beast(treename, alnname, dates, beast_res_prefix,
+        template_file="./resources/beast/template_bedford_et_al_2015.xml",
+        log_post_process=process_results)
 
 if __name__ == "__main__":
     pass
