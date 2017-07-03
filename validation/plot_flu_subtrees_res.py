@@ -28,59 +28,48 @@ def read_treetime_dataset(fname):
     df = pandas.read_csv(fname, names=cols)
     return df
 
-##  Make statistics on the pure datasets
-def beast_logs_stat(logsdir, treedir):
+def read_beast_dataset(fname):
     """
-    logsdir: directory with beast log files
-    treedir: directory with the initial trees used for the beast run
+    TODO
     """
+    cols = ['File', 'N', 'LH', 'LH_std', 'Tmrca', 'Tmrca_std', 'Mu', 'Mu_std']
+    df = pandas.read_csv(fname, names=cols)
+    return df
 
-    Ns = []
-    LH_mean = []
-    LH_err = []
+def make_beast_pivot(df):
+
     Tmrca_mean = []
     Tmrca_err = []
+    LH_mean = []
+    LH_err = []
     Mu_mean = []
     Mu_err = []
 
-    logsfiles = [k for k in os.listdir(logsdir) if k.endswith('.log.txt')]
+    Ns = df["N"].unique()
 
-    for log in logsfiles:
-
-        treename = os.path.split(log)[-1][:-8] + '.nwk'
-        treepath = os.path.join(treedir, treename)
-        logpath = os.path.join(logsdir, log)
-        dates = flu_utils.dates_from_flu_tree(treepath)
-
-        df = beast_utils.read_beast_log(logpath, np.max(dates.values()))
-        if df is None or df.shape[0] < 300:
+    Nsidx = np.ones(Ns.shape, dtype=bool)
+    for idx, N in enumerate(Ns):
+        Nidx = df["N"] == N
+        if Nidx.sum() == 0:
+            Nsidx[idx] = False
             continue
-        new_Ns = int(treename.split('_')[-2])
-        #new_Ns = Phylo.read(treepath, 'newick').count_terminals()
-        if new_Ns > 1e3:
-            continue
-        Ns.append(new_Ns)
-
-        LH_mean.append(df['likelihood'].mean())
-        LH_err.append(df['likelihood'].std())
-
-        Mu_mean.append(df['clock.rate'].mean())
-        Mu_err.append(df['clock.rate'].std()) # * Mu_mean[-1] / 2.)
-
-        Tmrca_mean.append(df['treeModel.rootHeight'].mean())
-        Tmrca_err.append(df['treeModel.rootHeight'].std())
+        Tmrca_mean.append(df[Nidx]["Tmrca"].mean())
+        Tmrca_err.append(df[Nidx]["Tmrca"].std())
+        Mu_mean.append(df[Nidx]["Mu"].mean())
+        Mu_err.append(df[Nidx]["Mu"].std())
+        LH_mean.appen(df[Nidx]["LH"].mean())
+        LH_err.appen(df[Nidx]["LH"].std())
 
     res = pandas.DataFrame({
-        "Ns" : Ns,
+        "Ns" : Ns[Nsidx],
         "Tmrca_mean" : Tmrca_mean,
         "Tmrca_err" : Tmrca_err,
         "Mu_mean" : Mu_mean,
         "Mu_err" : Mu_err,
-        "LH_mean" : LH_mean,
-        "LH_err" : LH_err
+        "LH_mean" : Runtime_mean,
+        "LH_err" : Runtime_err
         })
 
-    res = res.sort('Ns')
     return res
 
 def make_beast_pivot(beast_res):
@@ -102,7 +91,7 @@ def make_beast_pivot(beast_res):
         })
     return out
 
-def treetime_dataset_stat(df):
+def make_treetime_pivot(df):
 
     Tmrca_mean = []
     Tmrca_err = []
@@ -126,7 +115,7 @@ def treetime_dataset_stat(df):
         Runtime_mean.append(df[Nidx]["Runtime"].mean())
         Runtime_err .append(df[Nidx]["Runtime"].std())
 
-    df = pandas.DataFrame({
+    res = pandas.DataFrame({
         "Ns" : Ns[Nsidx],
         "Tmrca_mean" : Tmrca_mean,
         "Tmrca_err" : Tmrca_err,
@@ -135,9 +124,9 @@ def treetime_dataset_stat(df):
         "Runtime_mean" : Runtime_mean,
         "Runtime_err" : Runtime_err
         })
-    return df
+    return res
 
-def lsd_dataset_stat(df):
+def make_lsd_pivot(df):
 
     Tmrca_mean = []
     Tmrca_err = []
@@ -237,33 +226,39 @@ def plot_res(what, tt=None, lsd=None, beast=None, save=True, suffix=None, scatte
 
 if __name__ == "__main__":
 
-    #  directory to search for the result tables:
-    res_dir = './flu_H3N2/subtree_samples/'
-    treetime_res = os.path.join(res_dir, '2017-04-20_treetime_res.csv')
-    lsd_res = os.path.join(res_dir, '2017-04-20_lsd_res.csv')
-    beast_log_dir = os.path.join(res_dir, '2017-04-20/beast_out')
-    beast_tree_dir = os.path.join(res_dir, '2017-04-20/subtrees')
-
     PLOT_TREETIME = True
     PLOT_LSD = True
     PLOT_BEAST = True
+    SAVE_FIG=False
 
+
+    #  directory to search for the result tables:
+    res_dir = './flu_H3N2/subtree_samples/'
+    treetime_res_file = os.path.join(res_dir, 'treetime_res.csv')
+    lsd_res_file = os.path.join(res_dir, 'lsd_res.csv')
+    beast_res_file = os.path.join(res_dir, 'beast_res.csv')
+
+
+    # read datasets and make poivot tablespivots
     if PLOT_TREETIME:
-        tt_df = treetime_dataset_stat(read_treetime_dataset(treetime_res))
+        tt_df = make_treetime_pivot(read_treetime_dataset(treetime_res_file))
         tt_df = tt_df.sort(columns='Ns')
     else:
         tt_df = None
+
     if PLOT_LSD:
-        lsd_df = lsd_dataset_stat(read_lsd_dataset(lsd_res))
+        lsd_df = make_lsd_pivot(read_lsd_dataset(lsd_res_file))
         lsd_df = lsd_df.sort(columns='Ns')
     else:
         lsd_df = None
+
     if PLOT_BEAST:
-        beast = beast_logs_stat(beast_log_dir, beast_tree_dir)
+        beast =   make_beast_pivot(read_beast_dataset(beast_res_file))
         beast = make_beast_pivot(beast)
     else:
         beast=None
 
-    plot_res('Tmrca', tt=tt_df, lsd=lsd_df, beast=beast, save=True)
-    plot_res('Mu', tt=tt_df, lsd=lsd_df, beast=beast, save=True)
+    # plot the results:
+    plot_res('Tmrca', tt=tt_df, lsd=lsd_df, beast=beast, save=SAVE_FIG)
+    plot_res('Mu', tt=tt_df, lsd=lsd_df, beast=beast, save=SAVE_FIG)
 
