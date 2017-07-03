@@ -34,7 +34,7 @@ def read_treetime_results_csv(fname):
     """
 
     columns = ['File', 'Sim_Tmrca', 'Tmrca', 'mu', 'R', 'R2_int']
-    df = pandas.read_csv(fname, names=columns)
+    df = pandas.read_csv(fname, names=columns,header=0)
 
     #filter obviously failed simulations
     df = df[[len(str(k)) > 10 for k in df.File]]
@@ -63,7 +63,7 @@ def read_lsd_results_csv(fname):
     """
 
     columns = ['File', 'Sim_Tmrca', 'Tmrca', 'mu', 'obj']
-    df = pandas.read_csv(fname, names=columns)
+    df = pandas.read_csv(fname, names=columns,header=0)
 
     # Filter out obviously wrong data
     df = df[[len(k) > 10 for k in df.File]]
@@ -90,10 +90,11 @@ def read_beast_results_csv(fname):
      - df: Table of results as pandas data-frame
     """
 
-    columns = ['File', 'N', 'Sim_Tmrca', 'Sim_Mu', 'Ns', 'Ts', 'T', 'Nmu',
+    columns = ['File', 'N', 'Sim_Tmrca', 'Sim_mu', 'Ns', 'Ts', 'T', 'Nmu',
                 'LH', 'LH_std', 'Tmrca', 'Tmrca_std', 'mu', 'mu_std']
-    df = pandas.read_csv(fname, names=columns)
+    df = pandas.read_csv(fname, names=columns,header=0)
     df = df[[len(k) > 10 for k in df.File]]
+    #import ipdb; ipdb.set_trace()
     df['dTmrca'] = -(df['Sim_Tmrca'] - df['Tmrca'])
     return df
 
@@ -301,7 +302,7 @@ if __name__ == '__main__':
      - 4.0
      - 10.0
     """
-    T_over_N = 2.
+    T_over_N = 10.
 
     """
     What should be used to calculate the error bars and the position of the data
@@ -314,7 +315,7 @@ if __name__ == '__main__':
      - median: the data point is set to the median of the distribution, the error
      bars show the quantiles of the distribution
     """
-    mean_or_median = 'mean'
+    mean_or_median = 'median'
 
     """
     Should save figures? If True, note the figure name in the plot_simulated_data
@@ -326,9 +327,9 @@ if __name__ == '__main__':
     ##  Set the CSV file names with the data to plot
     ##
     #  files with the reconstruction results:
-    treetime_csv = "./simulated_data/2017-06-28_treetime_res.csv"
+    treetime_csv = "./simulated_data/2017-06-28_treetime_fasttree_res_use_input_branch_false.csv"
     lsd_csv = "./simulated_data/2017-06-28_lsd_fasttree_res.csv"
-    beast_csv = "./simulated_data/"
+    beast_csv = "./simulated_data/_beast_res.csv"
 
     ##
     ## Read, process and plot the data
@@ -336,23 +337,23 @@ if __name__ == '__main__':
     # read csv's to the pandas dataframes:
     treetime_df = read_treetime_results_csv(treetime_csv)
     lsd_df = read_lsd_results_csv(lsd_csv)
-    #beast_df = read_beast_results_csv(beast_csv)
+    beast_df = read_beast_results_csv(beast_csv)
 
     # make pivot tables and filter only the relevant parameters:
     lsd_pivot = create_pivot_table(lsd_df, T_over_N=T_over_N, mean_or_median=mean_or_median)
-    beast_pivot = None #create_pivot_table(beast_df, T_over_N=T_over_N, mean_or_median=mean_or_median)
+    beast_pivot = create_pivot_table(beast_df, T_over_N=T_over_N, mean_or_median=mean_or_median)
     treetime_pivot = create_pivot_table(treetime_df, T_over_N=T_over_N, mean_or_median=mean_or_median)
 
     # plot the data: and save figures if needed:
     # plot Tmrca figure:
     plot_simulated_data('Tmrca', treetime_pivot, lsd_pivot, beast_pivot,
         figname="./figs/simdata_Tmrca_TN{}_{}".format(T_over_N, mean_or_median) if SAVE_FIG else None,
-        plot_idxs=np.array([1,2,4,6,7,9,10])
+        #plot_idxs=np.array([1,2,4,6,7,9,10])
         )
 
     # plot Mu figure
     plot_simulated_data('Mu', treetime_pivot, lsd_pivot, beast_pivot,
         figname="./figs/simdata_Mu_TN{}_{}".format(T_over_N, mean_or_median) if SAVE_FIG else None,
-        plot_idxs=np.array([1,2,4,6,7,9,10])
+        #plot_idxs=np.array([1,2,4,6,7,9,10])
         )
 
