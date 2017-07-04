@@ -57,8 +57,8 @@ def make_beast_pivot(df):
         Tmrca_err.append(df[Nidx]["Tmrca"].std())
         Mu_mean.append(df[Nidx]["Mu"].mean())
         Mu_err.append(df[Nidx]["Mu"].std())
-        LH_mean.appen(df[Nidx]["LH"].mean())
-        LH_err.appen(df[Nidx]["LH"].std())
+        LH_mean.append(df[Nidx]["LH"].mean())
+        LH_err.append(df[Nidx]["LH"].std())
 
     res = pandas.DataFrame({
         "Ns" : Ns[Nsidx],
@@ -66,30 +66,11 @@ def make_beast_pivot(df):
         "Tmrca_err" : Tmrca_err,
         "Mu_mean" : Mu_mean,
         "Mu_err" : Mu_err,
-        "LH_mean" : Runtime_mean,
-        "LH_err" : Runtime_err
+        "LH_mean" : LH_mean,
+        "LH_err" : LH_err
         })
 
     return res
-
-def make_beast_pivot(beast_res):
-    out_Ns = np.unique(beast_res['Ns'])
-    out = pandas.DataFrame({
-        "Ns" : out_Ns,
-        "Tmrca_mean" : [np.mean(beast_res[beast_res['Ns'] == x]['Tmrca_mean'])
-                            for x in out_Ns],
-        "Tmrca_err" : [np.std(beast_res[beast_res['Ns'] == x]['Tmrca_mean'])
-                            for x in out_Ns],
-        "Mu_mean" : [np.mean(beast_res[beast_res['Ns'] == x]['Mu_mean'])
-                            for x in out_Ns],
-        "Mu_err" : [np.std(beast_res[beast_res['Ns'] == x]['Mu_mean'])
-                            for x in out_Ns],
-        "LH_mean" : [np.mean(beast_res[beast_res['Ns'] == x]['LH_mean'])
-                            for x in out_Ns],
-        "LH_err" : [np.std(beast_res[beast_res['Ns'] == x]['LH_mean'])
-                            for x in out_Ns],
-        })
-    return out
 
 def make_treetime_pivot(df):
 
@@ -231,15 +212,18 @@ if __name__ == "__main__":
     PLOT_BEAST = True
     SAVE_FIG=False
 
-
-    #  directory to search for the result tables:
+    ##
+    ##  Specify location of the CSV tables with results
+    ##
     res_dir = './flu_H3N2/subtree_samples/'
     treetime_res_file = os.path.join(res_dir, 'treetime_res.csv')
     lsd_res_file = os.path.join(res_dir, 'lsd_res.csv')
     beast_res_file = os.path.join(res_dir, 'beast_res.csv')
 
 
-    # read datasets and make poivot tablespivots
+    ##
+    ## Read datasets and make poivot tablespivots
+    ##
     if PLOT_TREETIME:
         tt_df = make_treetime_pivot(read_treetime_dataset(treetime_res_file))
         tt_df = tt_df.sort(columns='Ns')
@@ -254,11 +238,12 @@ if __name__ == "__main__":
 
     if PLOT_BEAST:
         beast =   make_beast_pivot(read_beast_dataset(beast_res_file))
-        beast = make_beast_pivot(beast)
     else:
         beast=None
 
-    # plot the results:
+    ##
+    ## Plot the results:
+    ##
     plot_res('Tmrca', tt=tt_df, lsd=lsd_df, beast=beast, save=SAVE_FIG)
     plot_res('Mu', tt=tt_df, lsd=lsd_df, beast=beast, save=SAVE_FIG)
 
