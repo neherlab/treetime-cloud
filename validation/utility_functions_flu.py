@@ -17,7 +17,7 @@ from collections import Counter
 import StringIO
 import treetime
 from utility_functions_general import remove_polytomies
-from utility_functions_beast import run_beast, create_beast_xml
+from utility_functions_beast import run_beast, create_beast_xml, read_beast_log
 import xml.etree.ElementTree as XML
 from external_binaries import BEAST_BIN
 
@@ -347,7 +347,8 @@ def correct_beast_xml_for_missing_dates(config_xml):
 
     return config_xml
 
-def run_beast(tree_name, aln_name, dates, beast_prefix, template_file="./resources/beast/template_bedford_et_al_2015.xml"):
+def run_beast(tree_name, aln_name, dates, beast_prefix, log_post_process=None, template_file="./resources/beast/template_bedford_et_al_2015.xml"):
+
     config_filename = beast_prefix + ".config.xml"
     config_xml = create_beast_xml(tree_name, aln_name, dates, beast_prefix, template_file)
     config_xml = correct_beast_xml_for_missing_dates(config_xml)
@@ -355,7 +356,11 @@ def run_beast(tree_name, aln_name, dates, beast_prefix, template_file="./resourc
     #print (config_filename)
     #return  config_xml
     call = ["java", "-jar", BEAST_BIN, "-beagle_off", "-overwrite",  config_filename]
-    subprocess.call(call)
+    #subprocess.call(call)
+
+    if log_post_process is not None:
+        log_file = beast_prefix + ".log.txt"
+        log_post_process(log_file)
 
 if __name__ == '__main__':
     pass
