@@ -33,7 +33,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
             description="Run treetime on simulated data used to test LSD in To et al")
     parser.add_argument('--tree', required = True, type = str,  help ="Which tree to use, one of D750_3_25, D750_11_10, D995_11_10, D995_3_25")
-    parser.add_argument('--tree_method', type = str, default="true_trees", help ="Which reconstruction method to use. one of true or Phyml")
+    parser.add_argument('--tree_method', type = str, default="Phyml_free", help ="Which reconstruction method to use. one of true or Phyml")
     parser.add_argument('--tree_rooting', type = str, default="unrooted", help ="Use rooted trees or not")
     parser.add_argument('--clock', type = str, default='strict',
                         help ="strict or relaxed molecular clock")
@@ -73,16 +73,15 @@ if __name__ == '__main__':
         if len(out_groups):
             T.prune(out_groups[0])
         tt = TreeTime(tree=T, aln=alns[ti], dates=dates, gtr='JC69')
-        tt.run(root='best', infer_gtr=True, max_iter=1, n_iqd=4,
+        tt.run(root='best', infer_gtr=True, max_iter=2, n_iqd=4,
                relaxed_clock=rc, use_input_branch_length=True)
         div = [n.branch_length for n in tt.tree.find_clades() if n.up]
         W = tt.gtr.W
         # this stores the clock rate, the root date, the average branch length
         # GTR.Pi and the transition/transversion rates
-        res.append([tt.date2dist.slope, tt.tree.root.numdate, np.mean(div)]
+        res.append([tt.date2dist.clock_rate, tt.tree.root.numdate, np.mean(div)]
                      + list(tt.gtr.Pi[:4]) + [W[0,2], W[1,3]] +
                     [(W[0,1]+W[0,3]+W[1,2]+W[2,3])/4.0])
-
 
     res = np.array(res)
     rate_bias = np.mean(res[:,0]-rate)
