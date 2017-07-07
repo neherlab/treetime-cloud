@@ -58,25 +58,26 @@ def _run_beast(aln_name, tree_name, known_dates_fraction, out_dir):
 if __name__ == "__main__":
 
 
-    RUN_BEAST = False
+    RUN_BEAST = True
     RUN_TREETIME = True
 
     print sys.argv[0]
 
-    known_dates_fraction = float(sys.argv[1])
-    out_dir = sys.argv[2]
-    aln_name = sys.argv[3]
-    tree_name = sys.argv[4]
-
-    treetime_res_file = sys.argv[5]
-    beast_res_file = sys.argv[6]
-    res_dates_file = sys.argv[7]
-    filename_suffix = sys.argv[8]
+    out_dir = sys.argv[1]
+    subtree = sys.argv[2]
+    known_dates_fraction = float(sys.argv[3])
+    filename_suffix= sys.argv[4]
 
 
     assert(known_dates_fraction > 0 and known_dates_fraction <= 1.0)
 
+    aln_name = subtree + ".fasta"
+    tree_name = subtree + ".nwk"
+
     if RUN_TREETIME:
+
+        treetime_res_file = os.path.join(out_dir, "treetime_res.csv")
+
         myTree = flu_utils.create_treetime_with_missing_dates(aln_name, tree_name, known_dates_fraction)
         start = datetime.datetime.now()
         myTree.run(root='best', relaxed_clock=False, max_iter=3, resolve_polytomies=True, do_marginal=False)
@@ -99,20 +100,26 @@ if __name__ == "__main__":
                 str(gen_utils.internal_regress(myTree)),
                 str((end-start).total_seconds()) ))
 
-        # precision of the date inference
+        ##
+        ##
+        ## precision of the date inference
+        ##
+        ##
         aln = AlignIO.read(aln_name, 'fasta')
         dates = {k.name: flu_utils.date_from_seq_name(k.name) for k in aln}
         dTs = [(leaf.name, leaf.numdate, dates[leaf.name], leaf.numdate - dates[leaf.name])
                 for leaf in myTree.tree.get_terminals() if leaf.numdate_given is None]
 
-         if not os.path.exists(res_dates_file):
+
+        dates_res_file = os.path.join(out_dir, "treetime_dates_res.csv")
+        if not os.path.exists(dates_res_file):
             try:
-                with open(res_dates_file, 'w') as of:
+                with open(dates_res_file, 'w') as of:
                     of.write("#LeafName,KnownDatesFraction,Tmrca,LeafDate,LeafDate_real,LeafDateErr(years)\n")
             except:
                 pass
 
-        with open(res_dates_file, 'a') as of:
+        with open(dates_res_file, 'a') as of:
             of.write(
                 "\n".join(["{},{},{},{},{},{}".format(
                 dT[0],
@@ -122,7 +129,9 @@ if __name__ == "__main__":
                 str(dT[2]),
                 str(dT[3])) for dT in dTs]) + "\n")
 
+
     if RUN_BEAST:
+        beast_res_file = os.path.join(out_dir, "beast_res.csv")
         _run_beast(aln_name, tree_name, known_dates_fraction, out_dir)
 
 
