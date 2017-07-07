@@ -185,10 +185,10 @@ def run_treetime(basename, outfile, fasttree=False, failed=None, **kwargs):
     """
     if fasttree:
         treefile = basename + ".ft.nwk"
-        outtree = basename + ".treetrime.ft.nwk"
+        outtree = basename + ".treetime.ft.nwk"
     else:
         treefile = basename + ".opt.nwk"
-        outtree = basename + ".treetrime.nwk"
+        outtree = basename + ".treetime.nwk"
     aln = basename+'.nuc.fasta'
     Tmrca, dates = dates_from_ffpopsim_tree(Phylo.read(treefile, "newick"))
     myTree = treetime.TreeTime(gtr='Jukes-Cantor', tree = treefile,
