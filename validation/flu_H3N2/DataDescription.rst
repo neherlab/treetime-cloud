@@ -142,9 +142,9 @@ Plotting the results
  To plot the results, run the plot_flu_subtrees_res.py script, no further configuration required
 
 
-**********************************
-Validations with the missing data
-**********************************
+**************************************************************
+Validation using the Flu trees with incomplete sampling dates
+**************************************************************
 
  To assess the TreeTime stability to the missing data, the following procedure was used: Smaller subtree, containing 100 nodes has been created from the initial flu tree. In this subtree, a fraction of node's dates were erased, so the TreeTime reconstruction run with incomplete data. Then, the two types of the validations were made: (i) the stability of the Tmrca reconstruction vs fraction of missing leaf dates and (ii) the precision of the unknown  leaf dates reconstruction
 
@@ -167,8 +167,8 @@ Results tables
 The results tables are of two types: the reconstruction of Tmrca (with BEAST and TreeTime), and the reconstruction of the leaf dates.
 
 
-Reconstruction of Tmrca, TreeTime. File: H3N2_HA_2011_2013_100seqs_res.csv
----------------------------------------------------------------------------
+Reconstruction of Tmrca, TreeTime. File: treetime_res.csv
+---------------------------------------------------------
 
 
  This file contains the following information:
@@ -188,8 +188,8 @@ Reconstruction of Tmrca, TreeTime. File: H3N2_HA_2011_2013_100seqs_res.csv
  * Runtime(sec): TreeTime total runtime, in seconds
 
 
-Reconstruction of Tmrca, BEAST. File: H3N2_HA_2011_2013_100seqs_beast_res.csv
-------------------------------------------------------------------------------
+Reconstruction of Tmrca, BEAST. File: beast_res.csv
+---------------------------------------------------
 
  This file contains the following information:
 
@@ -210,8 +210,8 @@ Reconstruction of Tmrca, BEAST. File: H3N2_HA_2011_2013_100seqs_beast_res.csv
  * Mu_std: Standard deviation of the mutation rate in a single BEAST run after the  algorithm converged.
 
 
-Reconstruction of the unknown leaf dates. File: H3N2_HA_2011_2013_100seqs_beast_res.csv
------------------------------------------------------------------------------------------------------------------------
+Reconstruction of the unknown leaf dates. File: treetime_dates_res.csv
+----------------------------------------------------------------------
 
 This file contains the following information:
 
