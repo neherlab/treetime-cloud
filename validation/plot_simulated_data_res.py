@@ -89,13 +89,14 @@ def create_lsd_tt_pivot(df, T_over_N=None, mean_or_median='median'):
             N_MUS_idxs[idx] = False
             continue
 
+#        import ipdb; ipdb.set_trace()
         dMu = -(DF.Sim_mu[idxs] - DF.mu[idxs])/DF.Sim_mu[idxs]
         dMu.sort_values(inplace=True)
-        dMu[int(dMu.shape[0]*0.05) : int(dMu.shape[0]*0.95)]
+        #dMu = dMu[int(dMu.shape[0]*0.05) : int(dMu.shape[0]*0.95)]
 
         dTmrca = DF.dTmrca[idxs]/DF.N[idxs]
         dTmrca.sort_values(inplace=True)
-        dTmrca[int(dTmrca.shape[0]*0.05) : int(dTmrca.shape[0]*0.95)]
+        #dTmrca = dTmrca[int(dTmrca.shape[0]*0.05) : int(dTmrca.shape[0]*0.95)]
 
         if mean_or_median == "mean":
             mu_mean.append(np.mean(dMu))
@@ -358,18 +359,21 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
             label="Beast")
 
     if tt is not None:
-        x, y = shift_point_by_markersize(axes, tt["Nmu"], tt[mean], -markersize/4)
+        x, y = shift_point_by_markersize(axes, tt["Nmu"], tt[mean], +markersize*.75)
         if plot_idxs is None:
             tt_plot_idxs = np.ones(x.shape[0] ,dtype=bool)
         else:
             tt_plot_idxs = plot_idxs
 
-        axes.errorbar(x[tt_plot_idxs], y[tt_plot_idxs], tt[err]/2,
-            fmt='--',
+        axes.errorbar(x[tt_plot_idxs], y[tt_plot_idxs], (tt[err].values/2)[tt_plot_idxs],
+            fmt='-',
             marker='o',
             markersize=markersize,
-            c=tt_color,
-            label="TreeTime, original tree")
+            #markerfacecolor='w',
+            markeredgecolor=tt_color,
+            mew=1.3,
+            c=tt_color, label="TreeTime, original tree")
+
 
     if tt_f is not None:
         x, y = shift_point_by_markersize(axes, tt_f["Nmu"], tt_f[mean], +markersize*.75)
@@ -426,7 +430,6 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
 
-
 def get_beast_tree_from_file(beast_file):
     import dendropy
     import StringIO
@@ -437,8 +440,6 @@ def get_beast_tree_from_file(beast_file):
     biotree = Phylo.read(StringIO.StringIO(out.getvalue()), 'newick')
     return biotree
 
-
-    pass
 
 def corr_points(basename, beast_dir=None):
 
@@ -516,8 +517,6 @@ def correlation_dataset(root_dir, beast_root_dir, Mu=['0.0001'], Ts=['50'], **kw
     ft_corr[:, 1] /= float(Mu[0])
     return tt_corr, ft_corr, bt_corr
 
-
-
 def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=True, **kwargs):
 
     tt_corrcoeff = np.corrcoef(tt_corr[:, 0], tt_corr[:, 1])
@@ -566,16 +565,16 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, axes=None, include_fast_tree=Tru
 
 if __name__ == '__main__':
 
-    T_over_N = 4.
+    T_over_N = 2.
     mean_or_median = 'median'
 
     PLOT_SIM_RESULTS = True
     PLOT_CORRELATION = False
 
     PLOT_TREETIME = True
-    PLOT_LSD = True
-    PLOT_BEAST = True
-    save_fig = True
+    PLOT_LSD = False
+    PLOT_BEAST = False
+    save_fig = False
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
     if PLOT_SIM_RESULTS:
@@ -583,8 +582,8 @@ if __name__ == '__main__':
         res_lsd = read_lsd_results_dataset('./simulated_data/2017-05-31_lsd_res.csv')
         res_lsd_f = read_lsd_results_dataset('./simulated_data/2017-05-31_lsd_fasttree_res.csv')
 
-        res_tt = read_treetime_results_dataset('./simulated_data/2017-05-31_treetime_res.csv')
-        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-05-31_treetime_fasttree_res.csv')
+        res_tt = read_treetime_results_dataset('./simulated_data/2017-06-11_treetime_fasttree_res_use_input_branch_false.csv')
+        res_tt_f =  read_treetime_results_dataset('./simulated_data/2017-06-11_treetime_fasttree_res.csv')
 
         beast_logs_dir = os.path.join(res_dir, '2017-05-16_beast')
         beast_trees_dir = os.path.join(res_dir, 'dataset')
@@ -598,7 +597,7 @@ if __name__ == '__main__':
             pivot_lsd_f = None
 
         if PLOT_TREETIME:
-            pivot_tt = None #create_lsd_tt_pivot(res_tt, T_over_N=T_over_N, mean_or_median=mean_or_median)
+            pivot_tt = create_lsd_tt_pivot(res_tt, T_over_N=T_over_N, mean_or_median=mean_or_median)
             pivot_tt_f =  create_lsd_tt_pivot(res_tt_f, T_over_N=T_over_N, mean_or_median=mean_or_median)
         else:
             pivot_tt = None

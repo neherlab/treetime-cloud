@@ -31,6 +31,14 @@ def _run_beast(N_leaves, subtree_filename, out_dir, res_file):
         inferred_Tmrca_std = df['treeModel.rootHeight'][-50:].std()
         inferred_Mu = df['clock.rate'][-50:].mean()
         inferred_Mu_std = df['clock.rate'][-50:].std()
+
+        if not os.path.exists(res_file):
+            try:
+                with open(res_file, 'w') as of:
+                    of.write("#Filename,N_leaves,LH,LH_std,Tmrca,Tmrca_std,Mu,Mu_std\n")
+            except:
+                pass
+
         with open(res_file, 'a') as of:
             of.write("{},{},{},{},{},{},{},{}\n".format(
                 subtree_filename,
@@ -95,6 +103,14 @@ if __name__ == "__main__":
         start = datetime.datetime.now()
         myTree.run(root='best', relaxed_clock=False, max_iter=3, resolve_polytomies=True, do_marginal=False)
         end = datetime.datetime.now()
+
+        if not os.path.exists(res_file):
+            try:
+                with open(treetime_res_file, 'w') as of:
+                    of.write("#Filename,N_leaves,Tmrca,Mu,R^2(initial clock),R^2(internal nodes),Runtime\n")
+            except:
+                pass
+
         with open(treetime_res_file, 'a') as of:
             of.write("{},{},{},{},{},{},{}\n".format(
                 subtree_filename,
@@ -125,6 +141,14 @@ if __name__ == "__main__":
         tmrca, mu, objective = gen_utils.parse_lsd_output(lsd_outfile)
         try:
             if float(mu) > 0:
+
+                if not os.path.exists(lsd_res_file):
+                    try:
+                        with open(treetime_res_file, 'w') as of:
+                            of.write("#Filename,N_leaves,Tmrca,Mu,Runtime,Objective\n")
+                    except:
+                        pass
+
                 with open(lsd_res_file, "a") as of:
                     of.write(",".join([subtree_filename, str(N_leaves), tmrca, mu, runtime, objective]))
                     of.write("\n")

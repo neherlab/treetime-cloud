@@ -12,15 +12,18 @@ if __name__ =="__main__":
     work_dir = "./flu_H3N2/subtree_samples"
 
     #sub-directories and file names
-    out_dir = os.path.join(work_dir, "2017-04-20")
-    treetime_res_file = os.path.join(work_dir, "2017-04-20_treetime_res.csv")
-    lsd_res_file = os.path.join(work_dir, "2017-04-20_lsd_res.csv")
+    out_dir = os.path.join(work_dir, "dataset")
+    treetime_res_file = os.path.join(work_dir, "treetime_res.csv")
+    lsd_res_file = os.path.join(work_dir, "lsd_res.csv")
+    beast_res_file = os.path.join(work_dir, "beast_res.csv")
 
     # LSD run configuration
     lsd_parameters = ['-c', '-r', 'a', '-v']
 
-    n_iter = 20
-    N_leaves_array = [20, 50, 100, 200, 500, 750, 1000, 1250, 1500, 1750, 2000]
+    n_iter = 10
+    N_leaves_array = [20, 50, 100, 200, 500, 750, 1000, 1250, 1500, 2000]
+    #N_leaves_array = [20]
+    #n_iter = 1
 
     for N_leaves in N_leaves_array:
         for iteration in np.arange(n_iter):
@@ -43,7 +46,8 @@ if __name__ =="__main__":
                 out_dir,
                 subtree_fname_suffix,
                 treetime_res_file,
-                lsd_res_file
+                lsd_res_file,
+                beast_res_file
             ]
 
             call.extend(arguments)

@@ -9,8 +9,8 @@ if  __name__ == '__main__':
 
     GENERATE_SIMULATED_DATA = False
     RUN_TREETIME = True
-    RUN_LSD = False
-    RUN_BEAST = False
+    RUN_LSD = True
+    RUN_BEAST = True
 
     sys.stderr.write ("  ".join(sys.argv) + "\n")
 
@@ -51,6 +51,8 @@ if  __name__ == '__main__':
         outfile = outfile_prefix + "_treetime_fasttree_res.csv"
         utils_sim.run_treetime(basename, outfile, fasttree=True, failed=None, max_iter=3, use_input_branch_length=True)
 
+        #utils_sim.run_treetime(basename, outfile_prefix + "_treetime_fasttree_res_use_input_branch_false.csv", fasttree=True, failed=None, max_iter=3, use_input_branch_length=False)
+
     if RUN_LSD:
         # run LSD for original tree:
         # directory to store all other LSD results
@@ -65,17 +67,18 @@ if  __name__ == '__main__':
         outfile = outfile_prefix + "_lsd_res.csv"
         treefile = basename + ".opt.nwk"
         lsd_res_file = os.path.join(outfile_prefix + "_lsd", os.path.split(basename)[-1])
-        utils_sim.run_lsd(treefile, basename+".lsd_dates.txt", lsd_res_file, outfile)
+        lsd_dates_file = os.path.join(outfile_prefix + "_lsd", os.path.split(basename)[-1] + ".lsd_dates.txt")
+        utils_sim.run_lsd(treefile, lsd_dates_file, lsd_res_file, outfile)
 
         # run LSD for fast-tree tree:
         print ("Running LSD, FastTree tree")
         outfile = outfile_prefix + "_lsd_fasttree_res.csv"
         treefile = basename + ".ft.nwk"
         lsd_res_file = os.path.join(outfile_prefix + "_lsd", os.path.split(basename)[-1] + "_fasttree")
-        utils_sim.run_lsd(treefile, basename+"lsd_dates.txt", lsd_res_file, outfile)
-
+        utils_sim.run_lsd(treefile, lsd_dates_file, lsd_res_file, outfile)
 
     if RUN_BEAST:
         # run BEAST for the original tree:
         print ("Running BEAST, FastTree tree")
-        utils_sim.run_beast(basename, out_dir=outfile_prefix+"_beast", fast_tree=False)
+        outfile = outfile_prefix + "_beast_res.csv"
+        utils_sim.run_beast(basename, out_dir=outfile_prefix+"_beast", res_file=outfile, fast_tree=True)

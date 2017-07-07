@@ -2,7 +2,7 @@
 import subprocess as sp
 import os
 
-CLUSTER = True
+CLUSTER = False
 
 if __name__ =="__main__":
 
@@ -12,7 +12,9 @@ if __name__ =="__main__":
     subtree_dir = os.path.join(out_dir, "subtrees")
 
     # file formats
-    resfile_fmt  = os.path.join(out_dir, "./H3N2_HA_2011_2013_{}seqs_res.csv")
+    tt_resfile_fmt  = os.path.join(out_dir, "./H3N2_HA_2011_2013_{}seqs_treetime_res.csv")
+    beast_resfile_fmt  = os.path.join(out_dir, "./H3N2_HA_2011_2013_{}seqs_beast_res.csv")
+
     resfile_dates_fmt  = os.path.join(out_dir, "./H3N2_HA_2011_2013_{}seqs_dates_res.csv")
     treefile_fmt = os.path.join(subtree_dir, "./H3N2_HA_2011_2013_{}seqs.nwk")
     alnfile_fmt  = os.path.join(subtree_dir, "./H3N2_HA_2011_2013_{}seqs.fasta")
@@ -44,7 +46,8 @@ if __name__ =="__main__":
                         out_dir,
                         alnfile_fmt.format(nseq),
                         treefile_fmt.format(nseq),
-                        resfile_fmt.format(nseq),
+                        tt_resfile_fmt.format(nseq),
+                        beast_resfile_fmt.format(nseq),
                         resfile_dates_fmt.format(nseq),
                         filename_suffix
                         ]
