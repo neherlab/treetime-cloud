@@ -14,17 +14,17 @@ FFpopSim_L10000_N100_Ns20_Ts<sampling_freq>_Nv10_Mu<mutation_rate>_<point_number
 
 where the point_number separates simulations with similar parameters from each other, and the <filetype> defines the type of the data produced. There are following files produced in the simulations:
 
- <filetype> = nwk : simulated newick tree with branch lengths in generations
+  * <filetype> = nwk : simulated newick tree with branch lengths in generations
 
- <filetype> = nuc.fasta : alignment reconstructed from the genomes sampled. Worth noting that the genotypes used in simulations are binary (0,1), which translated to the nucleotides by substituting 0 with 'A' and 1 with 'C'.
+  * <filetype> = nuc.fasta : alignment reconstructed from the genomes sampled. Worth noting that the genotypes used in simulations are binary (0,1), which translated to the nucleotides by substituting 0 with 'A' and 1 with 'C'.
 
- <filetype> = opt.nwk : The simulated newick tree with the branch lengths optimized using maximum-likelihood algorithm.
+  * <filetype> = opt.nwk : The simulated newick tree with the branch lengths optimized using maximum-likelihood algorithm.
 
- <filetype> = ft.nwk : The newick tree, reconstructed from the sampled alignment. The reconstruction has been performed with FastTree program, which implements NJ followed with maximum-likelihood algorithm.
+  * <filetype> = ft.nwk : The newick tree, reconstructed from the sampled alignment. The reconstruction has been performed with FastTree program, which implements NJ followed with maximum-likelihood algorithm.
 
- <filetype> = treetime.nwk : The tree resulting form the TreeTime reconstruction, with internal nodes set according to the sampling dates constraints. The original tree for the treetime.nwk files are the .opt.nwk trees (true trees, with optimized branch lengths). These results can be used to assess the error rates introduced by the tree reconstruction. For validation procedure, these results were not used.
+  * <filetype> = treetime.nwk : The tree resulting form the TreeTime reconstruction, with internal nodes set according to the sampling dates constraints. The original tree for the treetime.nwk files are the .opt.nwk trees (true trees, with optimized branch lengths). These results can be used to assess the error rates introduced by the tree reconstruction. For validation procedure, these results were not used.
 
- <filetype> = treetime.ft.nwk : The tree resulting form the TreeTime reconstruction, with internal nodes set according to the sampling dates constraints. The original tree for the treetime.ft.nwk files are the trees reconstructed with FastTree from the simulated alignment. Since this is the usual situation (alignment is known, the tree is not), these results only were used in the validation.
+  * <filetype> = treetime.ft.nwk : The tree resulting form the TreeTime reconstruction, with internal nodes set according to the sampling dates constraints. The original tree for the treetime.ft.nwk files are the trees reconstructed with FastTree from the simulated alignment. Since this is the usual situation (alignment is known, the tree is not), these results only were used in the validation.
 
 BEAST data. Folder: _beast/
 ===========================
@@ -34,9 +34,9 @@ BEAST data. Folder: _beast/
  To automatize the BEAST simulation run, we use on template (file resources/beast/template_bedford_et_al_2015.xml) filling it with the tree, alignment, sampling dates and output log file. The resulting config is saved under <simulation_name>.config.xml name. The BEAST output is stored as <simulation_name>.log.txt, and the tree, sampled along BEAST simulations, are stored in the <simulation_name>.trees.txt files.
  Therefore, for each datapoint in the dataset/ folder, there are three files produced in the _beast/ folder:
 
- <simulation_name>.config.xml
- <simulation_name>.log.txt
- <simulation_name>.trees.txt
+  * <simulation_name>.config.xml
+  * <simulation_name>.log.txt
+  * <simulation_name>.trees.txt
 
  These files are enough to reproduce all BEAST results.
 
@@ -47,18 +47,18 @@ LSD data. Folder: _lsd/
 
  To run LSD simulations, the file with sampling dates in a special format is needed. For each datapoint in dataset/ folder, the corresponding file is produced and stored in the
 
- _lsd/<simulation_name>.lsd_dates.txt file.
+  * _lsd/<simulation_name>.lsd_dates.txt file.
 
 
  All data to reproduce and analyze LSD simulations are stored in the _lsd/ folder. For each datapoint with <simulation_name> in the dataset/ folder, the following files are produced:
 
- _lsd/<simulation_name> (without extension) : the general results file, summarizing the input parameters used, and showing the results of the LSD reconstruction.
+  * _lsd/<simulation_name> (without extension) : the general results file, summarizing the input parameters used, and showing the results of the LSD reconstruction.
 
- _lsd/<simulation_name>.date.newick : output newick tree with branch lengths in units of years.
+  * _lsd/<simulation_name>.date.newick : output newick tree with branch lengths in units of years.
 
- _lsd/<simulation_name>.newick : output newick tree after the LSD reconstruction. Internal nodes positions set according to the LSD optimization algorithm. Branch lengths are in the units of the input tree branch lengths.
+  * _lsd/<simulation_name>.newick : output newick tree after the LSD reconstruction. Internal nodes positions set according to the LSD optimization algorithm. Branch lengths are in the units of the input tree branch lengths.
 
- _lsd/<simulation_name>.nexus : output nexus tree after the LSD reconstruction. Internal nodes positions set according to the LSD optimization algorithm.
+  * _lsd/<simulation_name>.nexus : output nexus tree after the LSD reconstruction. Internal nodes positions set according to the LSD optimization algorithm.
 
 
  For LSD simulations, both true trees and FastTree-reconstructed trees were used hence producing two types of files. Those using FastTree trees as input have "_fasttree" suffix in their names, and only those were used in the TreeTime validation and comparison procedure.
@@ -75,65 +75,65 @@ TreeTime CSV table. File: _treetime_fasttree_res.csv
 
  Contains the following information:
 
- File: the name of the simulation datapoint (as shown in the dataset/ folder)
+  * File: the name of the simulation datapoint (as shown in the dataset/ folder)
 
- Tmrca_real: Tmrca from the FFpopSim simulations
+  * Tmrca_real: Tmrca from the FFpopSim simulations
 
- Tmrca: Tmrca, as reconstructed by TreeTime
+  * Tmrca: Tmrca, as reconstructed by TreeTime
 
- Mu: Mutation rate as reconstructed by TreeTime (real mutation rate is encoded in the File name)
+  * Mu: Mutation rate as reconstructed by TreeTime (real mutation rate is encoded in the File name)
 
- R^2(initial_clock): The regression coefficient of the leaf sampling dates vs root-to-tip distances. Used to assess the quality of the initial clock used for TreeTime reconstruction.
+  * R^2(initial_clock): The regression coefficient of the leaf sampling dates vs root-to-tip distances. Used to assess the quality of the initial clock used for TreeTime reconstruction.
 
- R^2(internal_nodes): The regression coefficient of the internal nodes dates vs node-to-tip distances in the reconstructed tree. It is used to assess the quality of the internal nodes arrangement after the reconstruction.
+  * R^2(internal_nodes): The regression coefficient of the internal nodes dates vs node-to-tip distances in the reconstructed tree. It is used to assess the quality of the internal nodes arrangement after the reconstruction.
 
 LSD CSV table. File: _lsd_fasttree_res.csv
 -------------------------------------------
 
  Contains the following information:
 
- File: the name of the simulation datapoint (as shown in the dataset/ folder)
+  * File: the name of the simulation datapoint (as shown in the dataset/ folder)
 
- Tmrca_real: Tmrca from the FFpopSim simulations
+  * Tmrca_real: Tmrca from the FFpopSim simulations
 
- Tmrca: Tmrca, as reconstructed by LSD
+  * Tmrca: Tmrca, as reconstructed by LSD
 
- Mu: Mutation rate as reconstructed by LSD (real mutation rate is encoded in the File name)
+  * Mu: Mutation rate as reconstructed by LSD (real mutation rate is encoded in the File name)
 
- Objective: value of the objective function from the LSD optimization algorithm. NOTE: the latest versions of the LSD do not output the objective function values in the results file. In this case, it is set to 0.
+  * Objective: value of the objective function from the LSD optimization algorithm. NOTE: the latest versions of the LSD do not output the objective function values in the results file. In this case, it is set to 0.
 
 BEAST CSV table. File: _beast_res.csv
 -------------------------------------
 
  Contains the following information:
 
- Filename: the name of the simulation datapoint (as shown in the dataset/ folder)
+  * Filename: the name of the simulation datapoint (as shown in the dataset/ folder)
 
- PopSize: population size decoded from the Filename
+  * PopSize: population size decoded from the Filename
 
- Tmrca_real: Tmrca from the FFpopSim simulations
+  * Tmrca_real: Tmrca from the FFpopSim simulations
 
- ClockRate_real: Mutation rate used in FFpopSim simulations. Decoded from the Filename
+  * ClockRate_real: Mutation rate used in FFpopSim simulations. Decoded from the Filename
 
- SamplesNum: Number of samples taken in the FFpopSim simulations. Decoded from the Filename
+  * SamplesNum: Number of samples taken in the FFpopSim simulations. Decoded from the Filename
 
- SampleFreq: Sampling frequency in generations. Decoded from the Filename
+  * SampleFreq: Sampling frequency in generations. Decoded from the Filename
 
- TotEvoTime(SampleNum*SampleFreq): Total evolution time in generations
+  * TotEvoTime(SampleNum*SampleFreq): Total evolution time in generations
 
- Nmu: PopSize * Mutation rate
+  * Nmu: PopSize * Mutation rate
 
- LH: Tree Likelihood
+  * LH: Tree Likelihood
 
- LH_std: Standard deviation of the Tree Likelihood in a single BEAST run after the algorithm converged.
+  * LH_std: Standard deviation of the Tree Likelihood in a single BEAST run after the algorithm converged.
 
- Tmrca: Reconstructed Tmrca
+  * Tmrca: Reconstructed Tmrca
 
- Tmrca_std: Standard deviation of the Tmrca in a single BEAST run after the  algorithm converged.
+  * Tmrca_std: Standard deviation of the Tmrca in a single BEAST run after the  algorithm converged.
 
- Mu: reconstructed mutation rate
+  * Mu: reconstructed mutation rate
 
- Mu_std: Standard deviation of the mutation rate in a single BEAST run after the  algorithm converged.
+  * Mu_std: Standard deviation of the mutation rate in a single BEAST run after the  algorithm converged.
 
 
 Plotting the results
