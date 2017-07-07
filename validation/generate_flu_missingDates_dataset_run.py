@@ -50,7 +50,7 @@ def _run_beast(aln_name, tree_name, known_dates_fraction, out_dir):
             except:
                 pass
 
-        beast_prefix = os.path.join(beast_out_dir, os.path.split(tree_name)[-1].replace('.nwk', filename_suffix))  # truncate '.nwk'
+        beast_prefix = os.path.join(beast_out_dir, subtree+filename_suffix)
         flu_utils.run_beast(tree_name, aln_name, dates, beast_prefix,
             log_post_process=log_post_process,
             template_file="./resources/beast/template_bedford_et_al_2015.xml")
