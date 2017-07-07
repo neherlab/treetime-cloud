@@ -430,6 +430,7 @@ def plot_data_stat(what, axes, beast=None, tt=None, tt_f=None, lsd=None, lsd_f=N
     for label in axes.get_yticklabels():
             label.set_fontsize(tick_fs)
 
+
 def get_beast_tree_from_file(beast_file):
     import dendropy
     import StringIO
@@ -440,6 +441,8 @@ def get_beast_tree_from_file(beast_file):
     biotree = Phylo.read(StringIO.StringIO(out.getvalue()), 'newick')
     return biotree
 
+
+    pass
 
 def corr_points(basename, beast_dir=None):
 
@@ -572,9 +575,9 @@ if __name__ == '__main__':
     PLOT_CORRELATION = False
 
     PLOT_TREETIME = True
-    PLOT_LSD = False
+    PLOT_LSD = True
     PLOT_BEAST = False
-    save_fig = False
+    save_fig = True
     plot_idxs = np.array([1,2,4,6,7,9,10])
 
     if PLOT_SIM_RESULTS:
