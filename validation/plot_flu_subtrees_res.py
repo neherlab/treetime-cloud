@@ -17,7 +17,7 @@ def read_lsd_dataset(fname):
     TODO
     """
     lsd_cols = ['File', 'N', 'Tmrca_sim', 'mu_sim', 'Runtime', 'objective']
-    lsd_df = pandas.read_csv(fname, names=lsd_cols)
+    lsd_df = pandas.read_csv(fname, names=lsd_cols, header=0)
     return lsd_df
 
 def read_treetime_dataset(fname):
@@ -25,7 +25,7 @@ def read_treetime_dataset(fname):
     TODO
     """
     cols = ['File', 'N', "Tmrca_sim", "mu_sim", "R2_leaves", "R2_internal", "Runtime"]
-    df = pandas.read_csv(fname, names=cols)
+    df = pandas.read_csv(fname, names=cols,header=0)
     return df
 
 def read_beast_dataset(fname):
@@ -33,7 +33,7 @@ def read_beast_dataset(fname):
     TODO
     """
     cols = ['File', 'N', 'LH', 'LH_std', 'Tmrca', 'Tmrca_std', 'Mu', 'Mu_std']
-    df = pandas.read_csv(fname, names=cols)
+    df = pandas.read_csv(fname, names=cols,header=0)
     return df
 
 def make_beast_pivot(df):

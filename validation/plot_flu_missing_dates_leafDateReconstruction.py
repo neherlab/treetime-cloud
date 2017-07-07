@@ -8,7 +8,7 @@ from plot_defaults import *
 
 def read_dates_stat(inf):
     cols=['tree_name', 'known_frac', 'Tmrca', 'Date_sim','Date_given','dT']
-    df = pandas.read_csv(inf, names=cols)
+    df = pandas.read_csv(inf, names=cols,header=0)
     return df
 
 def make_dates_pivot(df):
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     ##
     ## file with the reconstruction results:
     ##
-    leaf_dates_file = './flu_H3N2/missing_dates/H3N2_HA_2011_2013_100seqs_dates_res.csv'
+    leaf_dates_file = './flu_H3N2/missing_dates/treetime_dates_res.csv'
 
     ##
     ## Read the leaf dates file, make pivot table:

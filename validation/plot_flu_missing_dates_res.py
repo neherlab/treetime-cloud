@@ -129,8 +129,8 @@ if __name__ == '__main__':
     ##
     ## CSV tables with the results:
     ##
-    beast_csv = "./flu_H3N2/missing_dates/H3N2_HA_2011_2013_100seqs_beast_res.csv"
-    treetime_csv = "./flu_H3N2/missing_dates/H3N2_HA_2011_2013_100seqs_res.csv"
+    beast_csv = "./flu_H3N2/missing_dates/beast_res.csv"
+    treetime_csv = "./flu_H3N2/missing_dates/treetime_res.csv"
 
     ##
     ## Read results, create pivot tables:
