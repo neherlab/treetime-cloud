@@ -16,11 +16,11 @@ where the point_number separates simulations with similar parameters from each o
 
  <filetype> = nwk : simulated newick tree with branch lengths in generations
 
- <filetype> = nuc.fasta : alignment reconstructed from the genomes sampled. Worth noting that the genotypes used in simulations are binary (0,1), which translated to the nuleotides by substituting 0 with 'A' and 1 with 'C'.
+ <filetype> = nuc.fasta : alignment reconstructed from the genomes sampled. Worth noting that the genotypes used in simulations are binary (0,1), which translated to the nucleotides by substituting 0 with 'A' and 1 with 'C'.
 
  <filetype> = opt.nwk : The simulated newick tree with the branch lengths optimized using maximum-likelihood algorithm.
 
- <filetype> = ft.nwk : The newick tree, reconstructed from the sampled alignment. The reconstruction has been performed with FastTree program, which implements NJ followed with maximum-likelihood algortihm.
+ <filetype> = ft.nwk : The newick tree, reconstructed from the sampled alignment. The reconstruction has been performed with FastTree program, which implements NJ followed with maximum-likelihood algorithm.
 
  <filetype> = treetime.nwk : The tree resulting form the TreeTime reconstruction, with internal nodes set according to the sampling dates constraints. The original tree for the treetime.nwk files are the .opt.nwk trees (true trees, with optimized branch lengths). These results can be used to assess the error rates introduced by the tree reconstruction. For validation procedure, these results were not used.
 
@@ -149,7 +149,7 @@ Tmrca, Mu
 
  The output plots show the accuracy of the Tmrca and mutation rate  reconstruction in dependence of the mutation rate. (or, more precisely, N*mu product)
 
- Besides the mutation rate, there is another free parameter, used in the FFpopSim simulation, which is sampling frequency. This parameter controls the total tree depth T. Since the accuracy of the Tmrca reconstruction normally is within one coalescence time, we relate T to the population size (N) to get the tree depth in units of the coalescent time. The plot scipt is configured so that it shows the accuracy of the reconstrution for a single value of T/N ratio, as the reconstruction accuracy is different for trees of different depths. In the plot script, you can set a particular value of T/N ratio. In the default dataset the following possible ratios are defined:
+ Besides the mutation rate, there is another free parameter, used in the FFpopSim simulation, which is sampling frequency. This parameter controls the total tree depth T. Since the accuracy of the Tmrca reconstruction normally is within one coalescence time, we relate T to the population size (N) to get the tree depth in units of the coalescent time. The plot script is configured so that it shows the accuracy of the reconstruction for a single value of T/N ratio, as the reconstruction accuracy is different for trees of different depths. In the plot script, you can set a particular value of T/N ratio. In the default dataset the following possible ratios are defined:
 
  T/N = 2,4,10 (tree depth is from 2 to 10 coalescent times)
 
@@ -157,9 +157,9 @@ Tmrca, Mu
 Accuracy of the internal nodes positions
 ----------------------------------------
 
- We also provide the scipt to show the accuracy of the internal node positions reconstruction.
+ We also provide the script to show the accuracy of the internal node positions reconstruction.
 
  plot_simulated_data_bl_corr.py
 
- This script will parse trees produced by FastTree, BEAST, TreeTime, find similar splits, and plot the corresponding branch length related to the real branch length as simulated by FFpopSim. The scipt has no configuration. It only needs to access the output trees of the named methods.
+ This script will parse trees produced by FastTree, BEAST, TreeTime, find similar splits, and plot the corresponding branch length related to the real branch length as simulated by FFpopSim. The script has no configuration. It only needs to access the output trees of the named methods.
 

@@ -19,7 +19,7 @@ Validation for the trees of different sizes. Folder: subtree_samples/
 
  dataset/subtrees/ : subtree samples from the initial tree
 
- dataset/beast_out/ : BEAST configuration na doutput sufficient to reproduce all presented BEAST results
+ dataset/beast_out/ : BEAST configuration and output files to reproduce all presented BEAST results
 
  dataset/LSD_out/ : LSD input dates file and results.
 
@@ -37,11 +37,11 @@ Subtree samples. Folder: /dataset/subtrees
 BEAST results. Folder: /dataset/beast_out
 =========================================
 
- For each subtree, we have performed BEAST reconstruction. The log file used as BEAST input was created from the template, located in resources/beast/template_bedford_et_al_2015.xml (attached as a separate archive). This templated was filled with the particular subtree. The dates of the leaves were extracted from the leaf names, the relevant sequences were taken from the initial alignment. The Beast configuration file is located in:
+ For each subtree, we have performed BEAST reconstruction. The log file used as BEAST input was created from the template, located in resources/beast/template_bedford_et_al_2015.xml (attached as a separate archive). This template was filled with the particular subtree. The dates of the leaves were extracted from the leaf names, the relevant sequences were taken from the initial alignment. The Beast configuration file is located in:
 
  /dataset/beast_out/<subtree_name>.config.xml
 
- The BEAST output includes the log file and the trees sampled alogn the BEAST computations. These are located in the
+ The BEAST output includes the log file and the trees sampled along the BEAST computations. These are located in the
 
  /dataset/beast_out/<subtree_name>.log.txt
  /dataset/beast_out/<subtree_name>.trees.txt
@@ -57,7 +57,7 @@ LSD data. Folder: /dataset/LSD_out
 
  /dataset/LSD_out/<subtree_name>.lsd_dates.txt
 
- The results of the LSD reconstruction are stroed in the following files:
+ The results of the LSD reconstruction are stored in the following files:
 
  /dataset/LSD_out/<subtree_name> (without extension) : the general results file, summarizing the input parameters used, and showing the results of the LSD reconstruction.
 
@@ -137,7 +137,7 @@ BEAST CSV table. File: beast_res.csv
 Plotting the results
 ====================
 
- To plot the results, make sure first that the treetime_validation python project is installed and the flu_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper direfcory.
+ To plot the results, make sure first that the treetime_validation python project is installed and the flu_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper directory.
 
  To plot the results, run the plot_flu_subtrees_res.py script, no further configuration required
 
@@ -210,7 +210,7 @@ Reconstruction of Tmrca, BEAST. File: H3N2_HA_2011_2013_100seqs_beast_res.csv
  * Mu_std: Standard deviation of the mutation rate in a single BEAST run after the  algorithm converged.
 
 
-Reconstruction of the unknown lef dates. File: H3N2_HA_2011_2013_100seqs_beast_res.csv
+Reconstruction of the unknown leaf dates. File: H3N2_HA_2011_2013_100seqs_beast_res.csv
 -----------------------------------------------------------------------------------------------------------------------
 
 This file contains the following information:
@@ -231,7 +231,7 @@ This file contains the following information:
 Plotting the results:
 ----------------------
 
- To plot the results, make sure first that the treetime_validation python project is installed and the flu_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper direfcory.
+ To plot the results, make sure first that the treetime_validation python project is installed and the flu_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper directory.
 
  To plot the Tmrca reconstruction results, run the plot_flu_missing_dates_res.py script, no further configuration required
 
