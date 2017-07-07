@@ -327,8 +327,8 @@ if __name__ == '__main__':
     ##  Set the CSV file names with the data to plot
     ##
     #  files with the reconstruction results:
-    treetime_csv = "./simulated_data/2017-06-28_treetime_fasttree_res_use_input_branch_false.csv"
-    lsd_csv = "./simulated_data/2017-06-28_lsd_fasttree_res.csv"
+    treetime_csv = "./simulated_data/_treetime_fasttree_res.csv"
+    lsd_csv = "./simulated_data/_lsd_fasttree_res.csv"
     beast_csv = "./simulated_data/_beast_res.csv"
 
     ##

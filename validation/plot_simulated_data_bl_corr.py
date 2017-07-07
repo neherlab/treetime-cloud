@@ -153,7 +153,7 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, include_fast_tree=True, figname=
 if __name__ == '__main__':
 
     """
-    Only trees generated using the following  simulation parameters will be used:
+    Restrict trees by the following parameters:
     """
     Mu=['0.0001'] # mutation rates
     Ts=['50'] # Frequency of sampling  during the simulations (see generate_sim_data script for details)
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     ## Plot the results
     ##
     plot_correlation(tt_corr, ft_corr, bt_corr,
-        figname="./figs/simdata_BL_Corr" if SAVE_FIG else None
+        figname="./figs/simdata_BL_Corr" if SAVE_FIG else None,
         include_fast_tree=INCLUDE_FAST_TREE)
 
 
