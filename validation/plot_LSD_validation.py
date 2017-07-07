@@ -59,8 +59,8 @@ for rate_type in ["strict", "relaxed"]:
 
     tmp = {'TT':(TT_data[label][:,0]*bl_factor-rate)/rate,
             'BSMC':(rates[(rate_type, "BSMC", "True\ntopology")]-rate)/rate}
-    if rate_type=='relaxed':
-        tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
+    # if rate_type=='relaxed':
+    #     tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
     tmp.update({m:(rates[(rate_type, m, tree_type)]-rate)/rate for m in methods if (rate_type, m, tree_type) in rates})
     df = pd.DataFrame(tmp)
 

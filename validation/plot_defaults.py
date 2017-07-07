@@ -3,6 +3,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib
 
+formats = ['svg', 'pdf', 'png']
+
 colors = sns.color_palette(n_colors=6)
 sns.set_style('whitegrid')
 sns.set_context('paper')
