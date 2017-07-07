@@ -104,7 +104,7 @@ if __name__ == "__main__":
         myTree.run(root='best', relaxed_clock=False, max_iter=3, resolve_polytomies=True, do_marginal=False)
         end = datetime.datetime.now()
 
-        if not os.path.exists(res_file):
+        if not os.path.exists(treetime_res_file):
             try:
                 with open(treetime_res_file, 'w') as of:
                     of.write("#Filename,N_leaves,Tmrca,Mu,R^2(initial clock),R^2(internal nodes),Runtime\n")
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
                 if not os.path.exists(lsd_res_file):
                     try:
-                        with open(treetime_res_file, 'w') as of:
+                        with open(lsd_res_file, 'w') as of:
                             of.write("#Filename,N_leaves,Tmrca,Mu,Runtime,Objective\n")
                     except:
                         pass
