@@ -1,21 +1,21 @@
 ***********************************************
-Dataset for TreeTime validation: flu H3N2, HA
+Dataset for TreeTime validation: ininfluenzaenza H3N2, HA
 ***********************************************
 
- This folder contains the whole dataset used in the TreeTime validation procedure with the Flu H3N2 (HA segment) dataset. The data (multiple sequence alignment) was downloaded from the flu database, and realigned. The data were restricted to those sequences, which have sampling dates specified between 2011 and 2013 with month precision. In total, there were 3585 sequences in the alignment. The sequences are in the resources/flu_H3N2 folder (attached as a separate archive). The tree for the alignment was reconstructed using FastTree program.
+This folder contains the dataset used for validation of TreeTime with the influenza H3N2 (HA segment) sequences. The sequences were downloaded from the influenza research database (www.fludb.org) and realigned using mafft. The data were restricted to sequences with sampling dates between 2011 and 2013 with at least month precision. In total, there are 3585 sequences in the alignment. A phylogenetic tree of all sequences in the alignment was reconstructed using FastTree. The sequence alignemnt and the tree are in the resources/flu_H3N2 folder (attached as a separate archive).
 
- The flu validation consists of the two parts: (i) estimating the stability of the TreeTime reconstruction on the tree size and (ii) estimating of the treetime sensitivity to the partial data missing.
+Out influenza validation procedure consists of the two parts: (i) estimating the stability of the TreeTime reconstruction on the tree height when the size of the alignment is var and (ii) analyzing the accuracy at which dates of tips with hidden dates can be estimated.
 
 
 **********************************************************************
 Validation for the trees of different sizes. Folder: subtree_samples/
 **********************************************************************
 
- In order to probe the TreeTime, LSD, BEAST stability on the sizes of the tree, the following procedure has been developed. From the original Flu tree, containing 3585 leaves, several trees of different number of leaves were sampled. The samples were made so that (i) the root of the original tree is the same as of the subtrees and (ii) the number of samples per year sustained uniform where possible. The sampled sequences were chosen randomly. To estimate the statistical error rates, subtree construction procedure has been repeated 10 times hence resulting in to independent reconstructions.
+ In order to probe the stability of TreeTime, LSD, BEAST when the sampling density is varied, we constructed subsamples by pruning the full tree. The samples were made so that (i) the root of the original tree is the same as of the subtrees and (ii) the number of samples per year sustained uniform where possible. The sampled sequences were chosen randomly. To estimate the statistical error rates, subtree construction was repeated 10 times for each sample size.
 
- Since all subtrees share the same root, the reconstruction by all methods should result in the same value of the root node date and hence the same mutation rate for all subtrees.
+ Since all subtrees share the same root, the reconstruction by all methods should result in the same value of the root node date. Furthermore, the inferred substitution rate should not change.
 
- The data consists of the following parts, located in the different folders:
+ The data consist of the following parts, located in the different folders:
 
  dataset/subtrees/ : subtree samples from the initial tree
 
@@ -37,7 +37,7 @@ Subtree samples. Folder: /dataset/subtrees
 BEAST results. Folder: /dataset/beast_out
 =========================================
 
- For each subtree, we have performed BEAST reconstruction. The log file used as BEAST input was created from the template, located in resources/beast/template_bedford_et_al_2015.xml (attached as a separate archive). This template was filled with the particular subtree. The dates of the leaves were extracted from the leaf names, the relevant sequences were taken from the initial alignment. The Beast configuration file is located in:
+ For each subtree, we have performed BEAST reconstruction. The log file used as BEAST input was created from the template, located in resources/beast/template_bedford_et_al_2015.xml (attached as a separate archive). This template was filled with the particular subtree as a seed. The dates of the leaves were extracted from the leaf names, the relevant sequences were taken from the initial alignment. The Beast configuration file is located in:
 
  /dataset/beast_out/<subtree_name>.config.xml
 
@@ -71,7 +71,7 @@ LSD data. Folder: /dataset/LSD_out
 Results tables
 ==============
 
- To facilitate the further analysis of the results, we provide the CSV tables with the pre-processed results for TreeTime, LSD, BEAST reconstructions. These tables can be used to directly reproduce the TreeTime validation results.
+ To facilitate the downstream analysis of the results, we provide the CSV tables with the pre-processed results for TreeTime, LSD, BEAST reconstructions. These tables can be used to directly reproduce the TreeTime validation results.
 
 
 TreeTime CSV table. File: treetime_res.csv
@@ -139,16 +139,16 @@ Plotting the results
 
  To plot the results, make sure first that the treetime_validation python project is installed and the flu_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper directory.
 
- To plot the results, run the plot_flu_subtrees_res.py script, no further configuration required
+ To plot the results, run the plot_flu_subtrees_res.py script, no further configuration required.
 
 
 **************************************************************
 Validation using the Flu trees with incomplete sampling dates
 **************************************************************
 
- To assess the TreeTime stability to the missing data, the following procedure was used: Smaller subtree, containing 100 nodes has been created from the initial flu tree. In this subtree, a fraction of node's dates were erased, so the TreeTime reconstruction run with incomplete data. Then, the two types of the validations were made: (i) the stability of the Tmrca reconstruction vs fraction of missing leaf dates and (ii) the precision of the unknown  leaf dates reconstruction
+ To assess the TreeTime stability to the missing data, the following procedure was used: Smaller subtree, containing 100 nodes has been created from the initial influenza tree. In this subtree, a fraction of node's dates were erased, so the TreeTime reconstruction run with incomplete data. Then, the two types of the validations were made: (i) the stability of the Tmrca estimate vs fraction of missing leaf dates and (ii) the precision of the inferred leaf dates.
 
- The procedure is as follows: from a given tree, we choose randomly the nodes, which dates are known (the fraction of know dates is given). After that, the TreeTime and Beast run the reconstruction of Tmrca knowing the dates of only the fraction of nodes. Each reconstruction (incl. dates erasure) is repeated 10 times to assess the statistical error of the reconstruction.
+ The procedure is as follows: from a given tree, we choose randomly the nodes, which dates are known (the fraction of know dates is given). After that, the TreeTime and Beast run the reconstruction of Tmrca knowing the dates of only the fraction of nodes. Each reconstruction (incl. dates erasure) is repeated 10 times to assess the sensitity to the specific subset.
 
  The data is located in the /missing_dates/ folder. The /missing_dates/subtrees/ folder contains the subtrees used for the validation.
 
@@ -231,8 +231,8 @@ This file contains the following information:
 Plotting the results:
 ----------------------
 
- To plot the results, make sure first that the treetime_validation python project is installed and the flu_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper directory.
+ To plot the results, make sure first that the treetime_validation python project is installed and the influenza_H3N2 (this archive) is unpacked to the root folder of the project. For detailed instructions, see the manual in the upper directory.
 
- To plot the Tmrca reconstruction results, run the plot_flu_missing_dates_res.py script, no further configuration required
+ To plot the Tmrca reconstruction results, run the plot_influenza_missing_dates_res.py script, no further configuration required
 
  To plot the unknown leaf dates reconstruction results, run the plot_flu_missing_dates_leafDatesReconstruction.py script, no further configuration required
