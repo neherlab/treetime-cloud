@@ -2,13 +2,13 @@
 Dataset for TreeTime validation: simulated data
 ***********************************************
 
-This folder contains the whole dataset used in the TreeTime validation procedure using the data from the simulations for the forward-time population evolution. The folder contains also the results to compare TreeTime with similar software: BEAST and LSD. In the following, there is description of the simulated raw data and the output files of the LSD and BEAST.
+This folder contains the entire dataset used to validate TreeTime on simulated sequences with known parameters and history. The folder contains also the results to compare TreeTime with similar software: BEAST and LSD. In the following, there is description of the simulated raw data and the output files of the LSD and BEAST.
 
 
 Simulated data. Folder: dataset/
 ================================
 
-The simulations were performed using the FFpopSim package. The population was initialized with genome of length L=10000, N=100 individual genomes. The evolution was simulated in the scope of Wright-Fischer model, no selection was applied. The mutation rate Mu was set individually for each simulation. For simplicity, the time scale was selected so that 1 generation in Wright-Fischer model corresponds to one year. Every Ts generations, the Nv=10 genomes are sampled. From these samples, the tree is constructed, and the sampling dates are also recorded and saved to the names of the tree nodes and sampled genomes. Therefore, each simulation consists of the constant following parameters: genome length (L), population size (N), sample volume (Nv),  number of sampling events (Ns); and the variable parameters: mutation rate(Mu), sampling frequency in generations (Ts). In order to assess the statistical error rates, we performed several simulations for each set of the input parameters. The results of the simulations are stored in the **dataset**folder. The files are named as follows:
+The simulations were performed using the FFpopSim package. The population was initialized N=100 individual genomes of length L=10000. The evolution was simulated according to neutral Wright-Fischer model. The mutation rate Mu and the sampling scheme was set varied between simulations. For simplicity, the time scale was selected so that 1 generation in Wright-Fischer model corresponds to one year. Every Ts generations, Nv=10 genomes are sampled. From these samples, a tree is reconstructed, and the sampling dates are recorded and saved to the names of the tree nodes and sampled genomes. Therefore, each simulation is specified by following parameters: genome length (L), population size (N), sample volume (Nv),  number of samples taken (Ns), the mutation rate (Mu), and the sampling interval in generations (Ts). In order to assess the variability among samples, we performed several simulations for each set of the input parameters. The results of the simulations are stored in the **dataset**folder. The files are named as follows:
 
 FFpopSim_L10000_N100_Ns20_Ts<sampling_freq>_Nv10_Mu<mutation_rate>_<point_number>.<filetype>
 
@@ -29,16 +29,16 @@ where the point_number separates simulations with similar parameters from each o
 BEAST data. Folder: _beast/
 ===========================
 
- For each simulated tree and alignment, the BEAST reconstruction was performed. The BEAST resources and results are all stored in the _beast folder. For each BEATS simulation, we used the FastTree reconstructed tree (./dataset/<simulation_name>.ft.nwk files), the alignments (dataset/<simulation_name>.nuc.fasta). The dates of the internal nodes were extracted from their names.
+ Each simulated tree and alignment was analyzed using BEAST. The BEAST resources and results are all stored in the _beast folder. For each BEAST run, we used the FastTree reconstructed tree (./dataset/<simulation_name>.ft.nwk files) as a seed and the alignment (dataset/<simulation_name>.nuc.fasta). The dates of the internal nodes were extracted from their names.
 
- To automatize the BEAST simulation run, we use on template (file resources/beast/template_bedford_et_al_2015.xml) filling it with the tree, alignment, sampling dates and output log file. The resulting config is saved under <simulation_name>.config.xml name. The BEAST output is stored as <simulation_name>.log.txt, and the tree, sampled along BEAST simulations, are stored in the <simulation_name>.trees.txt files.
+ To automatize the BEAST xml file generation, we used a template (file resources/beast/template_bedford_et_al_2015.xml) filling it with the tree, alignment, sampling dates and output log file. The resulting config is saved under <simulation_name>.config.xml name. The BEAST output is stored as <simulation_name>.log.txt, and the tree, sampled along BEAST simulations, are stored in the <simulation_name>.trees.txt files.
  Therefore, for each datapoint in the dataset/ folder, there are three files produced in the _beast/ folder:
 
   * <simulation_name>.config.xml
   * <simulation_name>.log.txt
   * <simulation_name>.trees.txt
 
- These files are enough to reproduce all BEAST results.
+ These files are sufficient to reproduce all BEAST results.
 
 LSD data. Folder: _lsd/
 =======================
@@ -50,7 +50,7 @@ LSD data. Folder: _lsd/
   * _lsd/<simulation_name>.lsd_dates.txt file.
 
 
- All data to reproduce and analyze LSD simulations are stored in the _lsd/ folder. For each datapoint with <simulation_name> in the dataset/ folder, the following files are produced:
+ All data necessary to reproduce and analyze LSD results are stored in the _lsd/ folder. For each datapoint with <simulation_name> in the dataset/ folder, the following files are produced:
 
   * _lsd/<simulation_name> (without extension) : the general results file, summarizing the input parameters used, and showing the results of the LSD reconstruction.
 
@@ -67,7 +67,7 @@ LSD data. Folder: _lsd/
 Results tables
 ==============
 
- To facilitate the further analysis of the results, we provide the CSV tables with the pre-processed results for TreeTime, LSD, BEAST reconstructions. These tables can be used to directly reproduce the TreeTime validation results.
+ To facilitate the downstream analysis of the results, we provide the CSV tables with the pre-processed results for TreeTime, LSD, BEAST reconstructions. These tables can be used to directly reproduce the TreeTime validation results.
 
 
 TreeTime CSV table. File: _treetime_fasttree_res.csv
@@ -145,11 +145,11 @@ Plotting the results
 Tmrca, Mu
 ---------
 
- To plot the results of the Tmrca and mu reconstruction, run the script plot_simulated_data_tmrca_mu.py from the treetime_validation project.
+ To plot the results of the Tmrca and rate estimates, run the script plot_simulated_data_tmrca_mu.py from the treetime_validation project.
 
- The output plots show the accuracy of the Tmrca and mutation rate  reconstruction in dependence of the mutation rate. (or, more precisely, N*mu product)
+ The output plots show the accuracy of the Tmrca and mutation rate  reconstruction  and their depedence on the mutation rate.
 
- Besides the mutation rate, there is another free parameter, used in the FFpopSim simulation, which is sampling frequency. This parameter controls the total tree depth T. Since the accuracy of the Tmrca reconstruction normally is within one coalescence time, we relate T to the population size (N) to get the tree depth in units of the coalescent time. The plot script is configured so that it shows the accuracy of the reconstruction for a single value of T/N ratio, as the reconstruction accuracy is different for trees of different depths. In the plot script, you can set a particular value of T/N ratio. In the default dataset the following possible ratios are defined:
+ Besides the mutation rate, we varied the sampling frequency in the FFpopSim simulations. This parameter controls the total tree depth T. Since the accuracy of the Tmrca reconstruction normally is within one coalescence time, we compare the error in Tmrca to the population size (N). The plot script is configured so that it shows the accuracy of the reconstruction for a single value of T/N ratio, as the reconstruction accuracy is different for trees of different depths. In the plot script, you can set a particular value of T/N ratio. In the default dataset the following possible ratios are defined:
 
  T/N = 2,4,10 (tree depth is from 2 to 10 coalescent times)
 
@@ -157,7 +157,7 @@ Tmrca, Mu
 Accuracy of the internal nodes positions
 ----------------------------------------
 
- We also provide the script to show the accuracy of the internal node positions reconstruction.
+ We also provide the script to show the accuracy of the inferred position of internal nodes.
 
  plot_simulated_data_bl_corr.py
 
