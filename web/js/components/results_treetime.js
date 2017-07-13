@@ -828,8 +828,9 @@ var Results = React.createClass({
                 <DownloadContainer
                     appState={this.state}
                     setAppState={this.setAppState}/>
+                <div className="hugespacer"></div>
                 <div>
-                    If you use TreeTime results in a publication, please cite <a href="https://doi.org/10.1101/153494">TreeTime: maximum likelihood phylodynamic analysis</a>, Pavel Sagulenko, Vadim Puller, and Richard Neher, bioRxiv 2017
+If you use TreeTime results in a publication, please cite <a href="https://doi.org/10.1101/153494">TreeTime: maximum likelihood phylodynamic analysis</a>, Pavel Sagulenko, Vadim Puller, and Richard Neher, bioRxiv 2017
                 </div>
                 </div>
             </div>
