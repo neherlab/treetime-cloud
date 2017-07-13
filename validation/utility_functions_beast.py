@@ -132,7 +132,7 @@ def create_beast_xml(tree, aln, dates, log_file, template_file):
     def _set_newick(xml_root, tree):
         xml_nwk = xml_root.find('newick')
         st_io = StringIO.StringIO()
-        Phylo.write(tree, st_io, 'newick')
+        Phylo.write(tree, st_io, 'newick', branch_length_only=True)
         xml_nwk.text = st_io.getvalue()
 
     def _set_log_output(xml_root, log_file):
@@ -265,7 +265,6 @@ def run_beast(tree, aln, dates, out_filename_prefix, template_file, log_post_pro
      - None
 
     """
-
     config_filename = out_filename_prefix + ".config.xml"
     config_xml = create_beast_xml(tree, aln, dates, out_filename_prefix, template_file)
     config_xml.write(config_filename)

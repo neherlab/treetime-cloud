@@ -77,10 +77,8 @@ def plot_date_dists(res, label="", figname=None, idx=[0.05, 0.2, 0.4, 0.8]):
             label.set_fontsize(tick_fs)
 
     if figname is not None:
-        fig.savefig("{}.svg".format(figname))
-        fig.savefig("{}.png".format(figname))
-        fig.savefig("{}.pdf".format(figname))
-
+        for fmt in formats:
+            fig.savefig("{}.{}".format(figname, fmt))
 
 if __name__ == '__main__':
 

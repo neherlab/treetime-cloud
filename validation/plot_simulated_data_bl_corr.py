@@ -146,9 +146,8 @@ def plot_correlation(tt_corr, ft_corr, bt_corr, include_fast_tree=True, figname=
     axes.set_ylim(0.1, 200)
 
     if figname is not None:
-        fig.savefig("{}.svg".format(figname))
-        fig.savefig("{}.png".format(figname))
-        fig.savefig("{}.pdf".format(figname))
+        for fmt in formats:
+            fig.savefig("{}.{}".format(figname, fmt))
 
 if __name__ == '__main__':
 

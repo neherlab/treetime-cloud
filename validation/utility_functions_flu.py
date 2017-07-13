@@ -356,7 +356,7 @@ def run_beast(tree_name, aln_name, dates, beast_prefix, log_post_process=None, t
     #print (config_filename)
     #return  config_xml
     call = ["java", "-jar", BEAST_BIN, "-beagle_off", "-overwrite",  config_filename]
-    #subprocess.call(call)
+    subprocess.call(call)
 
     if log_post_process is not None:
         log_file = beast_prefix + ".log.txt"

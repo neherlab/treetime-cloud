@@ -250,7 +250,7 @@ def plot_simulated_data(Tmrca_or_Mu,
             marker='o',
             markersize=markersize,
             c=beast_color,
-            label="Beast")
+            label="BEAST")
 
 
     # Plot LSD
@@ -268,7 +268,7 @@ def plot_simulated_data(Tmrca_or_Mu,
             marker='o',
             markersize=markersize,
             c=lsd_color,
-            label="LSd")
+            label="LSD")
 
     plt.hlines(0, 0, 1)
     axes.legend(loc=1,fontsize=legend_fs)
@@ -284,9 +284,9 @@ def plot_simulated_data(Tmrca_or_Mu,
     fig.text(0.15, 0.15, text_underestimated, fontsize=tick_fs)
 
     if figname is not None:
-        fig.savefig("{}.svg".format(figname))
-        fig.savefig("{}.png".format(figname))
-        fig.savefig("{}.pdf".format(figname))
+        for fmt in formats:
+            fig.savefig("{}.{}".format(figname, fmt))
+
 
 if __name__ == '__main__':
 
@@ -302,7 +302,7 @@ if __name__ == '__main__':
      - 4.0
      - 10.0
     """
-    T_over_N = 10.
+    T_over_N = 4.
 
     """
     What should be used to calculate the error bars and the position of the data
@@ -321,7 +321,7 @@ if __name__ == '__main__':
     Should save figures? If True, note the figure name in the plot_simulated_data
     function parameters.
     """
-    SAVE_FIG = False
+    SAVE_FIG = True
 
     ##
     ##  Set the CSV file names with the data to plot

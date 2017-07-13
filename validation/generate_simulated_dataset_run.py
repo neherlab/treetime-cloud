@@ -8,9 +8,9 @@ import utility_functions_simulated_data as utils_sim
 if  __name__ == '__main__':
 
     GENERATE_SIMULATED_DATA = False
-    RUN_TREETIME = True
-    RUN_LSD = True
-    RUN_BEAST = False
+    RUN_TREETIME = False
+    RUN_LSD = False
+    RUN_BEAST = True
 
     sys.stderr.write ("  ".join(sys.argv) + "\n")
 

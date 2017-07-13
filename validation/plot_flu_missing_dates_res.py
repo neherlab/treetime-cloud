@@ -118,9 +118,8 @@ def plot_results(what, treetime=None, beast=None, figname=None):
             label.set_fontsize(tick_fs)
 
     if figname is not None:
-        fig.savefig("{}_{}.svg".format(figname,what))
-        fig.savefig("{}_{}.png".format(figname,what))
-        fig.savefig("{}_{}.pdf".format(figname,what))
+        for fmt in formats:
+            fig.savefig("{}.{}".format(figname, fmt))
 
 if __name__ == '__main__':
 

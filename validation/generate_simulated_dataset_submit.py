@@ -15,7 +15,7 @@ sys.path.append("./")
 
 if __name__ == '__main__':
 
-    CLUSTER = True
+    CLUSTER = False
 
     # Directory to store results (FFPOPsim simulations, fasttree reconstruction, treetime trees)
     res_dir = "./simulated_data/dataset"
