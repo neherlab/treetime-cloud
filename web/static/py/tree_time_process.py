@@ -32,10 +32,10 @@ in_meta = "in_meta.csv"
 in_cfg = "config.json"
 
 log_filename = "log.txt"
-out_tree_json = "out_tree.json.gz"
+out_tree_json = "out_tree.json"
 out_likelihoods_json = "out_likelihoods.json"
 out_tree_nwk = "out_tree.nwk"
-out_aln_fasta = "out_aln.fasta.gz"
+out_aln_fasta = "out_aln.fasta"
 out_metadata_csv = "out_metadata.csv"
 out_mol_clock_csv = 'molecular_clock.csv'
 out_gtr = "out_GTR.txt"
