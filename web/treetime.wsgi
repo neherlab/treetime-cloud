@@ -2,7 +2,7 @@
 import sys
 import logging
 
-root_dir =  '/var/www/treetime_web'
+root_dir =  '/var/www/treetime'
 treetime_dir =  '/var/www/treetime'
 
 
