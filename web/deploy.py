@@ -5,7 +5,7 @@ Web server deploy script
 import os
 import subprocess
 
-host = 'treetime_test' # destination server
+host = 'treetime' # destination server
 host_location = '/var/www/treetime_web' # location in the destination server
 treetime_admin = 'root'
 treetime_user = 'ttime'
