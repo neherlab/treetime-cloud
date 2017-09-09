@@ -6,8 +6,8 @@ from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
 import zipfile
 import time
 import os, sys, json, gzip
-from treetime import utils
-from treetime.treetime import TreeTime
+from treetime import numeric_date
+from treetime import TreeTime
 import traceback
 
 def myopen(fname, mode):
@@ -94,7 +94,7 @@ def read_metadata_from_file(infile):
             # NOTE as the 0th column is the index, we should parse the dates
             # for the column idx + 1
             df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', parse_dates=[1+idx])
-            dates = {k: utils.numeric_date(df.loc[k, name]) for k in df.index}
+            dates = {k: numeric_date(df.loc[k, name]) for k in df.index}
             df.loc[:, name] = map(lambda x: str(x.date()), df.loc[:, name])
         else:
             print ("Metadata file has no column which looks like a sampling date!")

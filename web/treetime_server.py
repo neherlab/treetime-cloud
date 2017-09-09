@@ -42,6 +42,12 @@ def index():
         return render_template('welcome.html', html_theme=html_theme_css)
     return None
 
+@app.route('/doc', defaults = {'filename': 'index.html'})
+@app.route('/<path:filename>')
+def web_docs(filename):
+    path = os.path.join('doc', filename)
+    return app.send_static_file(path)
+
 @app.route('/ancestral_reconstruction_request', methods=['GET', 'POST'])
 def ancestral_reconstruction_request():
     """
