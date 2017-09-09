@@ -6,7 +6,7 @@ from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
 import zipfile
 import time
 import os, sys, json, gzip
-from treetime import numeric_date
+from treetime.utils import numeric_date
 from treetime import TreeTime
 import traceback
 
