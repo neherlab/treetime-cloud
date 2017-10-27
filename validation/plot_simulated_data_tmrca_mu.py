@@ -202,7 +202,7 @@ def plot_simulated_data(Tmrca_or_Mu,
         mean = 'dMu_mean'
         err = 'dMu_err'
         title = "Clock rate deviation"
-        ylabel = "Relative clock rate error, $[\Delta\mu / \mu]$"
+        ylabel = "relative clock rate error, $[\Delta\mu / \mu]$"
         text_overestimated = '$\mathrm{\mu}$ overestimated'
         text_underestimated = '$\mathrm{\mu}$ underestimated'
 
@@ -210,7 +210,7 @@ def plot_simulated_data(Tmrca_or_Mu,
         mean = 'dTmrca_mean'
         err = 'dTmrca_err'
         title = "Accuracy of Tmrca prediction"
-        ylabel = "Relative $T_{mrca}$ error, $[\Delta\mathrm{T_{mrca}} / \mathrm{N}]$"
+        ylabel = "relative $T_{mrca}$ error, $[\Delta\mathrm{T_{mrca}} / \mathrm{N}]$"
         text_overestimated = '$\mathrm{T_{mrca}}$ too late'
         text_underestimated = '$\mathrm{T_{mrca}}$ too early'
 
@@ -274,7 +274,7 @@ def plot_simulated_data(Tmrca_or_Mu,
     axes.legend(loc=1,fontsize=legend_fs)
     #axes.set_title(title)
     axes.set_ylabel(ylabel, fontsize = label_fs)
-    axes.set_xlabel('Diversity, $\mathrm{N}\cdot\mu$', fontsize = label_fs)
+    axes.set_xlabel('diversity, $\mathrm{N}\cdot\mu$', fontsize = label_fs)
     for label in axes.get_xticklabels():
             label.set_fontsize(tick_fs)
     for label in axes.get_yticklabels():
@@ -302,7 +302,7 @@ if __name__ == '__main__':
      - 4.0
      - 10.0
     """
-    T_over_N = 4.
+    T_over_N = 10.
 
     """
     What should be used to calculate the error bars and the position of the data

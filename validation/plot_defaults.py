@@ -15,7 +15,7 @@ fs = 16
 legend_fs = fs
 tick_fs = 0.8*fs
 label_fs = fs
-legend_fs = 0.8*fs
+legend_fs = fs
 
 markersize = 10
 tt_color = colors[0]

@@ -9,17 +9,19 @@ save_fig = True
 
 parser = argparse.ArgumentParser(
         description="Run treetime on simulated data used to test LSD in To et al")
-parser.add_argument('--tree', required = True, type = str,  help ="Which tree to use, one of 750_3_25, 750_11_10, 995_11_10, 995_3_25")
+parser.add_argument('--tree', required = True, type = str,
+                    help ="Which tree to use, one of 750_3_25, 750_11_10, 995_11_10, 995_3_25")
 
 args = parser.parse_args()
 
+## read results from the LSD paper for the specified tree set
 data_set = args.tree
 data = pd.read_csv('LSD_validation_data/Simulation_results_%s.csv'%data_set)
 
-
+## parse the fle and associate columns with methods and parameters
 rate_model = {}
 method_map = {}
-topo_map = {}
+topo_map = {} # topology choice (true, inferred etc)
 last_method = ''
 last_rate = ''
 for i in range(51):
@@ -35,6 +37,7 @@ for i in range(51):
 rates = {}
 TMRCAs = {}
 
+## parse rates and sort by method and tree topology
 for i in range(3,51):
     rates[(rate_model[i], method_map[i], topo_map[i])] = np.array(data.iloc[3:103,i].astype(float))
     TMRCAs[(rate_model[i], method_map[i], topo_map[i])] = np.array(data.iloc[103:203,i].astype(float))
@@ -47,23 +50,31 @@ print("****\n\n****")
 for model in TMRCAs:
     print(str(model)+"TMRCA error: %05f, bias: %05f"%(np.sqrt(np.mean((TMRCAs[model])**2)), np.mean(TMRCAs[model])))
 
+# make figures for strict and relaxed clock simulations
 TT_data={}
+tree_type = "PhyML"
+ordered_methods = ['TT', 'LD', 'QPD', 'RTT', 'BSMC', 'BRMC']
 for rate_type in ["strict", "relaxed"]:
+    # read treetime results
     rc="sc"
     label = "D%s_%s_%s"%(data_set, rate_type, rc)
     TT_data[label] = np.loadtxt('LSD_validation_data/TT_%s.txt'%label)
     print(label, TT_data[label].mean(axis=0))
+
     bl_factor = 1.0 #np.exp(4.*TT_data[label].mean(axis=0)[2])
-    tree_type = "PhyML"
     methods = set([x for x in method_map.values() if len(x) and x[-1]!='*'])
 
     tmp = {'TT':(TT_data[label][:,0]*bl_factor-rate)/rate,
             'BSMC':(rates[(rate_type, "BSMC", "True\ntopology")]-rate)/rate}
-    # if rate_type=='relaxed':
-    #     tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
-    tmp.update({m:(rates[(rate_type, m, tree_type)]-rate)/rate for m in methods if (rate_type, m, tree_type) in rates})
-    df = pd.DataFrame(tmp)
+    if rate_type=='relaxed':
+        tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
 
+    ## assemble a data frame with fixed order
+    tmp.update({m:(rates[(rate_type, m, tree_type)]-rate)/rate for m in methods if (rate_type, m, tree_type) in rates})
+    df = pd.DataFrame(data = np.array([tmp[k] for k in ordered_methods if k in tmp]).T,
+                      columns = [k for k in ordered_methods if k in tmp])
+
+    ## plot figure showing rate distributions
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
     axes.hlines(0, -1, len(df), lw=3)
@@ -84,8 +95,10 @@ for rate_type in ["strict", "relaxed"]:
     if rate_type=='relaxed':
         tmp['BRMC'] = (rates[(rate_type, "BRMC", "True\ntopology")]-rate)/rate
     tmp.update({m:TMRCAs[(rate_type, m, tree_type)] for m in methods if (rate_type, m, tree_type) in TMRCAs})
-    df = pd.DataFrame(tmp)
+    df = pd.DataFrame(data = np.array([tmp[k] for k in ordered_methods if k in tmp]).T,
+                      columns = [k for k in ordered_methods if k in tmp])
 
+    ## plot figure showing TMRCA distributions
     fig = plt.figure(figsize=onecolumn_figsize)
     axes = fig.add_subplot(111)
     # axes.set_title('Evolution model: %s'%rate_type)

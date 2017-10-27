@@ -42,7 +42,7 @@ def plot_skyline(res, periods, bottle_necks, figname=None):
     fig = plt.figure(figsize=onecolumn_figsize)
 
     # common Y label
-    fig.text(0.05,0.5, 'Coalescent population size estimate',
+    fig.text(0.05,0.5, 'coalescent population size estimate',
         rotation='vertical',
         fontsize=label_fs,
         verticalalignment='center',
@@ -72,10 +72,10 @@ def plot_skyline(res, periods, bottle_necks, figname=None):
         else:
             for label in ax.get_xticklabels():
                 label.set_fontsize(tick_fs)
-    axs[0].legend(loc=2, fontsize=legend_fs)
+    axs[1].legend(loc=2, fontsize=legend_fs)
 
     #axes.set_ylabel('Population size estimate', fontsize=label_fs)
-    axs[1].set_xlabel('Time in simulated generations', fontsize = label_fs)
+    axs[1].set_xlabel('time in simulated generations', fontsize = label_fs)
 
     if figname is not None:
         for fmt in formats:

@@ -82,7 +82,7 @@ def plot_date_dists(res, label="", figname=None, idx=[0.05, 0.2, 0.4, 0.8]):
 
 if __name__ == '__main__':
 
-    SAVE_FIG = False
+    SAVE_FIG = True
 
     ##
     ## file with the reconstruction results:
