@@ -64,7 +64,7 @@ if __name__ == '__main__':
     plt.legend(loc=2)
 
     # rescale branch length to years and plot in axis 0
-    from treetime import plot_vs_years
+    from treetime.treetime import plot_vs_years
     fig, axs = plt.subplots(2,1, sharex=True, figsize=(onecolumn_figsize[0],onecolumn_figsize[1]*1.7))
     plot_vs_years(ebola, years=.5, ax=axs[0], confidence=(0.05,0.95), ticks=False, label_func = lambda x:"")
 #    axs[0].tick_params(labelsize=tick_fs)
