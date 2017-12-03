@@ -313,9 +313,8 @@ var LegendComponent = React.createClass({
 var TreeTime = React.createClass({
 
     handleCheck : function(){
-        //console.log("Treetime CB changed");
-        var tt = this.props.appState.treetime
-        var xUnit = (!tt) ? "numdate" : "xvalue"
+        var tt = this.props.appState.treetime;
+        var xUnit = (!tt) ? "numdate" : "xvalue";
         this.props.setAppState({xUnit:xUnit, treetime:!tt});
     },
 
@@ -371,7 +370,6 @@ var TreeRightPane = React.createClass({
         }else{
 
             this.setState({tree_initialized:true});
-
             var dispatcher = PhyloTree.create(el, {
                 root:this.props.root},
                 this.props.appState);
@@ -388,7 +386,6 @@ var TreeRightPane = React.createClass({
     },
 
     select_link : function(d){
-        console.log ("Link selected: " + d.target.name)
         this.select_tip(d.target);
     },
 
@@ -706,7 +703,7 @@ var Results = React.createClass({
                 return "";
             },
             cscale: new DefaultScale(),
-            xUnit:'xvalue',
+            xUnit:'numdate',
             selected_tip:null,
             root_lh_initialized :false,
             color_nuc_pos: 1,
@@ -836,6 +833,7 @@ If you use TreeTime results in a publication, please cite <a href="https://doi.o
             </div>
         );
     },
+    // looks like dead code
     on_treetime_changed : function(){
         var checked = this.state.treetime;
         this.setState({treetime : !checked})

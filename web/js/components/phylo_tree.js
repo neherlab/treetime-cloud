@@ -46,9 +46,16 @@ var virusTooltip = d3tip()
     string += "<h4>" + d.strain +"</h4>"
     "<div class=\"smallspacer\"></div>";
     string += "<div class=\"smallnote\">";
-    string += d.metadata.map(function(d){
-                  return "<li style=\"margin-top: 10px;\">" +  d.name + " : " + d.value + "</li>"
-              }).join("")
+    for (var i=0; i<d.metadata.length; i++){
+      var datum = d.metadata[i];
+      if (datum.name=='numdate'){
+        string += "<li style=\"margin-top: 10px;\">" +  datum.name + " : " + datum.value.toFixed(2) + "</li>"
+      }else if (datum.name=='Branch length stretch'){
+        string += "<li style=\"margin-top: 10px;\">" +  datum.name + " : " + datum.value.toFixed(2) + "</li>"
+      }else{
+        string += "<li style=\"margin-top: 10px;\">" +  datum.name + " : " + datum.value + "</li>"
+      }
+    }
     string += "</div>";
 
     return (string)});
@@ -145,6 +152,12 @@ PhyloTree.create = function(el, props, state){
   this.svg.call(virusTooltip);
   this.svg.call(linkTooltip);
 
+  if (state.xUnit){
+    this._x_pos = function(d){
+      return d[state.xUnit];
+    };
+  }
+
   var dispatcher = new EventEmitter();
   this._create_data(props);
   this.state = state;
@@ -153,6 +166,14 @@ PhyloTree.create = function(el, props, state){
   var scales = this._scales(el, state);
   this._drawTips(el,scales, dispatcher);
   this._drawLinks(el,scales,dispatcher);
+
+  if (state.xUnit){
+    if (state.xUnit == "numdate"){
+        this._draw_axis(el, state, scales, dispatcher);
+    }else{
+        this._hide_axis(el, state, dispatcher);
+    }
+  }
   return dispatcher;
 
 };
@@ -243,15 +264,12 @@ PhyloTree.update = function(el, state, dispatcher) {
   if (this.state.selected_tip != state.selected_tip){
       this._update_selected(el, state);
   }
-
   if (this.state.xUnit != state.xUnit){
-
     this._x_pos = function(d){
       return d[state.xUnit];
     };
     this._hide_axis(el, state, dispatcher)
     this._update_scales(el, state, dispatcher);
-
   }
 
   // update the tree state
@@ -548,7 +566,7 @@ PhyloTree._update_axis = function(el, state, scales, dispatcher){
 };
 
 PhyloTree._draw_axis = function(el, state, scales, dispatcher){
-    console.log("DRAW axis called")
+    console.log("DRAW axis called!")
     var width = el.offsetWidth;
     var height = el.offsetHeight;
 

@@ -25,7 +25,7 @@ var ErrorBanner = React.createClass({
 
     render(){
         var glyph_type = "ban-circle"
-        var mail = "mailto:pavel.sagulenko@tuebingen.mpg.de?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
+        var mail = "mailto:richard.neher@unibas.ch?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
 
         return (
             <div>
