@@ -102,8 +102,7 @@ var WelcomePage = React.createClass({
                                     <li>Approximate maximum-likelihood time tree inference</li>
                                     <li>Inference of GTR models</li>
                                     <li>Rerooting to obtain best root-to-tip regression</li>
-                                    <li>Coalesent priors</li>
-                                    <li>Auto-correlated molecular clocks</li>
+                                    <li>Coalescent priors</li>
                                 </ul>
                             </Col>
                             <Col md={3}>
