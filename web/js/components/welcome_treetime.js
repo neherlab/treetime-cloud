@@ -456,11 +456,11 @@ var WelcomeTreeTimePage = React.createClass({
         UID: null,
         // labels and status of the files uploads
         tree_file:false,
-        tree_filename:"Select tree file",
+        tree_filename:"Select tree file (newick format)",
         aln_file:false,
-        aln_filename:"Select alignment file",
+        aln_filename:"Select alignment file (ALIGNED!)",
         meta_file:false,
-        meta_filename:"Select meta data file",
+        meta_filename:"Select meta data file (see tooltip)",
         // treetime configuration
         TreeTimeConfig: {
             'available_gtrs':{},

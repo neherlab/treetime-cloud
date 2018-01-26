@@ -81,7 +81,7 @@ var WelcomePage = React.createClass({
     },
 
     render:function(){
-        var btn_size={"width":"200px", "height":"80px", "margin-right":"25px", "margin-left":"25px", "display":"inline-block", "vertical-alignment":"middle"};
+        var btn_size={"width":"200px", "height":"80px", "margin-right":"25px", "margin-left":"25px", "display":"inline-block", "vertical-alignment":"middle", "font-size":"18px"};
         return (
 
 
@@ -93,13 +93,13 @@ var WelcomePage = React.createClass({
                         <Row>
                             <Col md={3}>
                                 <div style={{"height":"30px"}}></div>
-                                <Button bsStyle="primary" style={btn_size} onClick={this.treetime_request}>Timetree inference</Button>
+                                <Button bsStyle="primary" style={btn_size} onClick={this.treetime_request}>Time-tree<br/>&#13;&#10;inference</Button>
                             </Col>
 
                             <Col md={5}>
                                 <h4>Features</h4>
                                 <ul>
-                                    <li>Approximate maximum-likelihood time tree inference</li>
+                                    <li>Maximum-likelihood time-scaled phylogenies</li>
                                     <li>Inference of GTR models</li>
                                     <li>Rerooting to obtain best root-to-tip regression</li>
                                     <li>Coalescent priors</li>

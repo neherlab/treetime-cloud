@@ -38,12 +38,23 @@ var ErrorBanner = React.createClass({
                 </div>
                 <div>
                     <p style={{"text-align":"justify"}}>
-                    We are sorry for the incovenience and will try to fix the problem as soon as possible.
+                    We are sorry for the inconvenience and will try to fix the problem as soon as possible.
                     </p>
                 </div>
                 <Panel collapsible defaultCollapsed header="Server output:" id='error_message'>
                     {this.props.appState.error}
                 </Panel>
+                <div style={{"text-align":"justify"}}>
+                    We are collecting errors and are working on more informative error messages.
+                    Common problems so far include:
+                    <ul>
+                        <li>The names of sequences in the fasta file and the tree don't match (avoid characters like ':', '()', ',', or spaces that are illegal in fasta, newick, or csv).</li>
+                        <li>Your sequences are not aligned and have different lengths.</li>
+                        <li>The names in the meta data csv file don't match the names in the tree.
+                            Make sure there are no spaces in the names (not supported in fasta) and
+                            rows of the csv don't contain spurious entries (e.g. row numbers not listed in header).</li>
+                    </ul>
+                </div>
             </div>
         );
     }
