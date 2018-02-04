@@ -145,7 +145,7 @@ RootLhPlot._draw_axis = function(el, scales){
         .attr("x", axis_start + axis_width / 2 )
         .attr("y", height - this.padding_text )
         .style("text-anchor", "middle")
-        .text("Inferred root date");
+        .text("node date");
 
 
     svg.append("g")

@@ -30,7 +30,7 @@ from tree_time_process import run_treeanc as RUN_TREEANC
 
 def make_id():
     """
-    Create new userID, which will be used to identigy session.
+    Create new userID, which will be used to identify session.
     """
     return "".join([chr(random.randint(65,90)) for ii in range(12)])
 
@@ -303,6 +303,26 @@ def get_session_state(userid):
         with open (inf, 'r') as infile:
             json_data = json.load(infile)
     return jsonify(**{"session_state": json_data})
+
+@app.route('/treetime/<userid>/get_log', methods=['GET'])
+def get_log(userid):
+    """
+    In progress page, user polls the state of the session. Read the session state
+    file, return the contents to the user.
+
+    NOTE: the session file is created from another thread. Therefore, not to deal
+    with asynch calls, if the file is not yet there, believe the thread will start
+    normally and will cretae the file, so just return 'running' state.
+    """
+    root = os.path.join (sessions_root, userid)
+    inf = os.path.join(root, "log.txt")
+    if not os.path.exists(inf):
+        log_data = ['']
+    else:
+        with open (inf, 'r') as infile:
+            log_data = infile.readlines()
+    return jsonify({'log':log_data})
+
 
 @app.route('/treetime/<userid>/results', methods=['GET'])
 def render_treetime_results(userid):

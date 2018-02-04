@@ -56,7 +56,7 @@ def get_filepaths(root):
     }
 
 
-def read_metadata_from_file(infile):
+def read_metadata_from_file(infile, log):
     """
     @brief      Reads a metadata from file or handle.
     @param      self    The object
@@ -64,19 +64,23 @@ def read_metadata_from_file(infile):
     """
     try:
         # read the metadata file into pandas dataframe.
-        df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*')
+        df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', engine='python')
         # check the metadata has strain names in the first column
-        if 'name' not in df.index.name.lower():
-            print ("Cannot read metadata: first column should contain the names of the strains")
-            return
         # look for the column containing sampling dates
-        # We assume that the dates might be given in eihter human-readable format
+        # We assume that the dates might be given either in human-readable format
         # (e.g. ISO dates), or be already converted to the numeric format.
+        if 'name' not in df.index.name.lower():
+            print("Cannot read metadata: first column should contain the names of the strains", file=log)
+            return
         potential_date_columns = []
         potential_numdate_columns = []
         # Scan the dataframe columns and find ones which likely to store the
         # dates
         for ci,col in enumerate(df.columns):
+            d = df.iloc[0,ci]
+            if type(d)==str and d[0] in ['"', "'"] and d[-1] in ['"', "'"]:
+                for i,tmp_d in enumerate(df.iloc[:,ci]):
+                    df.iloc[i,ci] = tmp_d.strip(d[0])
             if 'date' in col.lower():
                 try: #  avoid date parsing when can be parsed as float
                     tmp = float(df.iloc[0,ci])
@@ -89,21 +93,31 @@ def read_metadata_from_file(infile):
             name = potential_numdate_columns[0][1]
             # Use this column as numdate_given
             dates = df[name].to_dict()
+            for k, val in dates.items():
+                try:
+                    dates[k] = float(val)
+                except:
+                    dates[k] = None
+
         elif len(potential_date_columns)>=1:
             #try to parse the csv file with dates in the idx column:
             idx = potential_date_columns[0][0]
             name = potential_date_columns[0][1]
             # NOTE as the 0th column is the index, we should parse the dates
             # for the column idx + 1
-            df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', parse_dates=[1+idx])
+            df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', parse_dates=[1+idx], engine='python')
             dates = {k: numeric_date(df.loc[k, name]) for k in df.index}
             df.loc[:, name] = map(lambda x: str(x.date()), df.loc[:, name])
         else:
-            print ("Metadata file has no column which looks like a sampling date!")
+            print("Metadata file has no column which looks like a sampling date!", file=log)
         metadata = df.to_dict(orient='index')
+        for k, val in metadata.items():
+            if type(k)==str and k[0] in ["'", '"'] and k[-1] in ["'", '"']:
+                metadata[k.strip(k[0])] = val
+                dates[k.strip(k[0])] = dates[k]
         return dates, metadata
     except:
-        print ("Cannot read the metadata file. Exception caught")
+        print("Cannot read the metadata file. Exception caught!", file=log)
         raise
         return {}, {}
 
@@ -138,14 +152,15 @@ class TreeTimeWeb(treetime.TreeTime):
         aln = AlignIO.read(get_filepaths(root)['aln'], 'fasta')
 
         if metadata:
-            dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'])
+            dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'], self._log_file)
             self._metadata = metadata
         else:
             dates = {}
 
         gtr = 'jc' if webconfig['gtr'] == 'infer' else webconfig['gtr']
         super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
-                gtr=str(gtr), *args, **kwargs)
+                gtr=str(gtr),  *args, **kwargs)
+
 
     def run(self, **kwargs):
         _write_session_state(self._root_dir, SessionState.reading)
