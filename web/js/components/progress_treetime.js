@@ -46,6 +46,7 @@ var ErrorBanner = React.createClass({
                 </Panel>
                 <div style={{"text-align":"justify"}}>
                     We are collecting errors and are working on catching them one be one.
+                    Please check the log below.
                     Common problems so far include:
                     <ul>
                         <li>The names of sequences in the fasta file and the tree don't match (avoid characters like ':', '()', ',', or spaces that are illegal in fasta, newick, or csv).</li>
@@ -73,6 +74,13 @@ var Log = React.createClass({
                   <br/>
                 </span>
               )
+            }else if (item.includes("WARNING")){
+              return (
+                <span style={{"color":"orange"}}>
+                  {item}
+                  <br/>
+                </span>
+              )
             }else{
               return (
                 <span>
@@ -96,7 +104,7 @@ var ProgressTreeTimePage = React.createClass({
         this.state.UID = UID;
         this.log= [""];
         this.requestLog();
-        this.interval = setInterval(this.requestLog, 1000);
+        this.interval = setInterval(this.requestLog, 5000);
         this.requestSessionSate();
         this.interval = setInterval(this.requestSessionSate, 10000);
     },
@@ -191,9 +199,6 @@ var ProgressTreeTimePage = React.createClass({
                 <div className='page_container'>
                     <div style={this.stateRenderStyle(false)}>
                         <Banner  />
-                    </div>
-                    <div style={this.stateRenderStyle(true)}>
-                        <ErrorBanner appState={this.state}/>
                     </div>
                     <div style={this.stateRenderStyle(true)}>
                         <ErrorBanner appState={this.state}/>
