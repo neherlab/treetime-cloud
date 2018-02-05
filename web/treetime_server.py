@@ -15,7 +15,7 @@ ALLOWED_EXTENSIONS = ['fasta', 'nwk', 'csv', 'png', 'jpg']
 
 # html theme is controlled by the server
 #html_theme_css = "http://bootswatch.com/flatly/bootstrap.css"
-html_theme_css = "https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css"
+html_theme_css = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 
 # set the server directories
 dn = os.path.dirname(os.path.abspath(__file__))
