@@ -827,7 +827,7 @@ var Results = React.createClass({
                     setAppState={this.setAppState}/>
                 <div className="hugespacer"></div>
                 <div>
-If you use TreeTime results in a publication, please cite <a href="https://doi.org/10.1101/153494">TreeTime: maximum likelihood phylodynamic analysis</a>, Pavel Sagulenko, Vadim Puller, and Richard Neher, bioRxiv 2017
+If you use TreeTime results in a publication, please cite <a href="http://dx.doi.org/10.1093/ve/vex042">TreeTime: maximum likelihood phylodynamic analysis</a>, Pavel Sagulenko, Vadim Puller, and Richard Neher, Virus Evolution, 2017
                 </div>
                 </div>
             </div>

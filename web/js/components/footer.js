@@ -21,7 +21,7 @@ var Authors = React.createClass({
     render(){
         return (
             <div id="authors">
-            Pavel Sagulenko and Richard Neher, <a href="https://doi.org/10.1101/153494">bioRxiv</a>, 2017.
+            Pavel Sagulenko and Richard Neher, <a href="http://dx.doi.org/10.1093/ve/vex042">Virus Evolution</a>, 2017.
             </div>
         );
     }
