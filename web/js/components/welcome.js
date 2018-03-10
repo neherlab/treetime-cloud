@@ -81,7 +81,8 @@ var WelcomePage = React.createClass({
     },
 
     render:function(){
-        var btn_size={"width":"200px", "height":"80px", "margin-right":"25px", "margin-left":"25px", "display":"inline-block", "vertical-alignment":"middle", "font-size":"18px"};
+        var tt_btn_size={"width":"160px", "height":"80px", "margin-right":"25px", "margin-left":"25px", "display":"inline-block", "vertical-alignment":"middle", "font-size":"18px"};
+        var anc_btn_size={"width":"160px", "height":"80px", "margin-right":"25px", "margin-left":"25px", "display":"inline-block", "vertical-alignment":"middle", "font-size":"16px"};
         return (
 
 
@@ -89,11 +90,11 @@ var WelcomePage = React.createClass({
                 <Header/>
                 <div className="page_container">
                     <div id="welcome_description">
-                        <Panel collapsible defaultExpanded header="Time-tree inference">
+                        <Panel defaultExpanded onClick={this.treetime_request} header="Time-tree inference">
                         <Row>
                             <Col md={3}>
                                 <div style={{"height":"30px"}}></div>
-                                <Button bsStyle="primary" style={btn_size} onClick={this.treetime_request}>Time-tree<br/>&#13;&#10;inference</Button>
+                                <Button bsStyle="primary" style={tt_btn_size} onClick={this.treetime_request}>Time-tree<br/>&#13;&#10;inference</Button>
                             </Col>
 
                             <Col md={5}>
@@ -105,7 +106,7 @@ var WelcomePage = React.createClass({
                                     <li>Coalescent priors</li>
                                 </ul>
                             </Col>
-                            <Col md={3}>
+                            <Col md={4}>
                                 <h4>Requires</h4>
                                 <ul>
                                     <li>Alignment as fasta</li>
@@ -115,11 +116,11 @@ var WelcomePage = React.createClass({
                             </Col>
                         </Row>
                         </Panel>
-                        <Panel collapsible defaultExpanded header="Ancestral state reconstruction">
+                        <Panel defaultExpanded onClick={this.ancestral_reconstruction_request} header="Ancestral state reconstruction">
                         <Row>
                             <Col md={3}>
                                 <div style={{"height":"30px"}}></div>
-                                <Button bsStyle="primary" style={btn_size} onClick={this.ancestral_reconstruction_request}>Ancestral sequence<br/>&#13;&#10;reconstruction</Button>
+                                <Button bsStyle="primary" style={anc_btn_size} onClick={this.ancestral_reconstruction_request}>Ancestral sequence<br/>&#13;&#10;reconstruction</Button>
                             </Col>
 
                             <Col md={5}>
