@@ -6,7 +6,6 @@ import numpy as np
 import os, random, subprocess, json, shutil
 from Bio import Phylo
 import os,sys
-import StringIO
 
 app = Flask(__name__)
 app.threads = {};
@@ -266,7 +265,7 @@ def run_treetime(userid):
         ss = request.get_json()['config']
 
         with open(os.path.join(root, "config.json"), 'w') as of:
-            json.dump(ss, of, True)
+            json.dump(ss, of)
         app.threads[userid] = threading.Thread(target=RUN_TREETIME, args=(root,ss))
         app.threads[userid].start()
         return jsonify({'res':'OK', 'message':'You can redirect to the wait page'})
