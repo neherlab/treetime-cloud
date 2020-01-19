@@ -2,7 +2,7 @@ require('../dotenv')
 
 const path = require('path')
 
-const { findModuleRoot } = require('../../src/lib/findModuleRoot')
+const { findModuleRoot } = require('../../lib/findModuleRoot')
 
 const { moduleRoot } = findModuleRoot()
 

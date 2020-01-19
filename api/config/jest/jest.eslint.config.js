@@ -1,6 +1,6 @@
 require('../dotenv')
 
-const { findModuleRoot } = require('../../src/lib/findModuleRoot')
+const { findModuleRoot } = require('../../lib/findModuleRoot')
 
 const { moduleRoot } = findModuleRoot()
 
@@ -9,7 +9,7 @@ module.exports = {
   roots: ['<rootDir>/src'],
   runner: 'jest-runner-eslint',
   displayName: { name: 'lint', color: 'blue' },
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: 'jest-environment-node',
   preset: 'ts-jest',
   globals: {
     'ts-jest': {

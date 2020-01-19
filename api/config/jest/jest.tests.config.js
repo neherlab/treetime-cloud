@@ -1,6 +1,6 @@
 require('../dotenv')
 
-const { findModuleRoot } = require('../../src/lib/findModuleRoot')
+const { findModuleRoot } = require('../../lib/findModuleRoot')
 
 const { moduleRoot } = findModuleRoot()
 
@@ -8,7 +8,7 @@ module.exports = {
   rootDir: moduleRoot,
   roots: ['<rootDir>/src'],
   displayName: { name: 'test', color: 'cyan' },
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: 'jest-environment-node',
   preset: 'ts-jest',
   globals: {
     'ts-jest': {
@@ -32,8 +32,6 @@ module.exports = {
     '<rootDir>/config/jest/setupDotenv.js',
     'jest-chain',
     'jest-extended',
-    'jest-axe/extend-expect',
-    '@testing-library/jest-dom/extend-expect',
   ],
   watchPlugins: [
     'jest-watch-typeahead/filename',
