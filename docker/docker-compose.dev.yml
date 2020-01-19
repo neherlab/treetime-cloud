@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  treetime-dev-worker:
+    container_name: treetime-dev-worker
+    image: treetime-dev-worker
+    build:
+      context: ./
+      dockerfile: python3-git-ubuntu/Dockerfile
+    command: sh -c "cd /code/treetime && ls -al .. && pip3 --quiet install . && python3 bin/treetime --aln ../examples/data/h3n2_na/h3n2_na_500.fasta --tree ../examples/data/h3n2_na/h3n2_na_500.nwk --dates ../examples/data/h3n2_na/h3n2_na_500.metadata.csv"
+    volumes:
+      - ../:/code
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 3000:3000
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+    init: true
+    user: '${UID}'
+    tty: true
