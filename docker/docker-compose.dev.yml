@@ -21,3 +21,26 @@ services:
     init: true
     user: '${UID}'
     tty: true
+
+  treetime-dev-web:
+    depends_on:
+      - treetime-dev-api
+    container_name: treetime-dev-web
+    image: treetime-dev-web
+    build:
+      context: ./
+      dockerfile: node-git-alpine/Dockerfile
+    command: sh -c "cd /code/web && yarn install && yarn dev"
+    volumes:
+      - ../:/code
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 3000:3000
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+    init: true
+    user: '${UID}'
+    tty: true

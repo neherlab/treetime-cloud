@@ -1,0 +1,7 @@
+[production]
+defaults
+cover 99.5%
+last 5 years
+
+[development]
+unreleased Chrome versions
