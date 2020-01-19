@@ -1,0 +1,11 @@
+{
+  "name": "treetime",
+  "version": "x.x.x",
+  "repository": "",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "package:treetime": "yarn _docker-compose -f docker/docker-compose.package.treetime.yml up --build",
+    "_docker-compose": "UID=$(id -u) DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose"
+  }
+}
