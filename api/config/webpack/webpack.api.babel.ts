@@ -13,7 +13,7 @@ import webpackTerser from './lib/webpackTerser'
 import webpackTsChecker from './lib/webpackTsChecker'
 
 import { findModuleRoot } from '../../lib/findModuleRoot'
-import { getenv } from '../../src/lib/getenv'
+import { getenv } from '../../lib/getenv'
 
 import babelConfig from '../../babel.config'
 

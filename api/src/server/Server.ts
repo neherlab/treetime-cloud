@@ -3,9 +3,9 @@ import http from 'http'
 import express from 'express'
 import { useExpressServer } from 'routing-controllers'
 
+import { getenv } from '../../lib/getenv'
 import pkg from '../../package.json'
 import controllers from '../controllers'
-import { getenv } from '../lib/getenv'
 import { errorLogger, requestLogger } from './loggers'
 
 export interface AppParams {

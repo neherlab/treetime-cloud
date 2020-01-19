@@ -2,5 +2,8 @@ const path = require('path')
 
 const dotenv = require('dotenv')
 
-// prettier-ignore
-dotenv.config({ path: path.join(__dirname, '..', '..', '..', '.env') })
+const { findModuleRoot } = require('../../lib/findModuleRoot')
+
+const { moduleRoot } = findModuleRoot()
+
+dotenv.config({ path: path.join(moduleRoot, '..', '.env') })
