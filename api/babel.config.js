@@ -13,7 +13,7 @@ module.exports = {
         corejs: false,
         modules: 'commonjs',
         shippedProposals: true,
-        targets: { node: 'current' },
+        targets: { node: '12' },
         exclude: ['transform-typeof-symbol'],
       },
     ],
@@ -21,6 +21,7 @@ module.exports = {
   plugins: [
     'babel-plugin-transform-typescript-metadata', // goes before "proposal-decorators"
     ['@babel/plugin-proposal-decorators', { legacy: true }], // goes before "class-properties"
+    'babel-plugin-parameter-decorator',
     ['@babel/plugin-proposal-class-properties', { loose }],
     ['@babel/plugin-proposal-numeric-separator', { loose }],
   ].filter(Boolean),
