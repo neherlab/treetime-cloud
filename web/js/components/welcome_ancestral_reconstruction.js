@@ -41,7 +41,7 @@ var PanelFiles = React.createClass({
                     <Col xs={6} md={4} id="welcome_col_upload_tree" className="grid-treetime-col-right" >
                         <span className="btn btn-primary btn-file btn-file-treetime" id="btn-1">
                             Newick
-                            <input type="file" disabled={this.props.TreeAncConfig.build_tree} onChange={this.props.uploadTreeFile}/>
+                            <input type="file" onChange={this.props.uploadTreeFile}/>
                         </span>
                         {this.props.appState.tree_filename}
                         <Checkbox
@@ -95,9 +95,9 @@ var WelcomeAncPage = React.createClass({
         UID: null,
         // labels and status of the files uploads
         tree_file:false,
-        tree_filename:"Select tree file",
+        tree_filename:"Select tree file (newick format)",
         aln_file:false,
-        aln_filename:"Select alignment file",
+        aln_filename:"Select alignment file (ALIGNED!)",
         // treeanc configuration
         treeAncConfig: {}
       };

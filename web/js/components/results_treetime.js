@@ -12,7 +12,6 @@ var Globals = require('./globals.js')
 var colors = Globals.colors;
 
 import Header from './header.js'
-import Footer from './footer.js'
 
 var DefaultScale = function(){
     this.get_color = function(x){
@@ -141,7 +140,7 @@ var TreeContainer = React.createClass({
         );
     },
     resetLayout:function(){
-        console.log("RessetLayout")
+        console.log("ResetLayout")
         var trp = this.refs.TreeRightPane
         trp.resetLayout()
     },
@@ -225,8 +224,6 @@ var TreeLeftPane = React.createClass({
 
         default:
 
-            console.log(value)
-
             var cValFunc = function(d){
                 var md = d.metadata.filter(function(d){return d.name==value})
                 if (md.length == 0) return null;
@@ -235,7 +232,6 @@ var TreeLeftPane = React.createClass({
             var tips = []
             PhyloTree.gatherAllNodes(this.props.root, tips)
             var all_values = tips.map(cValFunc).filter(function(d){return d;})
-            console.log(all_values)
             // get all types of the metadata entries
             all_values = all_values.filter(function(d, index){return all_values.indexOf(d) == index})
             var all_types = all_values.map(function(d){return typeof(d)})
@@ -317,9 +313,8 @@ var LegendComponent = React.createClass({
 var TreeTime = React.createClass({
 
     handleCheck : function(){
-        //console.log("Treetime CB changed");
-        var tt = this.props.appState.treetime
-        var xUnit = (!tt) ? "numdate" : "xvalue"
+        var tt = this.props.appState.treetime;
+        var xUnit = (!tt) ? "numdate" : "xvalue";
         this.props.setAppState({xUnit:xUnit, treetime:!tt});
     },
 
@@ -375,7 +370,6 @@ var TreeRightPane = React.createClass({
         }else{
 
             this.setState({tree_initialized:true});
-
             var dispatcher = PhyloTree.create(el, {
                 root:this.props.root},
                 this.props.appState);
@@ -392,7 +386,6 @@ var TreeRightPane = React.createClass({
     },
 
     select_link : function(d){
-        console.log ("Link selected: " + d.target.name)
         this.select_tip(d.target);
     },
 
@@ -446,7 +439,7 @@ var MuLeftPane = React.createClass({
         return (
             <div className="results-section-left_pane" id="results-section_mu-left_pane">
             <h2>Molecular clock</h2>
-            <h4>Average mutation rate:<br/> &mu; = {this.mu()} year<sup>-1</sup></h4>
+            <h4>Average substition rate:<br/> &mu; = {this.mu()} year<sup>-1</sup></h4>
             <h4>Correlation coefficient:<br/> R<sup>2</sup> = {this.r2()}</h4>
             </div>
             );
@@ -659,7 +652,7 @@ var DownloadRightPane = React.createClass({
                                 In addition, inferred dates of all nodes of the tree are given (column "numdate").
                                 The dates are given as floating point values in units of years.
                                 Other columns contain the branch specific rate estimated by the relaxed molecular method
-                                (given as fold-change relative to average, column "mutation_rate/avg"),
+                                (given as fold-change relative to average, column "substitution_rate/avg"),
                                 the ratio of estimated branch length of optimal branch length ("branch_len/opt")
                                 and the time since MRCA in numeric date format.</td>
                             </tr>
@@ -705,12 +698,12 @@ var Results = React.createClass({
 
     getInitialState : function (){
         return ({
-            treetime:false,
+            treetime:true,
             cvalue : function(d){
                 return "";
             },
             cscale: new DefaultScale(),
-            xUnit:'xvalue',
+            xUnit:'numdate',
             selected_tip:null,
             root_lh_initialized :false,
             color_nuc_pos: 1,
@@ -722,7 +715,6 @@ var Results = React.createClass({
     on_root : function (err, root){
 
         //console.log("ROOT node came")
-        console.log(root)
         if (err){
             console.warn("Can not get root node for the tree");
             console.warn(err);
@@ -833,11 +825,15 @@ var Results = React.createClass({
                 <DownloadContainer
                     appState={this.state}
                     setAppState={this.setAppState}/>
+                <div className="hugespacer"></div>
+                <div>
+If you use TreeTime results in a publication, please cite <a href="http://dx.doi.org/10.1093/ve/vex042">TreeTime: maximum likelihood phylodynamic analysis</a>, Pavel Sagulenko, Vadim Puller, and Richard Neher, Virus Evolution, 2017
                 </div>
-                <Footer/>
+                </div>
             </div>
         );
     },
+    // looks like dead code
     on_treetime_changed : function(){
         var checked = this.state.treetime;
         this.setState({treetime : !checked})

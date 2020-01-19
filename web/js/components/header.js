@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { Row, Navbar, Nav, NavItem, Glyphicon } from "react-bootstrap";
 
 <h4>Maximum-Likelihood molecular clock phylogenies</h4>
@@ -42,7 +42,7 @@ var Header  = React.createClass({
             <Nav pullRight>
                 <NavItem eventKey={1} href="/"><Glyphicon glyph={"home"}/> Home</NavItem>
                 <NavItem eventKey={2} href="/about"><Glyphicon glyph={"info-sign"}/> About</NavItem>
-                <NavItem eventKey={3} href="/doc"><Glyphicon glyph={"list-alt"}/> API doc</NavItem>
+                <NavItem eventKey={3} href="https://treetime.readthedocs.io/en/latest/index.html"><Glyphicon glyph={"list-alt"}/> API doc</NavItem>
             </Nav>
 
           </Navbar>
@@ -61,5 +61,4 @@ var Header  = React.createClass({
         );
     }
 });
-
 export default Header;

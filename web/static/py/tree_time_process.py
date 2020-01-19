@@ -3,12 +3,19 @@ import treetime
 import pandas
 import numpy as np
 from Bio import Phylo, AlignIO, Align, Seq, SeqRecord
+from Bio import __version__ as bioversion
 import zipfile
 import time
-import os, sys, json
-from treetime import numeric_date
+import os, sys, json, gzip
+from treetime.utils import numeric_date
 from treetime import TreeTime
 import traceback
+
+def myopen(fname, mode):
+    if fname[-3:]=='.gz':
+        return gzip.open(fname, mode)
+    else:
+        return open(fname, mode)
 
 dirname = (os.path.dirname(__file__))
 
@@ -29,6 +36,7 @@ log_filename = "log.txt"
 out_tree_json = "out_tree.json"
 out_likelihoods_json = "out_likelihoods.json"
 out_tree_nwk = "out_tree.nwk"
+out_tree_nex = "out_tree.nexus"
 out_aln_fasta = "out_aln.fasta"
 out_metadata_csv = "out_metadata.csv"
 out_mol_clock_csv = 'molecular_clock.csv'
@@ -48,7 +56,7 @@ def get_filepaths(root):
     }
 
 
-def read_metadata_from_file(infile):
+def read_metadata_from_file(infile, log):
     """
     @brief      Reads a metadata from file or handle.
     @param      self    The object
@@ -56,19 +64,23 @@ def read_metadata_from_file(infile):
     """
     try:
         # read the metadata file into pandas dataframe.
-        df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*')
+        df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', engine='python')
         # check the metadata has strain names in the first column
-        if 'name' not in df.index.name.lower():
-            print ("Cannot read metadata: first column should contain the names of the strains")
-            return
         # look for the column containing sampling dates
-        # We assume that the dates might be given in eihter human-readable format
+        # We assume that the dates might be given either in human-readable format
         # (e.g. ISO dates), or be already converted to the numeric format.
+        if 'name' not in df.index.name.lower():
+            print("Cannot read metadata: first column should contain the names of the strains", file=log)
+            return
         potential_date_columns = []
         potential_numdate_columns = []
         # Scan the dataframe columns and find ones which likely to store the
         # dates
         for ci,col in enumerate(df.columns):
+            d = df.iloc[0,ci]
+            if type(d)==str and d[0] in ['"', "'"] and d[-1] in ['"', "'"]:
+                for i,tmp_d in enumerate(df.iloc[:,ci]):
+                    df.iloc[i,ci] = tmp_d.strip(d[0])
             if 'date' in col.lower():
                 try: #  avoid date parsing when can be parsed as float
                     tmp = float(df.iloc[0,ci])
@@ -81,21 +93,31 @@ def read_metadata_from_file(infile):
             name = potential_numdate_columns[0][1]
             # Use this column as numdate_given
             dates = df[name].to_dict()
+            for k, val in dates.items():
+                try:
+                    dates[k] = float(val)
+                except:
+                    dates[k] = None
+
         elif len(potential_date_columns)>=1:
             #try to parse the csv file with dates in the idx column:
             idx = potential_date_columns[0][0]
             name = potential_date_columns[0][1]
             # NOTE as the 0th column is the index, we should parse the dates
             # for the column idx + 1
-            df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', parse_dates=[1+idx])
+            df = pandas.read_csv(infile, index_col=0, sep=r'\s*,\s*', parse_dates=[1+idx], engine='python')
             dates = {k: numeric_date(df.loc[k, name]) for k in df.index}
             df.loc[:, name] = map(lambda x: str(x.date()), df.loc[:, name])
         else:
-            print ("Metadata file has no column which looks like a sampling date!")
+            print("Metadata file has no column which looks like a sampling date!", file=log)
         metadata = df.to_dict(orient='index')
+        for k, val in metadata.items():
+            if type(k)==str and k[0] in ["'", '"'] and k[-1] in ["'", '"']:
+                metadata[k.strip(k[0])] = val
+                dates[k.strip(k[0])] = dates[k]
         return dates, metadata
     except:
-        print ("Cannot read the metadata file. Exception caught")
+        print("Cannot read the metadata file. Exception caught!", file=log)
         raise
         return {}, {}
 
@@ -130,14 +152,15 @@ class TreeTimeWeb(treetime.TreeTime):
         aln = AlignIO.read(get_filepaths(root)['aln'], 'fasta')
 
         if metadata:
-            dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'])
+            dates, metadata = read_metadata_from_file(get_filepaths(root)['meta'], self._log_file)
             self._metadata = metadata
         else:
             dates = {}
 
         gtr = 'jc' if webconfig['gtr'] == 'infer' else webconfig['gtr']
         super(TreeTimeWeb, self).__init__(dates=dates, tree=tree, aln=aln,
-                gtr=str(gtr), *args, **kwargs)
+                gtr=str(gtr),  *args, **kwargs)
+
 
     def run(self, **kwargs):
         _write_session_state(self._root_dir, SessionState.reading)
@@ -170,6 +193,7 @@ class TreeTimeWeb(treetime.TreeTime):
             _write_session_state(self._root_dir, SessionState.error, desc="TreeTime crashed. {}".format(tb))
             return
 
+
         # save results
         try:
             self.logger("###TreeTimeWeb.run: Done treetime computations, saving the results",0)
@@ -192,25 +216,48 @@ class TreeTimeWeb(treetime.TreeTime):
 
         # files to be downloaded as .zip archive
         Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nwk), 'newick')
+        try:
+            # decorate tree with inferred mutations
+            terminal_count = 0
+            for n in self.tree.find_clades():
+                if n.up is None:
+                    continue
+                n.confidence=None
+                # due to a bug in older versions of biopython that truncated filenames in nexus export
+                # we truncate them by hand and make them unique.
+                if n.is_terminal() and len(n.name)>40 and bioversion<"1.69":
+                    n.name = n.name[:35]+'_%03d'%terminal_count
+                    terminal_count+=1
+                if len(n.mutations):
+                    n.comment= '&mutations="' + ','.join([a+str(pos)+d for (a,pos, d) in n.mutations])+'"'
+        except:
+            tb = traceback.format_exc()
+            _write_session_state(self._root_dir, SessionState.error, desc="TreeTime tree decoration failed. {}".format(tb))
+            return
+        Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nex), 'nexus')
+
+
         self._save_alignment()
         self._save_metadata_to_csv()
-        self._save_molecular_clock_to_csv()
+        #self._save_molecular_clock_to_csv()
         self._save_gtr()
         # zip all results to one file
         with zipfile.ZipFile(os.path.join(self._root_dir, zipname), 'w') as out_zip:
             out_zip.write(os.path.join(self._root_dir, out_tree_nwk), arcname=out_tree_nwk)
+            out_zip.write(os.path.join(self._root_dir, out_tree_nex), arcname=out_tree_nex)
             out_zip.write(os.path.join(self._root_dir, out_aln_fasta), arcname=out_aln_fasta)
             out_zip.write(os.path.join(self._root_dir, out_metadata_csv), arcname=out_metadata_csv)
             out_zip.write(os.path.join(self._root_dir, out_tree_json), arcname=out_tree_json)
             #out_zip.write(os.path.join(self._root_dir, in_cfg), arcname=in_cfg)
-            out_zip.write(os.path.join(self._root_dir, out_mol_clock_csv), arcname=out_mol_clock_csv)
+            #out_zip.write(os.path.join(self._root_dir, out_mol_clock_csv), arcname=out_mol_clock_csv)
             out_zip.write(os.path.join(self._root_dir, out_likelihoods_json), arcname=out_likelihoods_json)
             out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
 
     def _save_alignment(self):
         aln = Align.MultipleSeqAlignment([SeqRecord.SeqRecord (Seq.Seq(''.join(n.sequence)), id=n.name, name=n.name, description="")
             for n in self.tree.find_clades ()])
-        AlignIO.write(aln, os.path.join(self._root_dir, out_aln_fasta), "fasta")
+        with myopen(os.path.join(self._root_dir, out_aln_fasta), 'w') as ofile:
+            AlignIO.write(aln, ofile, "fasta")
 
     def _save_metadata_to_csv(self):
         meta = {node: self._node_metadata(node) for node in self.tree.find_clades()}
@@ -275,7 +322,7 @@ class TreeTimeWeb(treetime.TreeTime):
 
         # save the result in the json file:
         outf = os.path.join(self._root_dir, out_tree_json)
-        with open (outf,'w') as of:
+        with myopen(outf,'w') as of:
             json.dump(tree_json, of, indent=False)
 
     def _layout(self):
@@ -340,7 +387,7 @@ class TreeTimeWeb(treetime.TreeTime):
         if relax_clock:
             # append mutation rate deviation from average
             meta.append({
-                "name": "Local mutation rate",
+                "name": "Local substitution rate",
                 "value": gamma
                 })
             # else:
@@ -463,10 +510,31 @@ class TreeTimeWeb(treetime.TreeTime):
         from Bio import Align
         #  files to be displayed in the web interface
         Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nwk), 'newick')
+        try:
+            # decorate tree with inferred mutations
+            terminal_count = 0
+            for n in self.tree.find_clades():
+                if n.up is None:
+                    continue
+                n.confidence=None
+                # due to a bug in older versions of biopython that truncated filenames in nexus export
+                # we truncate them by hand and make them unique.
+                if n.is_terminal() and len(n.name)>40 and bioversion<"1.69":
+                    n.name = n.name[:35]+'_%03d'%terminal_count
+                    terminal_count+=1
+                if len(n.mutations):
+                    n.comment= '&mutations="' + ','.join([a+str(pos)+d for (a,pos, d) in n.mutations])+'"'
+        except:
+            tb = traceback.format_exc()
+            _write_session_state(self._root_dir, SessionState.error, desc="TreeTime tree decoration failed. {}".format(tb))
+            return
+        Phylo.write(self.tree, os.path.join(self._root_dir, out_tree_nex), 'nexus')
+
         self._save_alignment()
         self._save_gtr()
         with zipfile.ZipFile(os.path.join(self._root_dir, zipname), 'w') as out_zip:
             out_zip.write(os.path.join(self._root_dir, out_tree_nwk), arcname=out_tree_nwk)
+            out_zip.write(os.path.join(self._root_dir, out_tree_nex), arcname=out_tree_nex)
             out_zip.write(os.path.join(self._root_dir, out_aln_fasta), arcname=out_aln_fasta)
             out_zip.write(os.path.join(self._root_dir, out_gtr), arcname=out_gtr)
 

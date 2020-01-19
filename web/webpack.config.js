@@ -2,7 +2,7 @@ var webpack = require('webpack');
 
 module.exports = {
     entry: {
-        welcome_1: "./js/components/welcome_1.js",
+        welcome: "./js/components/welcome.js",
         welcome_anc: "./js/components/welcome_ancestral_reconstruction.js",
         welcome_treetime: "./js/components/welcome_treetime.js",
         progress_ancestral: "./js/components/progress_ancestral.js",

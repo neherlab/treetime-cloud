@@ -110,6 +110,7 @@ MuPlot._set_points_from_root = function(dispatcher){
           name: d.name,
           x: d.numdate,
           y: d.xvalue,
+          terminal: !d.children,
           fill_color: d.children ? _internalFillColor() : _terminalFillColor(),
           stroke_color: d.children ? _internalStrokeColor() : _terminalStrokeColor()
         });
@@ -126,19 +127,21 @@ MuPlot._set_points_from_root = function(dispatcher){
 MuPlot._update_lin_regression = function(dispatcher){
 
     //console.log("Updateting linear regression for MU plot...");
+    var terminals = this.points.filter(function(d){return d.terminal;});
 
-    var n = this.points.length;
+    var n = terminals.length;
 
     if (n == 0) {
       this.regression = {};
       return;
     }
 
-    var sum_x =  d3.sum(this.points.map(function(d){return d.x}));
-    var sum_y =  d3.sum(this.points.map(function(d){return d.y}));
-    var sum_xy = d3.sum(this.points.map(function(d){return d.x * d.y}));
-    var sum_xx = d3.sum(this.points.map(function(d){return d.x * d.x}));
-    var sum_yy = d3.sum(this.points.map(function(d){return d.y * d.y}));
+    console.log(this.points);
+    var sum_x =  d3.sum(terminals.map(function(d){return d.x}));
+    var sum_y =  d3.sum(terminals.map(function(d){return d.y}));
+    var sum_xy = d3.sum(terminals.map(function(d){return d.x * d.y}));
+    var sum_xx = d3.sum(terminals.map(function(d){return d.x * d.x}));
+    var sum_yy = d3.sum(terminals.map(function(d){return d.y * d.y}));
 
     var slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
     var intercept =  (sum_y - slope * sum_x)/n;
@@ -149,7 +152,6 @@ MuPlot._update_lin_regression = function(dispatcher){
       'intercept' :  intercept,
       'r2' :  r2
     };
-    //console.log("Molecular clock plot linear regression changed, emitting signal.")
     dispatcher.emit('mol_clock:regression_changed', this.regression);
 
 };
@@ -157,8 +159,7 @@ MuPlot._update_lin_regression = function(dispatcher){
 MuPlot._draw_regression = function(el, scales) {
 
   if (!this.regression) return;
-  if (!this.points ) return;
-  //console.log("MuPlot updating the molecular clock linear regression...")
+
   var max_x = d3.max(scales.x.domain());
   var min_x = d3.min(scales.x.domain());
 
@@ -398,7 +399,6 @@ MuPlot._draw_points = function(el, scales, dispatcher){
       .style('stroke-width',"1")
 
       .on('mouseover', function(d) {
-          console.log(nodeTooltip)
           nodeTooltip.show(d);
           dispatcher.emit('point:point_mouseover', d);
       })

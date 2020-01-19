@@ -41,6 +41,14 @@ var Banner = React.createClass({
             <Panel collapsible defaultCollapsed header="Server output:" id='error_message'>
                 {this.props.appState.error}
             </Panel>
+            <div style={{"text-align":"justify"}}>
+                We are collecting errors and are working on more informative error messages.
+                Common problems so far include:
+                <ul>
+                    <li>The names of sequences in the fasta file and the tree don't match (avoid characters like ':', '()', ',', or spaces that are illegal in fasta, newick, or csv).</li>
+                    <li>Your sequences are not aligned and have different lengths.</li>
+                </ul>
+            </div>
             </div>;
 
         if (this.props.checkError()){

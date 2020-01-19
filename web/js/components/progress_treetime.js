@@ -25,29 +25,74 @@ var ErrorBanner = React.createClass({
 
     render(){
         var glyph_type = "ban-circle"
-        var mail = "mailto:pavel.sagulenko@tuebingen.mpg.de?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
+        var mail = "mailto:richard.neher@unibas.ch?subject=TreeTime%20error.%20Session:" + this.props.appState.UID
 
         return (
             <div>
-                <h3 id="error_header">Oooops... An error occured.</h3>
+                <h3 id="error_header">TreeTime encountered an error while processing your data.</h3>
                 <div>
                 <p style={{"text-align":"justify"}}>
-                    Either the input parameters caused some numerical problems/overflow exceptions, or you encountered a bug in TreeTime.
+                    Either the input parameters caused some numerical problems/overflow exceptions, your input data are not according to TreeTime's expectations, or you encountered a bug in TreeTime.
                     Please, send us an <a href={mail} target="_top">e-mail</a> to help us diagnose and fix the problem. (please keep the session ID in the mail subject). THANK YOU.
                 </p>
                 </div>
                 <div>
                     <p style={{"text-align":"justify"}}>
-                    We are sorry for the incovenience and will try to fix the problem as soon as possible.
+                    We are sorry for the inconvenience and will try to fix the problem as soon as possible.
                     </p>
                 </div>
                 <Panel collapsible defaultCollapsed header="Server output:" id='error_message'>
                     {this.props.appState.error}
                 </Panel>
+                <div style={{"text-align":"justify"}}>
+                    We are collecting errors and are working on catching them one be one.
+                    Please check the log below.
+                    Common problems so far include:
+                    <ul>
+                        <li>The names of sequences in the fasta file and the tree don't match (avoid characters like ':', '()', ',', or spaces that are illegal in fasta, newick, or csv).</li>
+                        <li>Your sequences are not aligned and have different lengths.</li>
+                        <li>The names in the meta data csv file don't match the names in the tree.
+                            Make sure there are no spaces in the names (not supported in fasta) and
+                            rows of the csv don't contain spurious entries (e.g. row numbers not listed in header).</li>
+                    </ul>
+                </div>
             </div>
         );
     }
 })
+
+
+var Log = React.createClass({
+    render(){
+        return (
+            <div style={{"text-align":"justify"}}>
+            {this.props.log.map(function(item) {
+            if (item.includes("ERROR")){
+              return (
+                <span style={{"color":"red"}}>
+                  {item}
+                  <br/>
+                </span>
+              )
+            }else if (item.includes("WARNING")){
+              return (
+                <span style={{"color":"orange"}}>
+                  {item}
+                  <br/>
+                </span>
+              )
+            }else{
+              return (
+                <span>
+                  {item}
+                  <br/>
+                </span>
+              )
+            }})}
+            </div>
+        );
+    }
+});
 
 var ProgressTreeTimePage = React.createClass({
 
@@ -55,8 +100,11 @@ var ProgressTreeTimePage = React.createClass({
         var parentNode = this.getDOMNode().parentNode;
         //console.log(parentNode)
         var UID = (parentNode.attributes.userid.value);
-        //console.log("UID: " + UID)
+        console.log("UID: " + UID)
         this.state.UID = UID;
+        this.log= [""];
+        this.requestLog();
+        this.interval = setInterval(this.requestLog, 5000);
         this.requestSessionSate();
         this.interval = setInterval(this.requestSessionSate, 10000);
     },
@@ -67,7 +115,8 @@ var ProgressTreeTimePage = React.createClass({
                 UID : "",
                 "state":true,
                 "current_state":"running",
-                "error":""
+                "error":"",
+                "log":[""]
             }
         );
     },
@@ -75,7 +124,31 @@ var ProgressTreeTimePage = React.createClass({
     setAppState : function(partialState){
         this.setState(partialState);
         console.log("Progress page setting app state: ")
-        console.log(this.state)
+    },
+
+    requestLog: function(){
+        console.log("Request log sent...")
+        request.get('/treetime/' + this.state.UID + '/get_log')
+            .send({UID:this.state.UID})
+            .end(this.onGetLog);
+    },
+
+
+    onGetLog : function(err, res){
+        if (err){
+            if (err.status == 404){
+                window.location.replace("404")
+            }
+            return;
+        }
+
+        var log_data = JSON.parse(res.text);
+        this.log = log_data.log;
+        if (!log_data){
+            this.setAppState({"state":false, "error":"Internal server error: The server failed to send treetime status update."})
+            return;
+        }
+        this.setAppState({"log":log_data.log});
     },
 
     requestSessionSate: function(){
@@ -130,7 +203,10 @@ var ProgressTreeTimePage = React.createClass({
                     <div style={this.stateRenderStyle(true)}>
                         <ErrorBanner appState={this.state}/>
                     </div>
+                    <div>
                 </div>
+            <Log log={this.state.log}/>
+            </div>
             </div>
         )
     }

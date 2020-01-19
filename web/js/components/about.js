@@ -149,7 +149,7 @@ var Terms = React.createClass({
                     The treetime code is available under an MIT license on <a href="https://github.com/neherlab/treetime">Github</a>. Please submit any issues there.
                 </div>
                 <div style={{"text-align":"left"}}>
-                    The web server is built using <a href="http://flask.pocoo.org/" target="_blank">flask</a>. Our code can be found at <a href="https://github.com/pausag/treetime_web">github.com/pausag/treetime_web</a>.
+                    The web server is built using <a href="http://flask.pocoo.org/" target="_blank">flask</a>. Our code can be found at <a href="https://github.com/neherlab/treetime_web">github.com/neherlab/treetime_web</a>.
                 </div>
             </Panel>
 
