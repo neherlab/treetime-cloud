@@ -7,7 +7,7 @@ services:
     build:
       context: ./
       dockerfile: python3-git-ubuntu/Dockerfile
-    command: sh -c "cd /code/treetime && ls -al .. && pip3 --quiet install . && python3 bin/treetime --aln ../examples/data/h3n2_na/h3n2_na_500.fasta --tree ../examples/data/h3n2_na/h3n2_na_500.nwk --dates ../examples/data/h3n2_na/h3n2_na_500.metadata.csv"
+    command: sh -c "cd /code/treetime && pip3 --quiet install . && mkdir -p /code/.output && cd /code/.output && python3 /code/treetime/bin/treetime --aln /code/examples/data/h3n2_na/h3n2_na_500.fasta --tree /code/examples/data/h3n2_na/h3n2_na_500.nwk --dates /code/examples/data/h3n2_na/h3n2_na_500.metadata.csv"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
