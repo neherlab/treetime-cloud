@@ -1,0 +1,7 @@
+\.build
+\.cache
+\.env
+config
+node_modules
+tsconfig.json
+tslint.json

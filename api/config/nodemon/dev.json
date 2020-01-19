@@ -1,0 +1,35 @@
+{
+  "quiet": true,
+  "legacyWatch": false,
+  "delay": 0.1,
+  "watch": [
+    ".browserslistrc",
+    ".editorconfig",
+    ".env",
+    ".eslintignore",
+    ".eslintrc.js",
+    ".prettierignore",
+    ".prettierrc",
+    "babel.config.js",
+    "config",
+    "package.json",
+    "postcss.config.js",
+    "stylelint.config.js",
+    "tsconfig.json",
+    "tslint.json",
+    "webpack.config.js",
+    "yarn.lock"
+  ],
+  "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
+  "ignore": [
+    ".build",
+    "node_modules",
+    "**/__tests__",
+    "**/*.test.*sx",
+    "**/*.test.*s"
+  ],
+  "events": {
+    "restart": "yarn dev:kill"
+  },
+  "exec": "yarn dev:clean; yarn openapi:clean; yarn openapi:generate; yarn dev; true"
+}
