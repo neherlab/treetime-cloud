@@ -70,8 +70,12 @@ function alias(development: boolean) {
 }
 
 function entry(development: boolean, entries: string[]) {
-  if (development) {
-    return entries
+  if (development || debuggableProd) {
+    return [
+      'map.prototype.tojson', // to visualize Map in Redux Dev Tools
+      'set.prototype.tojson', // to visualize Set in Redux Dev Tools
+      ...entries,
+    ]
   }
   return entries
 }
