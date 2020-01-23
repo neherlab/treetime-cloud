@@ -16,17 +16,22 @@ export interface PostTaskRequest {
   }
 }
 
+// TODO: return values should be different for different endpoints
 export interface PostTaskResponse {
   payload: object
 }
 
 @JsonController()
 export default class TaskController {
+  // HACK: should become a service, with client isolation
+  private files: Map<string, File> = new Map<string, File>()
+
   @Post('/api/v1/upload/dates')
   public async uploadDates(
     @Body({ required: true }) { taskId }: UploadRequestBody,
     @UploadedFile('file', { required: true }) dates: File,
   ): Promise<PostTaskResponse> {
+    this.files.set('DATES', dates)
     return { payload: { taskId } }
   }
 
@@ -35,6 +40,7 @@ export default class TaskController {
     @Body({ required: true }) { taskId }: UploadRequestBody,
     @UploadedFile('file', { required: true }) fasta: File,
   ): Promise<PostTaskResponse> {
+    this.files.set('FASTA', fasta)
     return { payload: { taskId } }
   }
 
@@ -43,6 +49,7 @@ export default class TaskController {
     @Body({ required: true }) { taskId }: UploadRequestBody,
     @UploadedFile('file', { required: true }) nwk: File,
   ): Promise<PostTaskResponse> {
+    this.files.set('NWK', nwk)
     return { payload: { taskId } }
   }
 

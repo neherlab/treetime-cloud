@@ -3,18 +3,21 @@ import path from 'path'
 import React, { useCallback } from 'react'
 import { connect } from 'react-redux'
 
-import { FileWithPath, useDropzone } from 'react-dropzone'
+import { useDropzone } from 'react-dropzone'
 
 import { State } from '../../state/reducer'
-import { addFiles, AddFilesPayload } from '../../state/upload/upload.actions'
+import {
+  triggerUploadFiles,
+  UploadFilesPayload,
+} from '../../state/upload/upload.actions'
 import { selectFiles } from '../../state/upload/upload.selectors'
 import { FileType } from '../../state/upload/upload.types'
 
 /* Adds relevant files to a Map to be dispatched */
-function reduceDroppedFiles(files: Map<FileType, string>, file: FileWithPath) {
+function reduceDroppedFiles(files: Map<FileType, File>, file: File) {
   const type = fileExtToType(path.extname(file.name))
   if (type) {
-    files.set(type, file.name)
+    files.set(type, file)
   }
   return files
 }
@@ -33,17 +36,17 @@ function fileExtToType(ext: string) {
 }
 
 export interface FileUploadZoneProps {
-  files: Map<FileType, string>
-  addFiles(payload: AddFilesPayload): void
+  files: Map<FileType, File>
+  triggerFileUpload(payload: UploadFilesPayload): void
 }
 
-function FileUploadZone({ addFiles, files }: FileUploadZoneProps) {
+function FileUploadZone({ files, triggerFileUpload }: FileUploadZoneProps) {
   const onDrop = useCallback(
-    (droppedFiles: FileWithPath[]) => {
+    (droppedFiles: File[]) => {
       const files = droppedFiles.reduce(reduceDroppedFiles, new Map())
-      addFiles({ files })
+      triggerFileUpload({ files })
     },
-    [addFiles],
+    [triggerFileUpload],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
@@ -57,18 +60,16 @@ function FileUploadZone({ addFiles, files }: FileUploadZoneProps) {
         <p>{`Drag 'n' drop some files here, or click to select files`}</p>
       )}
       <ul>
-        {[...files.values()].map(filename => (
-          <li key={filename}>{filename}</li>
+        {[...files.values()].map(({ name }: File) => (
+          <li key={name}>{name}</li>
         ))}
       </ul>
     </div>
   )
 }
 
-const mapStateToProps = (state: State) => ({
-  files: selectFiles(state),
-})
+const mapStateToProps = (state: State) => ({ files: selectFiles(state) })
 
-const mapDispatchToProps = { addFiles }
+const mapDispatchToProps = { triggerFileUpload: triggerUploadFiles }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileUploadZone)
