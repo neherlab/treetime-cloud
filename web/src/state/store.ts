@@ -6,6 +6,8 @@ import createSagaMiddleware from 'redux-saga'
 import createRootReducer from './reducer'
 import rootSaga from './sagas'
 
+import { triggerGetTaskId } from './task/task.actions'
+
 const development = process.env.NODE_ENV === 'development'
 const debug = development || process.env.DEBUGGABLE_PROD === '1'
 
@@ -42,6 +44,8 @@ export default function configureStore({ url }: StoreParams = storeDefaults) {
   const store = createStore(createRootReducer(history), {}, enhancer)
 
   sagaMiddleware.run(rootSaga)
+
+  store.dispatch(triggerGetTaskId())
 
   if (module.hot) {
     module.hot.accept('./reducer', () => {

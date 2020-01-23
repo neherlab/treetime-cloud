@@ -3,9 +3,10 @@ import { all, call, put } from 'redux-saga/effects'
 
 import { errorAdd } from './error/error.actions'
 
+import { taskSaga } from './task/task.sagas'
 import { uploadSaga } from './upload/upload.sagas'
 
-const allSagas = [uploadSaga]
+const allSagas = [taskSaga, uploadSaga]
 
 function autoRestart(generator: Saga, handleError: Saga<[Error]>) {
   return function* autoRestarting() {

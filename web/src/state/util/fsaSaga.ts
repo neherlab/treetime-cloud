@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios'
 import { SagaIterator } from 'redux-saga'
 import { call, cancelled, put } from 'redux-saga/effects'
 import { Action, AsyncActionCreators } from 'typescript-fsa'
@@ -37,7 +38,9 @@ export default function fsaSaga<Params, Result>(
 
     try {
       // Call worker
-      const result: Result = yield call(worker, params)
+      const response: AxiosResponse<{payload: Result}> =
+        yield call(worker, params) // prettier-ignore
+      const result: Result = response.data.payload
 
       // We are still here? All good, dispatch "done" action with results
       yield put(asyncActionCreators.done({ params, result }))
