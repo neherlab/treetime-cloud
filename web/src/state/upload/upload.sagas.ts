@@ -4,7 +4,7 @@ import axios from 'axios'
 
 import {
   triggerUploadFiles,
-  uploadFiles,
+  uploadFilesAsync,
   UploadFilesPayload,
 } from './upload.actions'
 
@@ -43,7 +43,7 @@ export function* uploadFileWorker(params: UploadFilesPayload) {
 
 export const uploadSaga = takeLatest(
   triggerUploadFiles,
-  fsaSaga(uploadFiles, uploadFileWorker),
+  fsaSaga(uploadFilesAsync, uploadFileWorker),
 )
 
 export default [uploadSaga]

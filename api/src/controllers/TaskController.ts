@@ -1,9 +1,17 @@
-import { Body, JsonController, Post, UploadedFile } from 'routing-controllers'
+import {
+  Body,
+  Get,
+  JsonController,
+  Post,
+  UploadedFile,
+} from 'routing-controllers'
+
+import uuidv4 from 'uuid/v4'
 
 import { File } from 'multer'
 
 export interface Task {
-  id: string
+  id: string // TODO: make type-safe, share types with frontend
 }
 
 export interface UploadRequestBody {
@@ -16,6 +24,12 @@ export interface PostTaskRequest {
   }
 }
 
+export interface GetTaskIdResponse {
+  payload: {
+    taskId: string // TODO: make type-safe, share types with frontend
+  }
+}
+
 // TODO: return values should be different for different endpoints
 export interface PostTaskResponse {
   payload: object
@@ -25,6 +39,12 @@ export interface PostTaskResponse {
 export default class TaskController {
   // HACK: should become a service, with client isolation
   private files: Map<string, File> = new Map<string, File>()
+
+  @Get('/api/v1/taskId')
+  public async getTaskId(): Promise<GetTaskIdResponse> {
+    const taskId = this.generateTaskId()
+    return { payload: { taskId } }
+  }
 
   @Post('/api/v1/upload/dates')
   public async uploadDates(
@@ -59,5 +79,10 @@ export default class TaskController {
     { payload: { task } }: PostTaskRequest,
   ): Promise<PostTaskResponse> {
     return { payload: { taskId: task.id } }
+  }
+
+  // TODO: should become a part of a new service
+  private generateTaskId() {
+    return uuidv4()
   }
 }
