@@ -27,6 +27,10 @@ export const uploadReducer = reducerWithInitialState(uploadDefaultState)
 
   .withHandling(
     immerCase(removeFiles, (draft, payload) => {
+      if (!draft.files) {
+        return
+      }
+
       // Remove files by type from state
       payload.files.forEach((_, fileType) => draft.files.delete(fileType))
     }),
