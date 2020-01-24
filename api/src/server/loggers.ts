@@ -1,8 +1,16 @@
 import expressWinston from 'express-winston'
+import { inspect } from 'util'
 import winston from 'winston'
 
 const consoleFormat = () =>
-  winston.format.printf(info => `${info.timestamp} ${info.message}`)
+  winston.format.printf(info => {
+    const error = info?.meta?.error
+    let metaString = ''
+    if (error) {
+      metaString = `\n\n${inspect({ ...error })}`
+    }
+    return `${info.timestamp} ${info.message}${metaString}`
+  })
 
 export const requestLogger = () =>
   expressWinston.logger({
@@ -13,7 +21,6 @@ export const requestLogger = () =>
       winston.format.align(),
       consoleFormat(),
     ),
-    meta: false,
     msg:
       'HTTP {{res.statusCode}} | {{res.responseTime}}ms | {{req.method}} | {{req.url}}',
     expressFormat: false,

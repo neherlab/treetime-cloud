@@ -6,6 +6,8 @@ import { connect } from 'react-redux'
 import { useDropzone } from 'react-dropzone'
 
 import { State } from '../../state/reducer'
+import { selectTaskId } from '../../state/task/task.selectors'
+import { TaskId } from '../../state/task/task.types'
 import {
   triggerUploadFiles,
   UploadFilesPayload,
@@ -37,28 +39,37 @@ function fileExtToType(ext: string) {
 
 export interface FileUploadZoneProps {
   files: Map<FileType, File>
+  taskId?: TaskId
   triggerFileUpload(payload: UploadFilesPayload): void
 }
 
-function FileUploadZone({ files, triggerFileUpload }: FileUploadZoneProps) {
+function FileUploadZone({
+  files,
+  taskId,
+  triggerFileUpload,
+}: FileUploadZoneProps) {
   const onDrop = useCallback(
     (droppedFiles: File[]) => {
-      const files = droppedFiles.reduce(reduceDroppedFiles, new Map())
-      triggerFileUpload({ files })
+      if (taskId) {
+        const files = droppedFiles.reduce(reduceDroppedFiles, new Map())
+        triggerFileUpload({ files, taskId })
+      }
     },
-    [triggerFileUpload],
+    [taskId, triggerFileUpload],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   return (
     <div {...getRootProps()}>
+      <p>{`TaskID: ${taskId}`}</p>
       <input type="file" {...getInputProps()} />
-      {isDragActive ? (
-        <p>{'Drop the files here ...'}</p>
-      ) : (
-        <p>{`Drag 'n' drop some files here, or click to select files`}</p>
-      )}
+      {taskId &&
+        (isDragActive ? (
+          <p>{'Drop the files here ...'}</p>
+        ) : (
+          <p>{`Drag 'n' drop some files here, or click to select files`}</p>
+        ))}
       <ul>
         {[...files.values()].map(({ name }: File) => (
           <li key={name}>{name}</li>
@@ -68,7 +79,10 @@ function FileUploadZone({ files, triggerFileUpload }: FileUploadZoneProps) {
   )
 }
 
-const mapStateToProps = (state: State) => ({ files: selectFiles(state) })
+const mapStateToProps = (state: State) => ({
+  files: selectFiles(state),
+  taskId: selectTaskId(state),
+})
 
 const mapDispatchToProps = { triggerFileUpload: triggerUploadFiles }
 

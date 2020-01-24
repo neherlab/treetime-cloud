@@ -14,7 +14,7 @@ export interface TaskError {
 
 const action = actionCreatorFactory('UPLOAD')
 
-export const triggerGetTaskId = action('GET_TASK_ID/TRIGGER')
+export const triggerGetTaskId = action('GET_TASK_ID_TRIGGER')
 
 export const getTaskIdAsync = action.async<
   void,

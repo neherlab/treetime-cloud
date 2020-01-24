@@ -1,4 +1,4 @@
-import { call, takeLatest } from 'redux-saga/effects'
+import { takeLatest } from 'redux-saga/effects'
 
 import axios from 'axios'
 
@@ -10,40 +10,27 @@ import {
 
 import fsaSaga from '../util/fsaSaga'
 
-import { FileType } from './upload.types'
+function uploadFilesApi({ files, taskId }: UploadFilesPayload) {
+  const formData = new FormData()
 
-interface UploadFileParams {
-  type: FileType
-  file: File
-}
+  formData.set('taskId', taskId)
 
-function uploadFilesApi({ files }: UploadFilesPayload) {
-  // TODO: upload in parallel
-  return [...files.entries()].map(([type, file]) => {
-    const fileType = type.toLowerCase()
-    const formData = new FormData()
-    formData.set('taskId', 'TODO-123-456') // TODO: get real task id
-    formData.append('file', file)
-    return axios.post(
-      `http://localhost:5000/api/v1/upload/${fileType}`,
-      formData,
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-        },
-      },
-    )
+  files.forEach((file, type) => {
+    const typeString = type.toString()
+    formData.append(typeString, file)
   })
-}
 
-export function* uploadFileWorker(params: UploadFilesPayload) {
-  yield call(uploadFilesApi, params)
+  return axios.post(`http://localhost:5000/api/v1/upload`, formData, {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+    },
+  })
 }
 
 export const uploadSaga = takeLatest(
   triggerUploadFiles,
-  fsaSaga(uploadFilesAsync, uploadFileWorker),
+  fsaSaga(uploadFilesAsync, uploadFilesApi),
 )
 
 export default [uploadSaga]

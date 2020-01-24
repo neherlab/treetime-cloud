@@ -1,5 +1,6 @@
 import actionCreatorFactory from 'typescript-fsa'
 
+import { TaskId } from '../task/task.types'
 import { FileType } from './upload.types'
 
 export interface RemoveFilesPayload {
@@ -8,11 +9,12 @@ export interface RemoveFilesPayload {
 
 export interface UploadFilesPayload {
   files: Map<FileType, File>
+  taskId: TaskId
 }
 
-export interface FileUploadAsyncPayload {} // eslint-disable-line @typescript-eslint/no-empty-interface
-
-export interface FileUploadAsyncResult {} // eslint-disable-line @typescript-eslint/no-empty-interface
+export interface FileUploadAsyncResult {
+  taskId: TaskId
+}
 
 export interface UploadError {
   error: Error

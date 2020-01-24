@@ -3,12 +3,13 @@ import {
   Get,
   JsonController,
   Post,
-  UploadedFile,
+  Req,
+  UseBefore,
 } from 'routing-controllers'
 
 import uuidv4 from 'uuid/v4'
 
-import { File } from 'multer'
+import multer from 'multer'
 
 export interface Task {
   id: string // TODO: make type-safe, share types with frontend
@@ -35,6 +36,14 @@ export interface PostTaskResponse {
   payload: object
 }
 
+export interface RequestWithFiles {
+  files: {
+    DATES: File[]
+    FASTA: File[]
+    NWK: File[]
+  }
+}
+
 @JsonController()
 export default class TaskController {
   // HACK: should become a service, with client isolation
@@ -46,30 +55,36 @@ export default class TaskController {
     return { payload: { taskId } }
   }
 
-  @Post('/api/v1/upload/dates')
-  public async uploadDates(
+  @Post('/api/v1/upload')
+  @UseBefore(
+    multer().fields([
+      { name: 'DATES', maxCount: 1 },
+      { name: 'FASTA', maxCount: 1 },
+      { name: 'NWK', maxCount: 1 },
+    ]),
+  )
+  public async uploadFiles(
     @Body({ required: true }) { taskId }: UploadRequestBody,
-    @UploadedFile('file', { required: true }) dates: File,
+    @Req() req: RequestWithFiles,
   ): Promise<PostTaskResponse> {
-    this.files.set('DATES', dates)
-    return { payload: { taskId } }
-  }
+    // TODO: prevent crash when a file of unknown type is uploaded
 
-  @Post('/api/v1/upload/fasta')
-  public async uploadFasta(
-    @Body({ required: true }) { taskId }: UploadRequestBody,
-    @UploadedFile('file', { required: true }) fasta: File,
-  ): Promise<PostTaskResponse> {
-    this.files.set('FASTA', fasta)
-    return { payload: { taskId } }
-  }
+    const dates = req?.files?.DATES
+    const fasta = req?.files?.FASTA
+    const nwk = req?.files?.NWK
 
-  @Post('/api/v1/upload/nwk')
-  public async uploadNwk(
-    @Body({ required: true }) { taskId }: UploadRequestBody,
-    @UploadedFile('file', { required: true }) nwk: File,
-  ): Promise<PostTaskResponse> {
-    this.files.set('NWK', nwk)
+    if (dates) {
+      this.files.set('DATES', dates[0])
+    }
+
+    if (fasta) {
+      this.files.set('FASTA', fasta[0])
+    }
+
+    if (nwk) {
+      this.files.set('NWK', nwk[0])
+    }
+
     return { payload: { taskId } }
   }
 

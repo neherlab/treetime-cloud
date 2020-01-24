@@ -16,9 +16,7 @@ let server: Server | null
 let app: express.Application | null
 
 const ENDPOINT_TASK = '/api/v1/task'
-const ENDPOINT_DATES = '/api/v1/upload/dates'
-const ENDPOINT_FASTA = '/api/v1/upload/fasta'
-const ENDPOINT_NWK = '/api/v1/upload/nwk'
+const ENDPOINT_UPLOAD = '/api/v1/upload'
 
 const DATA_PATH_BASE = path.join(moduleRoot, '..', 'examples/data/h3n2_na/h3n2_na_500') // prettier-ignore
 const DATES = `${DATA_PATH_BASE}.metadata.csv`
@@ -43,23 +41,24 @@ afterEach(() => {
 })
 
 interface PostFileParams {
-  endpoint: string
+  endpoint?: string
   filePath: string
+  fileType: string
   taskId?: string
 }
 
-function postFile({ endpoint, filePath, taskId }: PostFileParams) {
+function postFile({ endpoint, filePath, fileType, taskId }: PostFileParams) {
   return request(app)
-    .post(endpoint)
+    .post(endpoint ?? ENDPOINT_UPLOAD)
     .set({ Accept: 'application/json' })
     .field('taskId', taskId ?? TASK_ID)
-    .attach('file', filePath)
+    .attach(fileType, filePath)
 }
 
 test('replies with 200/success on valid dates upload', async () => {
   const response = await postFile({
-    endpoint: ENDPOINT_DATES,
     filePath: DATES,
+    fileType: 'DATES',
   })
 
   expect(response).toMatchObject({
@@ -70,8 +69,8 @@ test('replies with 200/success on valid dates upload', async () => {
 
 test('replies with 200/success on valid fasta upload', async () => {
   const response = await postFile({
-    endpoint: ENDPOINT_FASTA,
     filePath: FASTA,
+    fileType: 'FASTA',
   })
   expect(response).toMatchObject({
     status: 200,
@@ -81,10 +80,24 @@ test('replies with 200/success on valid fasta upload', async () => {
 
 test('replies with 200/success on valid nwk upload', async () => {
   const response = await postFile({
-    endpoint: ENDPOINT_NWK,
     filePath: NWK,
-    taskId: TASK_ID,
+    fileType: 'NWK',
   })
+  expect(response).toMatchObject({
+    status: 200,
+    body: { payload: { taskId: TASK_ID } },
+  })
+})
+
+test('replies with 200/success on valid upload of multiple files', async () => {
+  const response = await request(app)
+    .post(ENDPOINT_UPLOAD)
+    .set({ Accept: 'application/json' })
+    .field('taskId', TASK_ID)
+    .attach('DATES', DATES)
+    .attach('FASTA', FASTA)
+    .attach('NWK', NWK)
+
   expect(response).toMatchObject({
     status: 200,
     body: { payload: { taskId: TASK_ID } },
