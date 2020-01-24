@@ -4,7 +4,7 @@ import { applyMiddleware, createStore, StoreEnhancer } from 'redux'
 import createSagaMiddleware from 'redux-saga'
 
 import createRootReducer from './reducer'
-import rootSaga from './sagas'
+import createRootSaga from './sagas'
 
 import { triggerGetTaskId } from './task/task.actions'
 
@@ -43,13 +43,28 @@ export default function configureStore({ url }: StoreParams = storeDefaults) {
 
   const store = createStore(createRootReducer(history), {}, enhancer)
 
-  sagaMiddleware.run(rootSaga)
+  let rootSagaTask = sagaMiddleware.run(createRootSaga())
 
   store.dispatch(triggerGetTaskId())
 
   if (module.hot) {
+    // Setup hot reloading of root reducer
     module.hot.accept('./reducer', () => {
       store.replaceReducer(createRootReducer(history))
+      console.info('[HMR] root reducer reloaded succesfully')
+    })
+
+    // Setup hot reloading of root saga
+    module.hot.accept('./sagas', () => {
+      rootSagaTask.cancel()
+      rootSagaTask
+        .toPromise()
+        .then(() => {
+          rootSagaTask = sagaMiddleware.run(createRootSaga())
+          console.info('[HMR] root saga reloaded succesfully')
+          return true
+        })
+        .catch((error: Error) => console.error(error))
     })
   }
 

@@ -22,8 +22,6 @@ export default function webpackLoadStyles({
   include,
   modules,
 }: WebpackLoadStylesParams) {
-  const isDevWeb = isDev && !isServer
-
   return [
     {
       test: /\.(css|sass|scss)$/,
@@ -31,7 +29,6 @@ export default function webpackLoadStyles({
       include,
       sideEffects: true,
       use: [
-        isDevWeb && { loader: 'css-hot-loader' },
         { loader: MiniCssExtractPlugin.loader },
         { loader: 'css-loader', options: { modules, sourceMap } },
         {

@@ -141,6 +141,7 @@ export default {
       errors: true,
     },
     port: devServerPort,
+    publicPath: '/',
     quiet: false,
     logLevel: 'info',
     clientLogLevel: 'warning',
@@ -225,6 +226,7 @@ export default {
     new PreloadWebpackPlugin({
       rel: 'preload',
       include: ['main', 'pages/Home'],
+      fileBlacklist: [/\.map/, /\.hot-update\./],
     }),
 
     !analyze &&

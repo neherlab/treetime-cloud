@@ -30,4 +30,6 @@ function* rootErrorHandler(error: Error) {
   yield put(errorAdd({ error }))
 }
 
-export default autoRestart(rootSaga, rootErrorHandler)
+export default function createRootSaga() {
+  return autoRestart(rootSaga, rootErrorHandler)
+}
