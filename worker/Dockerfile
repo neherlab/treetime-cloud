@@ -6,6 +6,7 @@ RUN apt-get update -qq \
 && apt-get install --no-install-recommends --yes --force-yes -qq \
   build-essential \
   python3 \
+  fasttree \
   python3-dev \
   python3-pip \
   python3-setuptools \
