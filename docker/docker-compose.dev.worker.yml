@@ -7,7 +7,7 @@ services:
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command: sh -c "cd /code/worker && python3 src/main.py"
+    command: sh -c "cd /code/worker && python3 src/tree_time_process.py"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
