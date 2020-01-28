@@ -467,11 +467,7 @@ class TreeTimeWeb(treetime.TreeTime):
         aln_filename = get_filepaths(root)['aln']
         tree_filename = get_filepaths(root)['tree']
 
-        fast_tree_bin = os.path.join(dirname, "fasttree")
-        if not os.path.exists(fast_tree_bin):
-            raise (RuntimeError("Cannot find FastTree binary."))
-
-        call = [fast_tree_bin, '-nt','-quiet', aln_filename, ' > ', tree_filename]
+        call = ['fasttree', '-nt','-quiet', aln_filename, ' > ', tree_filename]
 
         res = os.system(' '.join(call))
         if res != 0:
