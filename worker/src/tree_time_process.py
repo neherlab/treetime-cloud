@@ -555,7 +555,7 @@ def run_treeanc(root, webconfig):
 
 if __name__=="__main__":
 
-    root = '../../sessions/AGJPHWRULXGO/'
+    root = 'data/'
     import  tree_time_config
     cfg = tree_time_config.treetime_webconfig
 
