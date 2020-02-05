@@ -31,5 +31,5 @@
   "events": {
     "restart": "yarn dev:kill"
   },
-  "exec": "yarn dev:clean; yarn openapi:clean; yarn openapi:generate; yarn dev; true"
+  "exec": "yarn dev:clean; yarn dev; true"
 }

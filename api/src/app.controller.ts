@@ -1,15 +1,17 @@
 import {
   Body,
+  Controller,
   Get,
-  JsonController,
   Post,
-  Req,
-  UseBefore,
-} from 'routing-controllers'
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common'
+
+import { FileFieldsInterceptor } from '@nestjs/platform-express'
 
 import uuidv4 from 'uuid/v4'
 
-import multer from 'multer'
+import { AppService } from './app.service'
 
 export interface Task {
   id: string // TODO: make type-safe, share types with frontend
@@ -36,18 +38,18 @@ export interface PostTaskResponse {
   payload: object
 }
 
-export interface RequestWithFiles {
-  files: {
-    DATES: File[]
-    FASTA: File[]
-    NWK: File[]
-  }
+export interface UploadRequestFiles {
+  DATES: File[]
+  FASTA: File[]
+  NWK: File[]
 }
 
-@JsonController()
-export default class TaskController {
+@Controller()
+export class AppController {
   // HACK: should become a service, with client isolation
   private files: Map<string, File> = new Map<string, File>()
+
+  public constructor(private readonly appService: AppService) {}
 
   @Get('/api/v1/taskId')
   public async getTaskId(): Promise<GetTaskIdResponse> {
@@ -56,33 +58,31 @@ export default class TaskController {
   }
 
   @Post('/api/v1/upload')
-  @UseBefore(
-    multer().fields([
+  @UseInterceptors(
+    FileFieldsInterceptor([
       { name: 'DATES', maxCount: 1 },
       { name: 'FASTA', maxCount: 1 },
       { name: 'NWK', maxCount: 1 },
     ]),
   )
-  public async uploadFiles(
-    @Body({ required: true }) { taskId }: UploadRequestBody,
-    @Req() req: RequestWithFiles,
+  public async upload(
+    @Body() { taskId }: UploadRequestBody,
+    @UploadedFiles() files: UploadRequestFiles,
   ): Promise<PostTaskResponse> {
-    // TODO: prevent crash when a file of unknown type is uploaded
-
-    const dates = req?.files?.DATES
-    const fasta = req?.files?.FASTA
-    const nwk = req?.files?.NWK
+    const dates = files?.DATES?.[0]
+    const fasta = files?.FASTA?.[0]
+    const nwk = files?.NWK?.[0]
 
     if (dates) {
-      this.files.set('DATES', dates[0])
+      this.files.set('DATES', dates)
     }
 
     if (fasta) {
-      this.files.set('FASTA', fasta[0])
+      this.files.set('FASTA', fasta)
     }
 
     if (nwk) {
-      this.files.set('NWK', nwk[0])
+      this.files.set('NWK', nwk)
     }
 
     return { payload: { taskId } }
@@ -90,8 +90,7 @@ export default class TaskController {
 
   @Post('/api/v1/task')
   public async postTask(
-    @Body({ required: true })
-    { payload: { task } }: PostTaskRequest,
+    @Body() { payload: { task } }: PostTaskRequest,
   ): Promise<PostTaskResponse> {
     return { payload: { taskId: task.id } }
   }

@@ -1,21 +1,38 @@
 import '../config/dotenv'
 
-import 'reflect-metadata'
+import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 
-import Server from './server/Server'
+import { AppModule } from './app.module'
+import { requestLogger } from './server/loggers'
 
-let server = new Server()
-server.listen()
+import { getenv } from '../lib/getenv'
+import pkg from '../package.json'
 
-// This will hot-reload the Server on changes in dev mode
 declare const module: NodeHotModule
-if (module.hot) {
-  module.hot.accept('./server/Server', async () => {
-    const ServerNew = (await import('./server/Server')).default
-    server.close()
-    server = new ServerNew()
-    server.listen()
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn'],
   })
+
+  app.set('etag', false)
+  app.set('query parser', true)
+  app.set('trust proxy', 'loopback')
+  app.set('x-powered-by', false)
+
+  app.use(requestLogger())
+
+  const port = getenv('API_PORT_INTERNAL')
+  await app.listen(port)
+  console.info(`${pkg.name} is listening on port ${port}`)
+
+  // This will selectively hot-reload only the required parts of the application
+  // on file changes in development mode
+  if (module.hot) {
+    module.hot.accept()
+    module.hot.dispose(() => app.close())
+  }
 }
 
-process.on('beforeExit', () => server.close())
+bootstrap()

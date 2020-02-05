@@ -35,6 +35,9 @@
     "packages:upgrade:newest": "ncu --upgrade --newest"
   },
   "dependencies": {
+    "@nestjs/common": "6.11.5",
+    "@nestjs/core": "6.11.5",
+    "@nestjs/platform-express": "6.11.5",
     "axios": "0.19.1",
     "body-parser": "1.19.0",
     "class-transformer": "0.2.3",
@@ -51,6 +54,7 @@
     "reflect-metadata": "0.1.13",
     "routing-controllers": "0.8.0",
     "runtypes": "4.0.3",
+    "rxjs": "6.5.4",
     "set-cookie-parser": "2.4.1",
     "uuid": "3.4.0",
     "winston": "3.2.1"
@@ -64,6 +68,9 @@
     "@babel/plugin-proposal-numeric-separator": "7.8.3",
     "@babel/preset-env": "7.8.3",
     "@babel/preset-typescript": "7.8.3",
+    "@nestjs/cli": "6.14.1",
+    "@nestjs/schematics": "6.9.3",
+    "@nestjs/testing": "6.11.5",
     "@nuxt/friendly-errors-webpack-plugin": "2.5.0",
     "@schemastore/package": "0.0.5",
     "@types/babel__code-frame": "7.0.1",
@@ -132,6 +139,9 @@
     "terser": "4.6.3",
     "terser-webpack-plugin": "2.3.2",
     "ts-jest": "24.3.0",
+    "ts-loader": "6.2.1",
+    "ts-node": "8.6.2",
+    "tsconfig-paths": "3.9.0",
     "tslint": "5.20.1",
     "tslint-config-airbnb": "5.11.2",
     "tslint-config-prettier": "1.18.0",

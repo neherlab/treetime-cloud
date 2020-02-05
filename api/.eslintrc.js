@@ -158,15 +158,17 @@ module.exports = {
       },
     },
     {
-      files: ['**/src/**/__tests__/integration/*.test.*'],
+      files: ['**/__tests__/**', '**/*.test.*'],
       rules: {
         'jest/expect-expect': 'off',
+        'unicorn/consistent-function-scoping': 'off',
       },
     },
     {
-      files: ['**/src/controllers/**'],
+      files: ['**/src/*.controller.*', '**/src/*.service.*'],
       rules: {
         'class-methods-use-this': 'off',
+        'no-useless-constructor': 'off',
       },
     },
   ],

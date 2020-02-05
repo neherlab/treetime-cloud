@@ -1,10 +1,31 @@
 import '../config/dotenv'
 
-import 'reflect-metadata'
+import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 
-import Server from './server/Server'
+import { AppModule } from './app.module'
+import { requestLogger } from './server/loggers'
 
-const server = new Server()
-server.listen()
+import { getenv } from '../lib/getenv'
+import pkg from '../package.json'
 
-process.on('beforeExit', () => server.close())
+declare const module: NodeHotModule
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn'],
+  })
+
+  app.set('etag', false)
+  app.set('query parser', true)
+  app.set('trust proxy', 'loopback')
+  app.set('x-powered-by', false)
+
+  app.use(requestLogger())
+
+  const port = getenv('API_PORT_INTERNAL')
+  await app.listen(port)
+  console.info(`${pkg.name} is listening on port ${port}`)
+}
+
+bootstrap()
