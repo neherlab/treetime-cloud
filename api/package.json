@@ -25,7 +25,7 @@
     "tslint:watch": "nodemon --config config/nodemon/tslint.json",
     "tslint:fix": "yarn tslint --fix",
     "tslint:fix:watch": "nodemon --config config/nodemon/tslint.fix.json",
-    "prettier": "prettier --check '**/*.{js,jsx,ts,tsx,json,html,css,less,scss}'",
+    "prettier": "prettier --check '**/*.{js,jsx,ts,tsx,json,html,css,less,scss,yml,yaml}'",
     "prettier:fix": "yarn prettier --write",
     "test": "jest --config=config/jest/jest.config.js",
     "test:watch": "yarn test --watch",
