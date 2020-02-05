@@ -1,5 +1,7 @@
 \.build
 \.cache
 \.env
+\.idea
 \.output
 \.reports
+\.vscode
