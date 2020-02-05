@@ -15,6 +15,6 @@ RUN apt-get update -qq \
 
 RUN mkdir -p /.local /.cache && chmod 0777 /.local /.cache
 
-WORKDIR "/code"
+WORKDIR /code
 
 CMD ["python3"]
