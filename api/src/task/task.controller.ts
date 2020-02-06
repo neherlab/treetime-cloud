@@ -9,9 +9,7 @@ import {
 
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
 
-import uuidv4 from 'uuid/v4'
-
-import { AppService } from './app.service'
+import { TaskService } from './task.service'
 
 export interface Task {
   id: string // TODO: make type-safe, share types with frontend
@@ -45,15 +43,15 @@ export interface UploadRequestFiles {
 }
 
 @Controller()
-export class AppController {
+export class TaskController {
   // HACK: should become a service, with client isolation
   private files: Map<string, File> = new Map<string, File>()
 
-  public constructor(private readonly appService: AppService) {}
+  public constructor(private readonly taskService: TaskService) {}
 
   @Get('/api/v1/taskId')
   public async getTaskId(): Promise<GetTaskIdResponse> {
-    const taskId = this.generateTaskId()
+    const taskId = this.taskService.generateTaskId()
     return { payload: { taskId } }
   }
 
@@ -93,10 +91,5 @@ export class AppController {
     @Body() { payload: { task } }: PostTaskRequest,
   ): Promise<PostTaskResponse> {
     return { payload: { taskId: task.id } }
-  }
-
-  // TODO: should become a part of a new service
-  private generateTaskId() {
-    return uuidv4()
   }
 }

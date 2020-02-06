@@ -59,7 +59,7 @@ module.exports = {
     hints: false,
   },
 
-  entry: `./src/index.${MODE}`,
+  entry: `./src/index.ts`,
 
   output: {
     filename: 'api.js',

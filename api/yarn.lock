@@ -1410,6 +1410,14 @@
     "@types/webpack-sources" "*"
     source-map "^0.6.0"
 
+"@types/webpackbar@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@types/webpackbar/-/webpackbar-2.6.0.tgz#0fa1b88e2c7ab68919d94fb8a5b3c882e4d7c94c"
+  integrity sha512-5rFY8CRCgBLlG7mimOn0lrf1LUiX6ps52/Lhv9s8mQIpXmiP/iIBdQPqta3FktxoUKDl31rNi0tVEfg5lbOOFA==
+  dependencies:
+    "@types/node" "*"
+    "@types/webpack" "*"
+
 "@types/yargs-parser@*":
   version "15.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-15.0.0.tgz#cb3f9f741869e20cce330ffbeb9271590483882d"

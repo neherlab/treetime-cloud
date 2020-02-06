@@ -151,21 +151,23 @@ module.exports = {
         'babel.config.js',
         'config/**/*.js',
         'config/**/*.ts',
+        'lib/findModuleRoot.js',
       ],
       rules: {
+        'global-require': 'off',
         '@typescript-eslint/no-var-requires': 'off',
         'sonarjs/cognitive-complexity': ['warn', 50],
       },
     },
     {
-      files: ['**/__tests__/**', '**/*.test.*'],
+      files: ['**/__tests__/**', '**/e2e/**', '**/*.test.*'],
       rules: {
         'jest/expect-expect': 'off',
         'unicorn/consistent-function-scoping': 'off',
       },
     },
     {
-      files: ['**/src/*.controller.*', '**/src/*.service.*'],
+      files: ['**/src/**/*.controller.*', '**/src/**/*.service.*'],
       rules: {
         'class-methods-use-this': 'off',
         'no-useless-constructor': 'off',
