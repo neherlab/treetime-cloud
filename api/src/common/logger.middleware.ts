@@ -17,7 +17,7 @@ export const requestLogger = () =>
     transports: [new winston.transports.Console()],
     format: winston.format.combine(
       winston.format.colorize(),
-      winston.format.timestamp({ format: 'YYYY.MM.DD HH:mm:ss.SSS' }),
+      winston.format.timestamp(),
       winston.format.align(),
       consoleFormat(),
     ),
@@ -32,7 +32,7 @@ export const errorLogger = () =>
     transports: [new winston.transports.Console()],
     format: winston.format.combine(
       winston.format.colorize(),
-      winston.format.timestamp({ format: 'YYYY.MM.DD HH:mm:ss.SSS' }),
+      winston.format.timestamp(),
       winston.format.align(),
       consoleFormat(),
     ),
