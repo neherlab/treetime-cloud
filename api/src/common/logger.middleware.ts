@@ -1,6 +1,11 @@
+import { Request, Response } from 'express'
 import expressWinston from 'express-winston'
 import { inspect } from 'util'
 import winston from 'winston'
+
+interface TimedResponse extends Response {
+  responseTime?: string | number
+}
 
 const consoleFormat = () =>
   winston.format.printf(info => {
@@ -21,8 +26,13 @@ export const requestLogger = () =>
       winston.format.align(),
       consoleFormat(),
     ),
-    msg:
-      'HTTP {{res.statusCode}} | {{res.responseTime}}ms | {{req.method}} | {{req.url}}',
+    msg(req: Request, res: Response) {
+      const { url, method } = req
+      const { responseTime, statusCode } = res as TimedResponse
+      const timeStr = responseTime?.toString().padStart(5, ' ')
+      const methodStr = method.toString().padStart(7, ' ')
+      return `${statusCode} | ${timeStr}ms | ${methodStr} | ${url}`
+    },
     expressFormat: false,
     colorize: true,
   })
