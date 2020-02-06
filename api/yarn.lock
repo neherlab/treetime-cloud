@@ -1222,6 +1222,13 @@
   dependencies:
     "@types/webpack" "*"
 
+"@types/friendly-errors-webpack-plugin@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@types/friendly-errors-webpack-plugin/-/friendly-errors-webpack-plugin-0.1.2.tgz#acb0dcb46bd49e3209a004048c7d4383488d391c"
+  integrity sha512-kHxYzaalbuWKP+cK/DKtDIR+vxFgZHl+tqI3q07M8x+7q5yB+3AY+aDfIe6S26+XO0WquoSn25P2b8l5rk5owA==
+  dependencies:
+    "@types/webpack" "*"
+
 "@types/fs-extra@8.0.1":
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-8.0.1.tgz#a2378d6e7e8afea1564e44aafa2e207dadf77686"
