@@ -7,7 +7,7 @@ import request from 'supertest'
 import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 
-import { AppModule } from '../app.module'
+import { AppModule } from '../app/app.module'
 
 import { findModuleRoot } from '../../lib/findModuleRoot'
 

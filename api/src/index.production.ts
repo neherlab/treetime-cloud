@@ -3,7 +3,7 @@ import '../config/dotenv'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 
-import { AppModule } from './app.module'
+import { AppModule } from './app/app.module'
 import { requestLogger } from './server/loggers'
 
 import { getenv } from '../lib/getenv'
