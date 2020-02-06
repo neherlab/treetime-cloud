@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 
 import { AppModule } from './app.module'
-import { requestLogger } from './server/loggers'
+import { requestLogger } from './common/logger.middleware'
 
 import { getenv } from '../lib/getenv'
 import pkg from '../package.json'
