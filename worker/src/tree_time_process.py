@@ -553,14 +553,33 @@ def run_treeanc(root, webconfig):
 
     ttw.run_treeanc()
 
-if __name__=="__main__":
 
-    root = 'data/'
+if __name__=="__main__":
+    root = '../data/'
     import  tree_time_config
     cfg = tree_time_config.treetime_webconfig
 
-    ttw = TreeTimeWeb(root, cfg)
-    ttw.run()
+    import pika
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host='treetime-dev-taskqueue')
+    )
+
+    channel = connection.channel()
+
+    channel.queue_declare(queue='tasks')
+
+    def callback(ch, method, properties, body):
+        print(" [x] Received %r" % body)
+        # ttw = TreeTimeWeb(root, cfg)
+        # ttw.run()
+
+    channel.basic_consume(
+        queue='tasks', on_message_callback=callback, auto_ack=True)
+
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    channel.start_consuming()
+
+
 
 
 

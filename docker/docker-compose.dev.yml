@@ -26,12 +26,14 @@ services:
     tty: true
 
   treetime-dev-api:
+    depends_on:
+      - treetime-dev-taskqueue
     container_name: treetime-dev-api
     image: treetime-dev-api
     build:
       context: ./
       dockerfile: node-git-alpine/Dockerfile
-    command: sh -c "cd /code/api && yarn install && yarn dev"
+    command: sh -c "cd /code/api && yarn install && dockerize -wait tcp://treetime-dev-taskqueue:5672 -timeout 60s >/dev/null && yarn dev"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -67,4 +69,44 @@ services:
     restart: 'no'
     init: true
     user: '${UID}'
+    tty: true
+
+  treetime-dev-worker:
+    depends_on:
+      - treetime-dev-taskqueue
+    container_name: treetime-dev-worker
+    image: treetime-dev-worker
+    build:
+      context: ../
+      dockerfile: worker/Dockerfile
+    command: sh -c "mkdir -p /code/worker/output && cd /code/worker/output && dockerize -wait tcp://treetime-dev-taskqueue:5672 -timeout 60s >/dev/null && python3 ../src/tree_time_process.py"
+    volumes:
+      - ../:/code
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+    init: true
+    user: '${UID}'
+    tty: true
+
+  treetime-dev-taskqueue:
+    container_name: treetime-dev-taskqueue
+    image: rabbitmq:3.8.2-management-alpine
+    volumes:
+      - ../taskqueue/etc/rabbitmq:/etc/rabbitmq:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - ../.env
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+    init: true
     tty: true
