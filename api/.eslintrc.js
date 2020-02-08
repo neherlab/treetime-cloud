@@ -68,6 +68,7 @@ module.exports = {
     'array-func/prefer-array-from': 'off',
     'cflint/no-substr': 'warn',
     'cflint/no-this-assignment': 'warn',
+    'class-methods-use-this': 'off',
     'import/extensions': [
       'warn',
       'ignorePackages',
@@ -93,6 +94,7 @@ module.exports = {
     'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
     'no-loops/no-loops': 'warn',
     'no-secrets/no-secrets': ['warn', { tolerance: 5 }],
+    'no-useless-constructor': 'off',
     'node/no-missing-import': 'off',
     'node/no-unpublished-import': 'off',
     'node/no-unpublished-require': 'off',
@@ -164,13 +166,6 @@ module.exports = {
       rules: {
         'jest/expect-expect': 'off',
         'unicorn/consistent-function-scoping': 'off',
-      },
-    },
-    {
-      files: ['**/src/**/*.controller.*', '**/src/**/*.service.*'],
-      rules: {
-        'class-methods-use-this': 'off',
-        'no-useless-constructor': 'off',
       },
     },
   ],
