@@ -2,12 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Post,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
 
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
+
+import { ClientRMQ } from '@nestjs/microservices'
 
 import { TaskService } from './task.service'
 
@@ -47,7 +50,10 @@ export class TaskController {
   // HACK: should become a service, with client isolation
   private files: Map<string, File> = new Map<string, File>()
 
-  public constructor(private readonly taskService: TaskService) {}
+  public constructor(
+    private readonly taskService: TaskService,
+    @Inject('TASK_QUEUE') private readonly taskQueue: ClientRMQ,
+  ) {}
 
   @Get('/api/v1/taskId')
   public async getTaskId(): Promise<GetTaskIdResponse> {
@@ -90,6 +96,8 @@ export class TaskController {
   public async postTask(
     @Body() { payload: { task } }: PostTaskRequest,
   ): Promise<PostTaskResponse> {
+    this.taskQueue.emit('tasks', 'hello')
+
     return { payload: { taskId: task.id } }
   }
 }

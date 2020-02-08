@@ -37,7 +37,10 @@
   "dependencies": {
     "@nestjs/common": "6.11.5",
     "@nestjs/core": "6.11.5",
+    "@nestjs/microservices": "6.11.6",
     "@nestjs/platform-express": "6.11.5",
+    "amqp-connection-manager": "3.2.0",
+    "amqplib": "0.5.5",
     "axios": "0.19.1",
     "body-parser": "1.19.0",
     "class-transformer": "0.2.3",
