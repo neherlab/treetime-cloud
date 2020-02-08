@@ -7,7 +7,7 @@ import { getTaskIdAsync, triggerGetTaskId } from './task.actions'
 import fsaSaga from '../util/fsaSaga'
 
 function getTaskApi() {
-  return axios.get(`http://localhost:5000/api/v1/taskId`, {
+  return axios.get(`/api/v1/taskId`, {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',

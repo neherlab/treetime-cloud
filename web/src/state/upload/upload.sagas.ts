@@ -20,7 +20,7 @@ function uploadFilesApi({ files, taskId }: UploadFilesPayload) {
     formData.append(typeString, file)
   })
 
-  return axios.post(`http://localhost:5000/api/v1/upload`, formData, {
+  return axios.post(`/api/v1/upload`, formData, {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',

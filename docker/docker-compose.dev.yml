@@ -1,6 +1,30 @@
 version: '3.7'
 
 services:
+  treetime-dev-reverse-proxy:
+    container_name: treetime-dev-reverse-proxy
+    image: treetime-dev-reverse-proxy
+    build:
+      context: ./
+      dockerfile: ../reverse-proxy/development/Dockerfile
+    command: sh /etc/nginx/nginx-watch.sh
+    volumes:
+      - ../reverse-proxy/development/etc/nginx:/etc/nginx:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 44443:44443
+      - 8080:8080
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    depends_on:
+      - treetime-dev-api
+      - treetime-dev-web
+    restart: 'no'
+    init: true
+    tty: true
+
   treetime-dev-api:
     container_name: treetime-dev-api
     image: treetime-dev-api
