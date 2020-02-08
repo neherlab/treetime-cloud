@@ -5,7 +5,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn _docker-compose -f docker/docker-compose.dev.yml up --build",
+    "dev": "yarn _docker-compose -f docker/docker-compose.dev.yml --compatibility up --build",
     "worker": "yarn _docker-compose -f docker/docker-compose.dev.worker.yml up --build",
     "package:treetime": "yarn _docker-compose -f docker/docker-compose.package.treetime.yml up --build",
     "prettier": "prettier --check '**/*.{js,jsx,ts,tsx,json,html,css,less,scss,yml,yaml}'",

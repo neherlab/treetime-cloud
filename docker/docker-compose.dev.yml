@@ -74,7 +74,6 @@ services:
   treetime-dev-worker:
     depends_on:
       - treetime-dev-taskqueue
-    container_name: treetime-dev-worker
     image: treetime-dev-worker
     build:
       context: ../
@@ -91,6 +90,8 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    deploy:
+      replicas: 3
 
   treetime-dev-taskqueue:
     container_name: treetime-dev-taskqueue
