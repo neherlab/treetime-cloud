@@ -1,3 +1,5 @@
+import 'multer'
+
 import {
   Body,
   Controller,
@@ -12,6 +14,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express'
 
 import { ClientRMQ } from '@nestjs/microservices'
 
+import { FileStoreService } from './FileStore.service'
 import { TaskService } from './task.service'
 
 export interface Task {
@@ -40,18 +43,16 @@ export interface PostTaskResponse {
 }
 
 export interface UploadRequestFiles {
-  DATES: File[]
-  FASTA: File[]
-  NWK: File[]
+  DATES: Express.Multer.File[]
+  FASTA: Express.Multer.File[]
+  NWK: Express.Multer.File[]
 }
 
 @Controller()
 export class TaskController {
-  // HACK: should become a service, with client isolation
-  private files: Map<string, File> = new Map<string, File>()
-
   public constructor(
     private readonly taskService: TaskService,
+    private readonly fileStoreService: FileStoreService,
     @Inject('TASK_QUEUE') private readonly taskQueue: ClientRMQ,
   ) {}
 
@@ -77,17 +78,8 @@ export class TaskController {
     const fasta = files?.FASTA?.[0]
     const nwk = files?.NWK?.[0]
 
-    if (dates) {
-      this.files.set('DATES', dates)
-    }
-
-    if (fasta) {
-      this.files.set('FASTA', fasta)
-    }
-
-    if (nwk) {
-      this.files.set('NWK', nwk)
-    }
+    const filesActual = [dates, fasta, nwk].filter(file => !!file)
+    await this.fileStoreService.uploadInputFiles(taskId, filesActual)
 
     return { payload: { taskId } }
   }

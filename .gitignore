@@ -5,4 +5,5 @@ __pycache__
 \.idea
 \.output
 \.reports
+\.volumes
 \.vscode

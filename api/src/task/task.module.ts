@@ -4,6 +4,7 @@ import { ClientRMQ, ClientsModule } from '@nestjs/microservices'
 
 import { TaskController } from './task.controller'
 
+import { FileStoreService } from './FileStore.service'
 import { TaskService } from './task.service'
 
 const RmqClientModule = ClientsModule.register([
@@ -21,7 +22,7 @@ const RmqClientModule = ClientsModule.register([
 @Module({
   imports: [RmqClientModule],
   controllers: [TaskController],
-  providers: [TaskService],
+  providers: [TaskService, FileStoreService],
 })
 export class TaskModule {
   constructor(@Inject('TASK_QUEUE') private readonly taskQueue: ClientRMQ) {}
