@@ -561,7 +561,7 @@ if __name__=="__main__":
 
     import pika
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='treetime-dev-taskqueue')
+        pika.ConnectionParameters(host='treetime-dev-task_queue')
     )
 
     channel = connection.channel()

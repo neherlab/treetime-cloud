@@ -11,7 +11,7 @@ const RmqClientModule = ClientsModule.register([
     name: 'TASK_QUEUE',
     transport: Transport.RMQ,
     options: {
-      urls: [`amqp://treetime-dev-taskqueue:5672`],
+      urls: [`amqp://treetime-dev-task_queue:5672`],
       queue: 'tasks',
       queueOptions: { durable: false },
     },
