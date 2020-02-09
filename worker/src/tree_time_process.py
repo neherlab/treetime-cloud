@@ -570,6 +570,20 @@ if __name__=="__main__":
 
     def callback(ch, method, properties, body):
         print(" [x] Received %r" % body)
+
+        import boto3
+        from botocore.client import Config
+        session = boto3.session.Session()
+        s3 = boto3.client(
+          service_name='s3',
+          endpoint_url='http://treetime-dev-filestore:9000',
+          aws_access_key_id='minioadmin',
+          aws_secret_access_key='minioadmin',
+          config=Config(signature_version='s3v4')
+        )
+        with open('../data/h3n2_na_20.fasta', 'wb') as f:
+            s3.download_fileobj('treetime', '704eb2d5-ba89-4514-bab6-0a34b8455302/h3n2_na_20.fasta', f)
+
         # ttw = TreeTimeWeb(root, cfg)
         # ttw.run()
 

@@ -8,7 +8,7 @@ export class FileStoreService {
   private readonly s3 = new S3({
     accessKeyId: 'minioadmin',
     secretAccessKey: 'minioadmin',
-    endpoint: 'http://treetime-dev-file_store:9000',
+    endpoint: 'http://treetime-dev-filestore:9000',
     s3ForcePathStyle: true,
     signatureVersion: 'v4',
     region: 'eu-central-1',
