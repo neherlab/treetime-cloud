@@ -1,4 +1,4 @@
-# treetime/task_queue
+# treetime/taskqueue
 
 This module implements multi-producer-multii-consumer message queue that
 serializes incoming tasks in order to balance the load across workers.

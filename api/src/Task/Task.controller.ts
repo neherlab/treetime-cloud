@@ -7,15 +7,14 @@ import {
   Inject,
   Post,
   UploadedFiles,
-  UseInterceptors,
 } from '@nestjs/common'
-
-import { FileFieldsInterceptor } from '@nestjs/platform-express'
 
 import { ClientRMQ } from '@nestjs/microservices'
 
 import { FileStoreService } from './FileStore.service'
-import { TaskService } from './task.service'
+import { TaskService } from './Task.service'
+
+import { UploadUnique } from '../common/UploadUnique'
 
 export interface Task {
   id: string // TODO: make type-safe, share types with frontend
@@ -63,13 +62,7 @@ export class TaskController {
   }
 
   @Post('/api/v1/upload')
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'DATES', maxCount: 1 },
-      { name: 'FASTA', maxCount: 1 },
-      { name: 'NWK', maxCount: 1 },
-    ]),
-  )
+  @UploadUnique(['DATES', 'FASTA', 'NWK'])
   public async upload(
     @Body() { taskId }: UploadRequestBody,
     @UploadedFiles() files: UploadRequestFiles,

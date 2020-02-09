@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 
-import { TaskModule } from './task/task.module'
+import { TaskModule } from './Task/Task.module'
 
 @Module({
   imports: [TaskModule],

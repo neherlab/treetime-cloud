@@ -1,15 +1,15 @@
 version: '3.7'
 
 services:
-  treetime-dev-reverse_proxy:
-    container_name: treetime-dev-reverse_proxy
-    image: treetime-dev-reverse_proxy
+  treetime-dev-reverseproxy:
+    container_name: treetime-dev-reverseproxy
+    image: treetime-dev-reverseproxy
     build:
       context: ./
-      dockerfile: ../reverse_proxy/development/Dockerfile
+      dockerfile: ../reverseproxy/development/Dockerfile
     command: sh /etc/nginx/nginx-watch.sh
     volumes:
-      - ../reverse_proxy/development/etc/nginx:/etc/nginx:ro
+      - ../reverseproxy/development/etc/nginx:/etc/nginx:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -27,13 +27,13 @@ services:
 
   treetime-dev-api:
     depends_on:
-      - treetime-dev-task_queue
+      - treetime-dev-taskqueue
     container_name: treetime-dev-api
     image: treetime-dev-api
     build:
       context: ./
       dockerfile: node-git-alpine/Dockerfile
-    command: sh -c "cd /code/api && yarn install && dockerize -wait tcp://treetime-dev-task_queue:5672 -timeout 60s >/dev/null && yarn dev"
+    command: sh -c "cd /code/api && yarn install && dockerize -wait tcp://treetime-dev-taskqueue:5672 -timeout 60s >/dev/null && yarn dev"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -73,12 +73,12 @@ services:
 
   treetime-dev-worker:
     depends_on:
-      - treetime-dev-task_queue
+      - treetime-dev-taskqueue
     image: treetime-dev-worker
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command: sh -c "mkdir -p /code/worker/output && cd /code/worker/output && dockerize -wait tcp://treetime-dev-task_queue:5672 -timeout 60s >/dev/null && python3 ../src/tree_time_process.py"
+    command: sh -c "mkdir -p /code/worker/output && cd /code/worker/output && dockerize -wait tcp://treetime-dev-taskqueue:5672 -timeout 60s >/dev/null && python3 ../src/tree_time_process.py"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -93,11 +93,11 @@ services:
     deploy:
       replicas: 3
 
-  treetime-dev-task_queue:
-    container_name: treetime-dev-task_queue
+  treetime-dev-taskqueue:
+    container_name: treetime-dev-taskqueue
     image: rabbitmq:3.8.2-management-alpine
     volumes:
-      - ../task_queue/etc/rabbitmq:/etc/rabbitmq:ro
+      - ../taskqueue/etc/rabbitmq:/etc/rabbitmq:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:

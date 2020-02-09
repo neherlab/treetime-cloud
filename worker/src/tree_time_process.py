@@ -561,7 +561,7 @@ if __name__=="__main__":
 
     import pika
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='treetime-dev-task_queue')
+        pika.ConnectionParameters(host='treetime-dev-taskqueue')
     )
 
     channel = connection.channel()
@@ -582,7 +582,7 @@ if __name__=="__main__":
           config=Config(signature_version='s3v4')
         )
         with open('../data/h3n2_na_20.fasta', 'wb') as f:
-            s3.download_fileobj('treetime', '704eb2d5-ba89-4514-bab6-0a34b8455302/h3n2_na_20.fasta', f)
+            s3.download_fileobj('treetime', 'a048c7a8-0cec-45e2-a7ec-b4499b1f289e/h3n2_na_20.fasta', f)
 
         # ttw = TreeTimeWeb(root, cfg)
         # ttw.run()
