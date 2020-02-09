@@ -11,10 +11,10 @@ import {
 
 import { ClientRMQ } from '@nestjs/microservices'
 
-import { FileStoreService } from './FileStore.service'
-import { TaskService } from './Task.service'
-
 import { UploadUnique } from '../common/UploadUnique'
+
+import { FileStoreService, UploadedFileData } from './FileStore.service'
+import { TaskIdService } from './TaskId.service'
 
 export interface Task {
   id: string // TODO: make type-safe, share types with frontend
@@ -41,23 +41,17 @@ export interface PostTaskResponse {
   payload: object
 }
 
-export interface UploadRequestFiles {
-  DATES: Express.Multer.File[]
-  FASTA: Express.Multer.File[]
-  NWK: Express.Multer.File[]
-}
-
 @Controller()
 export class TaskController {
   public constructor(
-    private readonly taskService: TaskService,
+    private readonly taskIdService: TaskIdService,
     private readonly fileStoreService: FileStoreService,
     @Inject('TASK_QUEUE') private readonly taskQueue: ClientRMQ,
   ) {}
 
   @Get('/api/v1/taskId')
   public async getTaskId(): Promise<GetTaskIdResponse> {
-    const taskId = this.taskService.generateTaskId()
+    const taskId = this.taskIdService.generateTaskId()
     return { payload: { taskId } }
   }
 
@@ -65,15 +59,9 @@ export class TaskController {
   @UploadUnique(['DATES', 'FASTA', 'NWK'])
   public async upload(
     @Body() { taskId }: UploadRequestBody,
-    @UploadedFiles() files: UploadRequestFiles,
+    @UploadedFiles() filedata: UploadedFileData,
   ): Promise<PostTaskResponse> {
-    const dates = files?.DATES?.[0]
-    const fasta = files?.FASTA?.[0]
-    const nwk = files?.NWK?.[0]
-
-    const filesActual = [dates, fasta, nwk].filter(file => !!file)
-    await this.fileStoreService.uploadInputFiles(taskId, filesActual)
-
+    await this.fileStoreService.uploadInputFiles(taskId, filedata)
     return { payload: { taskId } }
   }
 
@@ -81,8 +69,9 @@ export class TaskController {
   public async postTask(
     @Body() { payload: { task } }: PostTaskRequest,
   ): Promise<PostTaskResponse> {
-    this.taskQueue.emit('tasks', 'hello')
-
-    return { payload: { taskId: task.id } }
+    const taskId = task.id
+    const inputFilepaths = await this.fileStoreService.getFilepathsForTask(taskId) // prettier-ignore
+    await this.taskQueue.emit('tasks', { taskId, inputFilepaths }).toPromise()
+    return { payload: { taskId } }
   }
 }
