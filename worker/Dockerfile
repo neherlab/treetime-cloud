@@ -1,29 +1,48 @@
-FROM ubuntu:bionic-20191029
+FROM python:3.6.9-slim-buster
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN set -x \
+  && apt-get update -qq > /dev/null \
+  && apt-get install -qq --yes --force-yes --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    coreutils \
+    curl \
+    fasttree \
+    git \
+    inotify-tools \
+    make \
+  > /dev/null
+
+# Install dockerize
+# https://github.com/jwilder/dockerize
 ENV DOCKERIZE_VERSION v0.6.1
 ENV DOCKERIZE_URL "https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"
+RUN set -x \
+  && curl -fsSL "${DOCKERIZE_URL}" | tar xfz - -C "/usr/local/bin/"
 
-RUN apt-get update -qq \
-&& apt-get install --no-install-recommends --yes --force-yes -qq \
-  build-essential \
-  curl \
-  fasttree \
-  python3 \
-  python3-dev \
-  python3-pip \
-  python3-setuptools \
-  python3-wheel \
-> /dev/null
+# Install poetry
+# https://github.com/python-poetry/poetry
+ENV POETRY_VERSION 1.0.3
+ENV POETRY_INSTALLER_URL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py"
+ENV POETRY_HOME="/home/.poetry"
+ENV POETRY_CACHE="/.cache/pypoetry/cache"
+ENV PIP_CACHE="/.cache/pip"
+ENV PATH="${POETRY_HOME}/bin:$PATH"
+RUN set -x \
+  && curl -fsSL "${POETRY_INSTALLER_URL}" | python3 - --version "${POETRY_VERSION}" \
+  && chmod 0777 "${POETRY_HOME}/bin/poetry" \
+  && mkdir -p "${POETRY_CACHE}" && chmod -R 0777 "${POETRY_CACHE}" \
+  && mkdir -p "${PIP_CACHE}" && chmod -R 0777 "${PIP_CACHE}" \
+  && poetry config cache-dir "${POETRY_CACHE}" \
+  && poetry config virtualenvs.create true \
+  && poetry config virtualenvs.in-project true
 
-RUN curl -fsSL "${DOCKERIZE_URL}" | tar xfz - -C "/usr/local/bin/"
+COPY ./tools/wait-file.sh /tools/
 
-COPY worker/requirements.txt /.local/
+ENV PYLINTHOME=/code/worker/.cache/pylint
 
-RUN mkdir -p /.local /.cache && chmod 0777 /.local /.cache
+WORKDIR /code/worker
 
-RUN pip3 install -r /.local/requirements.txt >/dev/null
-
-WORKDIR "/code/worker"
-
-CMD ["python3"]
+CMD ["poetry", "run", "python3"]

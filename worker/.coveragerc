@@ -1,0 +1,17 @@
+[run]
+branch = True
+data_file = .cache/pytest-cov
+
+include =
+  src/*.py
+
+omit =
+  .git/*
+  .vscode/*
+  .venv/*
+  .temp/*
+  *_test.py
+  __init__.py
+
+[report]
+show_missing = True

@@ -1,0 +1,9 @@
+[MASTER]
+ignore=.data,.git,.idea,.input,.output,.temp,.venv,.vscode,3rdparty,third_party
+
+[MESSAGES CONTROL]
+disable=missing-docstring
+
+[BASIC]
+bad-names=foo,baz,toto,tutu,tata,var,let,const,nil,null,define
+good-names=a,b,c,e,f,g,i,j,k,x,y,z,ex,Run,_,__,___
