@@ -7,3 +7,4 @@ __pycache__
 \.reports
 \.volumes
 \.vscode
+\.mypy_cache
