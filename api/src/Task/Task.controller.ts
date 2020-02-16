@@ -1,15 +1,19 @@
 import 'multer'
 
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Inject,
+  NotFoundException,
   Post,
   UploadedFiles,
 } from '@nestjs/common'
 
 import { ClientRMQ } from '@nestjs/microservices'
+
+import serialize from 'serialize-javascript'
 
 import { UploadUnique } from '../common/UploadUnique'
 
@@ -17,7 +21,7 @@ import { FileStoreService, UploadedFileData } from './FileStore.service'
 import { TaskIdService } from './TaskId.service'
 
 export interface Task {
-  id: string // TODO: make type-safe, share types with frontend
+  taskId: string // TODO: make type-safe, share types with frontend
 }
 
 export interface UploadRequestBody {
@@ -67,10 +71,30 @@ export class TaskController {
 
   @Post('/api/v1/task')
   public async postTask(
-    @Body() { payload: { task } }: PostTaskRequest,
+    @Body() body: PostTaskRequest,
   ): Promise<PostTaskResponse> {
-    const taskId = task.id
+    const task = body?.payload?.task
+
+    if (!task) {
+      throw new BadRequestException(
+        `Expected body.payload.task to be a valid Task, got '${serialize(task)}'`, // prettier-ignore
+      )
+    }
+
+    const taskId = task?.taskId
+    if (!taskId) {
+      throw new BadRequestException(
+        `Expected body.payload.task.taskId to be a valid ID, got '${serialize(taskId)}'`, // prettier-ignore
+      )
+    }
+
     const inputFilepaths = await this.fileStoreService.getFilepathsForTask(taskId) // prettier-ignore
+    if (!inputFilepaths) {
+      throw new NotFoundException(
+        `Input files not found for task '${serialize(taskId)}'`,
+      )
+    }
+
     await this.taskQueue.emit('tasks', { taskId, inputFilepaths }).toPromise()
     return { payload: { taskId } }
   }
