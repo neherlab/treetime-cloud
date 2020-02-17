@@ -1,10 +1,11 @@
-FROM python:3.6.9-slim-buster
+FROM ubuntu:bionic-20200112
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN set -x \
   && apt-get update -qq > /dev/null \
   && apt-get install -qq --yes --force-yes --no-install-recommends \
+    bash \
     build-essential \
     ca-certificates \
     coreutils \
@@ -12,6 +13,9 @@ RUN set -x \
     fasttree \
     git \
     inotify-tools \
+    python3 \
+    python3-pip \
+    python3-venv \
     make \
   > /dev/null
 
@@ -24,24 +28,20 @@ RUN set -x \
 
 # Install poetry
 # https://github.com/python-poetry/poetry
-ENV POETRY_VERSION 1.0.3
-ENV POETRY_INSTALLER_URL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py"
+ENV POETRY_VERSION="1.0.3"
+ENV POETRY_INSTALLER_URL="https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py"
 ENV POETRY_HOME="/home/.poetry"
-ENV POETRY_CACHE="/.cache/pypoetry/cache"
-ENV PIP_CACHE="/.cache/pip"
+ENV POETRY_CACHE="/code/.cache/pypoetry"
+ENV PIP_CACHE="/code/.cache/pip"
 ENV PATH="${POETRY_HOME}/bin:$PATH"
 RUN set -x \
-  && curl -fsSL "${POETRY_INSTALLER_URL}" | python3 - --version "${POETRY_VERSION}" \
+  && curl -fsSL "${POETRY_INSTALLER_URL}" | /usr/bin/python3 - --version "${POETRY_VERSION}" \
   && chmod 0777 "${POETRY_HOME}/bin/poetry" \
-  && mkdir -p "${POETRY_CACHE}" && chmod -R 0777 "${POETRY_CACHE}" \
-  && mkdir -p "${PIP_CACHE}" && chmod -R 0777 "${PIP_CACHE}" \
-  && poetry config cache-dir "${POETRY_CACHE}" \
-  && poetry config virtualenvs.create true \
-  && poetry config virtualenvs.in-project true
+  && sed -i "s/python/python3/g" "${POETRY_HOME}/bin/poetry"
 
 COPY ./tools/wait-file.sh /tools/
 
-ENV PYLINTHOME=/code/worker/.cache/pylint
+ENV PYLINTHOME="/code/worker/.cache/pylint"
 
 WORKDIR /code/worker
 

@@ -75,17 +75,15 @@ services:
     tty: true
 
   treetime-dev-worker-base:
+    container_name: treetime-dev-worker-base
     image: treetime-dev-worker-base
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command:
-      sh -c "cd /code/worker && rm -f .venv/ready && poetry install --no-root
-      --no-interaction && touch .venv/ready"
+    command: bash docker/entrypoint.dev.base.sh
     volumes:
       - ../:/code
-      - ./.cache/poetry:/.cache/pypoetry/cache
-      - ./.cache/pip:/.cache/pip
+      - ../worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
@@ -105,15 +103,10 @@ services:
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command:
-      sh -c "cd /code/worker && /tools/wait-file.sh .venv/ready && poetry
-      install --no-root --no-interaction && dockerize -wait
-      tcp://treetime-dev-taskqueue:5672 -timeout 60s >/dev/null && poetry run
-      python src/tree_time_process.py"
+    command: bash docker/entrypoint.dev.main.sh
     volumes:
       - ../:/code
-      - ./.cache/poetry:/.cache/pypoetry/cache
-      - ./.cache/pip:/.cache/pip
+      - ../worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     environment:

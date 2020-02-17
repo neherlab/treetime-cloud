@@ -1,0 +1,9 @@
+# This is Poetry global config to be used inside docker container.
+# Should be mapped to /.config/pypoetry/config.toml.
+# Is sets a different path for the virtual environment, so that docker cannot
+# see or pollute the host environment.
+[virtualenvs]
+cache-dir = ".cache/poetry"
+path = ".cache/poetry/.venv"
+create = true
+in-project = false

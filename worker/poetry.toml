@@ -1,4 +1,3 @@
 [virtualenvs]
-cache-dir = "./.cache/poetry"
 create = true
-in-project = true
+in-project = false
