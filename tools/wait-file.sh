@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Blocks execution, waitinf for a given a file to be created.
+# Blocks execution, waiting for a given a file to be created or updated.
 
 set -o errexit
 set -o nounset
