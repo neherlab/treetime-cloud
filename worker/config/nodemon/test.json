@@ -1,0 +1,24 @@
+{
+  "quiet": true,
+  "legacyWatch": false,
+  "delay": 0.1,
+  "watch": [
+    ".coveragerc",
+    "poetry.lock",
+    "poetry.toml",
+    "pyproject.toml",
+    "pytest.ini",
+    "src/**/*.py"
+  ],
+  "ext": "py,pyi,json,txt,ini,yml,sh,lock",
+  "ignore": [
+    ".cache",
+    ".idea",
+    ".pytest_cache",
+    ".reports",
+    "data",
+    "docker",
+    "node_modules"
+  ],
+  "exec": "node -e 'console.clear()'; yarn test && echo '\u2714 OK' || echo '\u274C FAILED'; true"
+}

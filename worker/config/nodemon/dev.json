@@ -1,0 +1,17 @@
+{
+  "quiet": true,
+  "legacyWatch": false,
+  "delay": 0.1,
+  "watch": ["poetry.lock", "poetry.toml", "pyproject.toml", "src/**/*.py"],
+  "ext": "py,pyi,json,txt,ini,yml,sh,lock",
+  "ignore": [
+    ".cache",
+    ".idea",
+    ".pytest_cache",
+    ".reports",
+    "data",
+    "docker",
+    "node_modules"
+  ],
+  "exec": "yarn dev || true"
+}

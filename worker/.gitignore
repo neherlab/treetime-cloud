@@ -1,2 +1,7 @@
 __pycache__
+\.cache
+\.mypy_cache
+\.pytest_cache
+\.reports
 \.venv
+node_modules

@@ -1,0 +1,16 @@
+__pycache__
+*.lock
+*.log
+\.build
+\.cache
+\.editorconfig
+\.env
+\.git
+\.gitignore
+\.ignore
+\.mypy_cache
+\.prettierignore
+\.pytest_cache
+\.reports
+\.venv
+node_modules

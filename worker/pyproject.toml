@@ -15,10 +15,6 @@ license = ""
 readme = "README.md"
 packages = [{ include = "src/**/*.py" }]
 
-[build-system]
-requires = ["poetry>=1.0.3"]
-build-backend = "poetry.masonry.api"
-
 [tool.poetry.scripts]
 
 
@@ -33,19 +29,18 @@ pandas = "0.24.2"
 phylo-treetime = "0.5.1"
 pika = "1.1.0"
 typing = "3.7.4"
+pytest-instafail = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
-black = "19.3b0"
+black = "19.10b0"
+data-science-types = { git = "https://github.com/predictive-analytics-lab/data-science-types", branch = "master" }
 flake8 = "3.7.9"
 flake8-bugbear = "19.8.0"
 flake8-docstrings = "1.5.0"
 pylint = "2.4.4"
 pytest = "5.3.1"
-pytest-pylint = "0.14.1"
-pytest-black = "0.3.7"
 pytest-cov = "2.8.1"
 pytest-mock = "1.13.0"
-pytest-mypy = "0.4.2"
 pytest-sugar = "0.9.2"
 pytest-xdist = "1.30.0"
 vulture = "1.2"
@@ -53,11 +48,7 @@ vulture = "1.2"
 [tool.black]
 line-length = 80
 target-version = ['py36']
-include = '''
-(
-  src\/\.pyi?$
-)
-'''
+include = 'src/\.pyi?$'
 exclude = '''
 (
   __pycache__
@@ -88,3 +79,9 @@ multi_line_output = 3
 not_skip = "__init__.py"
 skip_glob = ["*/setup.py"]
 use_parentheses = true
+
+
+[build-system]
+requires = ["poetry>=1.0.3"]
+build-backend = "poetry.masonry.api"
+

@@ -1,0 +1,25 @@
+{
+  "quiet": true,
+  "legacyWatch": false,
+  "delay": 0.1,
+  "watch": [
+    ".flake8",
+    ".pylintrc",
+    "mypy.ini",
+    "poetry.lock",
+    "poetry.toml",
+    "pyproject.toml",
+    "src/**/*.py"
+  ],
+  "ext": "py,pyi,json,txt,ini,yml,sh,lock",
+  "ignore": [
+    ".cache",
+    ".idea",
+    ".pytest_cache",
+    ".reports",
+    "data",
+    "docker",
+    "node_modules"
+  ],
+  "exec": "node -e 'console.clear()'; yarn lint && echo '\u2714 OK' || echo '\u274C FAILED'; true"
+}
