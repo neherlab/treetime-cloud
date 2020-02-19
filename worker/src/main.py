@@ -8,6 +8,7 @@ import pika
 
 import tree_time_config
 
+
 if __name__ == "__main__":
     root = "../data/"
 
