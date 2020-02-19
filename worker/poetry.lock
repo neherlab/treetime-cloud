@@ -32,7 +32,7 @@ python = "<3.8"
 version = ">=1.4.0,<1.5"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Atomic file writes."
 marker = "sys_platform == \"win32\""
 name = "atomicwrites"
@@ -41,7 +41,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.3.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
@@ -124,7 +124,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "7.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Cross-platform colored terminal text."
 marker = "sys_platform == \"win32\""
 name = "colorama"
@@ -234,7 +234,7 @@ flake8 = ">=3"
 pydocstyle = ">=2.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Read metadata from Python packages"
 marker = "python_version < \"3.8\""
 name = "importlib-metadata"
@@ -314,7 +314,7 @@ python-versions = "*"
 version = "0.6.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
@@ -354,7 +354,7 @@ python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
 version = "1.13.3"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Core utilities for Python packages"
 name = "packaging"
 optional = false
@@ -414,7 +414,7 @@ tornado = ["tornado"]
 twisted = ["twisted"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
@@ -430,7 +430,7 @@ version = ">=0.12"
 dev = ["pre-commit", "tox"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
@@ -487,7 +487,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "2.4.6"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
@@ -538,12 +538,12 @@ version = "1.1.3"
 pytest = ">=3.1.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "py.test plugin to show failures instantly"
 name = "pytest-instafail"
 optional = false
 python-versions = "*"
-version = "0.4.1.post0"
+version = "0.4.1"
 
 [package.dependencies]
 pytest = ">=2.9"
@@ -617,7 +617,7 @@ description = "Alternative regular expression module, to replace re."
 name = "regex"
 optional = false
 python-versions = "*"
-version = "2020.1.8"
+version = "2020.2.18"
 
 [[package]]
 category = "main"
@@ -720,7 +720,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "1.2"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Measures number of Terminal column cells of wide-character codes"
 name = "wcwidth"
 optional = false
@@ -736,7 +736,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 marker = "python_version < \"3.8\""
 name = "zipp"
@@ -749,7 +749,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "74ca83d07f42c058235da9b7bc1dc9a9b6ea5f3e462060614b0c99b3ca040008"
+content-hash = "9e86bb29fb14b90779eb5ed6d469ca84b58f30b9779b927792f9f74bf1dae2a1"
 python-versions = "^3.6.9"
 
 [metadata.files]
@@ -1106,8 +1106,7 @@ pytest-forked = [
     {file = "pytest_forked-1.1.3-py2.py3-none-any.whl", hash = "sha256:1ae25dba8ee2e56fb47311c9638f9e58552691da87e82d25b0ce0e4bf52b7d87"},
 ]
 pytest-instafail = [
-    {file = "pytest-instafail-0.4.1.post0.tar.gz", hash = "sha256:cc5007720424aeabadcf178fc0aecb3b21e09950b9e93638f3eb16c47f5fa917"},
-    {file = "pytest_instafail-0.4.1.post0-py2.py3-none-any.whl", hash = "sha256:9730f6e56c8cfc1a9eec7dd4a1041abf64f08ef81ea1a7d53ea084cadbe234b9"},
+    {file = "pytest-instafail-0.4.1.tar.gz", hash = "sha256:84c87dd708f00d248fb062cdfaf5ba14bf10ce68ce56d46d58f20aa882a33924"},
 ]
 pytest-mock = [
     {file = "pytest-mock-1.13.0.tar.gz", hash = "sha256:e24a911ec96773022ebcc7030059b57cd3480b56d4f5d19b7c370ec635e6aed5"},
@@ -1130,27 +1129,27 @@ pytz = [
     {file = "pytz-2019.3.tar.gz", hash = "sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"},
 ]
 regex = [
-    {file = "regex-2020.1.8-cp27-cp27m-win32.whl", hash = "sha256:4e8f02d3d72ca94efc8396f8036c0d3bcc812aefc28ec70f35bb888c74a25161"},
-    {file = "regex-2020.1.8-cp27-cp27m-win_amd64.whl", hash = "sha256:e6c02171d62ed6972ca8631f6f34fa3281d51db8b326ee397b9c83093a6b7242"},
-    {file = "regex-2020.1.8-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:4eae742636aec40cf7ab98171ab9400393360b97e8f9da67b1867a9ee0889b26"},
-    {file = "regex-2020.1.8-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:bd25bb7980917e4e70ccccd7e3b5740614f1c408a642c245019cff9d7d1b6149"},
-    {file = "regex-2020.1.8-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:3e77409b678b21a056415da3a56abfd7c3ad03da71f3051bbcdb68cf44d3c34d"},
-    {file = "regex-2020.1.8-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:07b39bf943d3d2fe63d46281d8504f8df0ff3fe4c57e13d1656737950e53e525"},
-    {file = "regex-2020.1.8-cp36-cp36m-win32.whl", hash = "sha256:23e2c2c0ff50f44877f64780b815b8fd2e003cda9ce817a7fd00dea5600c84a0"},
-    {file = "regex-2020.1.8-cp36-cp36m-win_amd64.whl", hash = "sha256:27429b8d74ba683484a06b260b7bb00f312e7c757792628ea251afdbf1434003"},
-    {file = "regex-2020.1.8-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:0e182d2f097ea8549a249040922fa2b92ae28be4be4895933e369a525ba36576"},
-    {file = "regex-2020.1.8-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:e3cd21cc2840ca67de0bbe4071f79f031c81418deb544ceda93ad75ca1ee9f7b"},
-    {file = "regex-2020.1.8-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:ecc6de77df3ef68fee966bb8cb4e067e84d4d1f397d0ef6fce46913663540d77"},
-    {file = "regex-2020.1.8-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:26ff99c980f53b3191d8931b199b29d6787c059f2e029b2b0c694343b1708c35"},
-    {file = "regex-2020.1.8-cp37-cp37m-win32.whl", hash = "sha256:7bcd322935377abcc79bfe5b63c44abd0b29387f267791d566bbb566edfdd146"},
-    {file = "regex-2020.1.8-cp37-cp37m-win_amd64.whl", hash = "sha256:10671601ee06cf4dc1bc0b4805309040bb34c9af423c12c379c83d7895622bb5"},
-    {file = "regex-2020.1.8-cp38-cp38-manylinux1_i686.whl", hash = "sha256:98b8ed7bb2155e2cbb8b76f627b2fd12cf4b22ab6e14873e8641f266e0fb6d8f"},
-    {file = "regex-2020.1.8-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:6a6ba91b94427cd49cd27764679024b14a96874e0dc638ae6bdd4b1a3ce97be1"},
-    {file = "regex-2020.1.8-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:6a6ae17bf8f2d82d1e8858a47757ce389b880083c4ff2498dba17c56e6c103b9"},
-    {file = "regex-2020.1.8-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:0932941cdfb3afcbc26cc3bcf7c3f3d73d5a9b9c56955d432dbf8bbc147d4c5b"},
-    {file = "regex-2020.1.8-cp38-cp38-win32.whl", hash = "sha256:d58e4606da2a41659c84baeb3cfa2e4c87a74cec89a1e7c56bee4b956f9d7461"},
-    {file = "regex-2020.1.8-cp38-cp38-win_amd64.whl", hash = "sha256:e7c7661f7276507bce416eaae22040fd91ca471b5b33c13f8ff21137ed6f248c"},
-    {file = "regex-2020.1.8.tar.gz", hash = "sha256:d0f424328f9822b0323b3b6f2e4b9c90960b24743d220763c7f07071e0778351"},
+    {file = "regex-2020.2.18-cp27-cp27m-win32.whl", hash = "sha256:55f344f930bbcaae3146bc2cb8a761ea993c81d9777ec9fa530330cd62762653"},
+    {file = "regex-2020.2.18-cp27-cp27m-win_amd64.whl", hash = "sha256:5e6826ad52f3f6f7000163bcaa1e19bd21c22478d00490875df5fa0ac5e95637"},
+    {file = "regex-2020.2.18-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:bbd2fc931fed31e1f4fe45b7acc076983a4ad6b3ee83ae962eecfe553c842791"},
+    {file = "regex-2020.2.18-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:a022be296f9ff54423a31bf9f7761c979e8654a81fffa83509585d674f600faa"},
+    {file = "regex-2020.2.18-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:1551d6bf97e48d8eb06ab513868041e58a0473296cc636180df105dacc7b546e"},
+    {file = "regex-2020.2.18-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:6b9a165a96cad84a6403c8375eb09c03a91b3ce13749fcff5619a7de9323f712"},
+    {file = "regex-2020.2.18-cp36-cp36m-win32.whl", hash = "sha256:12a18821e38669cfd54d01e2351bcbe55632009c9b5736a159a4711d39abf266"},
+    {file = "regex-2020.2.18-cp36-cp36m-win_amd64.whl", hash = "sha256:7b2bb82b815015826d3ffbfa6dc8919375cf8e0653db023fe7d34d799727d2ef"},
+    {file = "regex-2020.2.18-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:5efd84785b764114a86c308e43103163e52e6189d24a5ecbbdd23b79dd715b89"},
+    {file = "regex-2020.2.18-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:4d6f0646c8c8ed566391e7cb49230f4e953c39121d38eaae2c573666ba0235be"},
+    {file = "regex-2020.2.18-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:061f5b049a4a75ab662d843c343b58d17dbbbf943890b36a74c796c0145256b0"},
+    {file = "regex-2020.2.18-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:ba08ecc10eb23dad6b18dc0da7e60dae508fc43381d4d7a9855345db22e0162b"},
+    {file = "regex-2020.2.18-cp37-cp37m-win32.whl", hash = "sha256:7af2199c44511d6b962817817aa14eb673b132c940c2b00809c5fb7906381015"},
+    {file = "regex-2020.2.18-cp37-cp37m-win_amd64.whl", hash = "sha256:c55cbe57a35eeef524ad323ee0e04c4a0ed724d1736a4d15adeca00852cd8bf9"},
+    {file = "regex-2020.2.18-cp38-cp38-manylinux1_i686.whl", hash = "sha256:a9fa68b54e88ac027ae6ab8e1e181807f13713943e728e20bcb4c34c5cc4827a"},
+    {file = "regex-2020.2.18-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:4bfc09ed38ca2c6da17bd82febc2c260d142776e56ab7092036ee86b66ed3be0"},
+    {file = "regex-2020.2.18-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:685450ce1e63e7375f867093a7e0f15817e778ffa7b4bbdfae59cd73dedf7095"},
+    {file = "regex-2020.2.18-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:4216e5f9b659014d1a9f36d920fd1207f1ed1364231e4192295ff85ad469c971"},
+    {file = "regex-2020.2.18-cp38-cp38-win32.whl", hash = "sha256:6cbb96b49932a47bbe6a7c16b60e92ad5571cafbcda34fa178eecf6df1e90884"},
+    {file = "regex-2020.2.18-cp38-cp38-win_amd64.whl", hash = "sha256:54df3a00c5f8ece5ff969e0ee23fb01b927e9c265ea43b73da501677170b4746"},
+    {file = "regex-2020.2.18.tar.gz", hash = "sha256:776908974bf26133abdb4a7b83943537aa84a207e0d36b6be9b0680e0d370163"},
 ]
 s3transfer = [
     {file = "s3transfer-0.3.3-py2.py3-none-any.whl", hash = "sha256:2482b4259524933a022d59da830f51bd746db62f047d6eb213f2f8855dcb8a13"},
