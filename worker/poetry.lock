@@ -155,6 +155,17 @@ version = "0.10.0"
 six = "*"
 
 [[package]]
+category = "dev"
+description = "Type stubs for Python machine learning libraries"
+name = "data-science-types"
+optional = false
+python-versions = ">=3.6"
+version = "0.2.5.post1"
+
+[package.extras]
+dev = ["black", "mypy"]
+
+[[package]]
 category = "main"
 description = "Docutils -- Python Documentation Utilities"
 name = "docutils"
@@ -738,7 +749,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "ac23c758c3deb3afe8dfac67d491a28e0cc4c8aa34d438ebd9029924c0fb4117"
+content-hash = "74ca83d07f42c058235da9b7bc1dc9a9b6ea5f3e462060614b0c99b3ca040008"
 python-versions = "^3.6.9"
 
 [metadata.files]
@@ -843,6 +854,10 @@ coverage = [
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
+]
+data-science-types = [
+    {file = "data-science-types-0.2.5.post1.tar.gz", hash = "sha256:b08c67021eb708d96bd2a6b63d028237aac58edc08563c90c106a9e00e3e33e1"},
+    {file = "data_science_types-0.2.5.post1-py3-none-any.whl", hash = "sha256:8a494939db48660646373f7a4e9a7ca979a09c355463e4d5f4a1d6a605abfd73"},
 ]
 docutils = [
     {file = "docutils-0.15.2-py2-none-any.whl", hash = "sha256:9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827"},

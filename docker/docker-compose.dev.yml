@@ -80,7 +80,7 @@ services:
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command: bash docker/entrypoint.dev.base.sh
+    command: sh -c "cd /code/worker && yarn install && yarn dev:docker:base"
     volumes:
       - ../:/code
       - ../worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
@@ -103,7 +103,7 @@ services:
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command: bash docker/entrypoint.dev.main.sh
+    command: sh -c "cd /code/worker && yarn install && yarn dev:docker:main"
     volumes:
       - ../:/code
       - ../worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
@@ -123,7 +123,10 @@ services:
     container_name: treetime-dev-taskqueue
     image: rabbitmq:3.8.2-management-alpine
     volumes:
-      - ../taskqueue/etc/rabbitmq:/etc/rabbitmq:ro
+      - ../:/code
+      - ../.volumes/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
+      - ../taskqueue/dev/etc/rabbitmq:/etc/rabbitmq:ro
+      - ../taskqueue/dev/var/lib/rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -132,18 +135,24 @@ services:
     env_file:
       - ../.env
     environment:
+      - RABBITMQ_NODENAME=taskqueue-001
+      - RABBITMQ_HOME=/code/.volumes/taskqueue/home
+      - RABBITMQ_MNESIA_BASE=/code/.volumes/taskqueue/mnesia
+      - RABBITMQ_LOG_BASE=/code/.volumes/taskqueue/log
+      - RABBITMQ_SCHEMA_DIR=/code/.volumes/taskqueue/schema
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
     restart: 'no'
     init: true
+    user: '${UID}'
     tty: true
 
   treetime-dev-filestore:
     container_name: treetime-dev-filestore
     image: minio/minio:RELEASE.2020-02-07T23-28-16Z
-    command: server /data
+    command: server --quiet /code/.volumes/filestore
     volumes:
-      - ../.volumes/filestore/data:/data
+      - ../:/code
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -155,4 +164,9 @@ services:
       - TERM=xterm-truecolor
     restart: 'no'
     init: true
+    user: '${UID}'
     tty: true
+
+
+volumes:
+  rabbitmq_config_generated:

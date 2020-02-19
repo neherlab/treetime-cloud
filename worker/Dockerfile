@@ -13,10 +13,12 @@ RUN set -x \
     fasttree \
     git \
     inotify-tools \
+    make \
+    nodejs \
+    npm \
     python3 \
     python3-pip \
     python3-venv \
-    make \
   > /dev/null
 
 # Install dockerize
@@ -40,6 +42,11 @@ RUN set -x \
   && sed -i "s/python/python3/g" "${POETRY_HOME}/bin/poetry"
 
 COPY ./tools/wait-file.sh /tools/
+
+# Install yarn
+# https://github.com/yarnpkg/yarn
+RUN set -x \
+  && npm install -g yarn@1.22.0
 
 ENV PYLINTHOME="/code/worker/.cache/pylint"
 

@@ -1,5 +1,8 @@
 __pycache__
+*.log
+\.build
 \.cache
+\.env
 \.mypy_cache
 \.pytest_cache
 \.reports

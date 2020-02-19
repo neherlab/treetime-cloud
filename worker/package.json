@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "poetry run python src/main.py",
     "dev:watch": "nodemon --config config/nodemon/dev.json",
+    "dev:docker:base": "nodemon --config config/nodemon/dev.docker.base.json",
+    "dev:docker:main": "nodemon --config config/nodemon/dev.docker.main.json",
     "lint": "yarn pylint; yarn flake8; yarn mypy",
     "lint:watch": "nodemon --config config/nodemon/lint.json",
     "pylint": "poetry run pylint src --msg-template='{path}:{line:3d}:{column:2d}: {msg_id} ({symbol}): {msg}'",
@@ -24,7 +26,7 @@
     "test:watch": "nodemon --config config/nodemon/test.json",
     "launch": "poetry run",
     "packages:add": "poetry add",
-    "packages:install": "poetry install --no-root --no-interaction",
+    "packages:install": "yarn install && poetry install --no-root --no-interaction",
     "packages:upgrade": "poetry update --no-interaction"
   },
   "devDependencies": {

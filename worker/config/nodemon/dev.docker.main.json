@@ -2,7 +2,13 @@
   "quiet": true,
   "legacyWatch": false,
   "delay": 0.1,
-  "watch": ["poetry.lock", "poetry.toml", "pyproject.toml", "src/**/*.py"],
+  "watch": [
+    "docker/entrypoint.dev.main.sh",
+    "poetry.lock",
+    "poetry.toml",
+    "pyproject.toml",
+    "src/**/*.py"
+  ],
   "ext": "py,pyi,json,txt,ini,yml,sh,lock",
   "ignore": [
     ".cache",
@@ -13,5 +19,5 @@
     "docker",
     "node_modules"
   ],
-  "exec": "yarn dev; true"
+  "exec": "bash docker/entrypoint.dev.main.sh; true"
 }

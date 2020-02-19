@@ -17,4 +17,4 @@ cd /code/worker
 dockerize -wait "tcp://treetime-dev-taskqueue:5672" -timeout 60s >& /dev/null
 
 # Run the application
-poetry run python "src/main.py"
+yarn dev
