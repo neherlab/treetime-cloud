@@ -51,6 +51,14 @@ if __name__ == "__main__":
         for _, filepath in input_filepaths.items():
             download_from_s3(filepath)
 
+        def upload_to_s3(path: str):
+            in_path = os.path.join("..", "data", path)
+            out_path = f"output/{path}"
+            response = s3.upload_file(in_path, "treetime", out_path)
+
+        for _, filepath in input_filepaths.items():
+            upload_to_s3(filepath)
+
         # ttw = TreeTimeWeb(root, cfg)
         # ttw.run()
 
