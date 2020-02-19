@@ -17,9 +17,12 @@ fi
 FILENAME=$(basename ${FILEPATH})
 DIRNAME=$(realpath $(dirname "${PWD}/${FILEPATH}"))
 
-echo "Waiting for ${DIRNAME}/${FILENAME}"
-while read filename; do
-  if [ "$filename" = ${FILENAME} ]; then
-    break
-  fi
-done < <(inotifywait -e create,open --format '%f' --quiet ${DIRNAME} --monitor)
+if [ ! -f "${FILEPATH}" ]
+then
+  echo "Waiting for ${DIRNAME}/${FILENAME}"
+  while read filename; do
+    if [ "$filename" = ${FILENAME} ]; then
+      break
+    fi
+  done < <(inotifywait -e create,open --format '%f' --quiet ${DIRNAME} --monitor)
+fi

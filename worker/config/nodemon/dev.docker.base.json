@@ -6,8 +6,7 @@
     "docker/entrypoint.dev.base.sh",
     "poetry.lock",
     "poetry.toml",
-    "pyproject.toml",
-    "src/**/*.py"
+    "pyproject.toml"
   ],
   "ext": "py,pyi,json,txt,ini,yml,sh,lock",
   "ignore": [
