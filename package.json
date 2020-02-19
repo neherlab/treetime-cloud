@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "yarn dev:prepare && yarn _docker-compose -f docker/docker-compose.dev.yml --compatibility up --build",
     "dev:prepare": "bash docker/tools/make-dirs.dev.sh",
+    "dev:clean": "find . -maxdepth 2 -regextype egrep -type d -regex '.*(node_modules|__pycache__|\\.venv|\\.cache|\\.build|\\.reports?)$' -exec rm -rf {} \\;",
+    "dev:cleanest": "yarn dev:clean && find . -maxdepth 2 -regextype egrep -type d -regex '.*(\\.volumes|\\.data)$' -exec rm -rf {} \\;",
     "worker": "yarn _docker-compose -f docker/docker-compose.dev.worker.yml up --build",
     "package:treetime": "yarn _docker-compose -f docker/docker-compose.package.treetime.yml up --build",
     "prettier": "prettier --check '**/*.{js,jsx,ts,tsx,json,html,css,less,scss,yml,yaml}'",
