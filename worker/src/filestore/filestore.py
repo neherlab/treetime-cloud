@@ -21,7 +21,7 @@ class FileStore:
         config=Config(signature_version="s3v4"),
     )
 
-  def download_input_file(self, prefix: str, filename: str):
+  def download_input_file(self, prefix: str, filename: str) -> None:
     remote_path = f"{prefix}/input/{filename}"
     local_path = os.path.join(".data", prefix, "input", filename)
 
@@ -29,7 +29,7 @@ class FileStore:
 
     self.s3.download_file("treetime", remote_path, local_path)
 
-  def upload_output_file(self, prefix: str, filename: str):
+  def upload_output_file(self, prefix: str, filename: str) -> None:
     # TODO: don't upload input, get real output instead
     local_path = os.path.join(".data", prefix, "input", filename)
     remote_path = f"{prefix}/output/{filename}"
