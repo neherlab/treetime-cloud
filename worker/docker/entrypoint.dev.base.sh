@@ -19,8 +19,16 @@ rm -f ".cache/venv.ready"
 yarn packages:install
 
 # Tell main containers that the virtual environement is ready
-touch ".cache/venv.ready"
+cat <<EOT >> ".cache/venv.ready"
+This file is created by '$(pwd)/${0}'
 
-# Important: this service is ephemerial, it only runs when the environement
-# needs to be updated
+Existence of this feale means that the python-poetry virtual environment is
+ready and services waiting for it can proceed.
+
+Here is some additional information about the virtual environment:
+$(poetry env info)
+EOT
+
+# Important: this service is ephemeral, it only runs when the environement
+# needs to be updated, updates it and the exits.
 exit 0

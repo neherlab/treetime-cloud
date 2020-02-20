@@ -104,7 +104,7 @@ services:
     build:
       context: ../
       dockerfile: worker/Dockerfile
-    command: sh -c "cd /code/worker && yarn install --silent && yarn dev:docker:main"
+    command: sh -c "cd /code/worker && bash ../tools/wait-file.sh '.cache/venv.ready' && yarn dev:docker:main"
     volumes:
       - ../:/code
       - ../worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
