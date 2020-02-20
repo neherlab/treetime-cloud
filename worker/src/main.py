@@ -11,36 +11,58 @@ from file_store import FileStore
 
 
 class Task:
+  """
+  Describes a task
+  """
+
   task_id: str
   input_filenames: Dict[str, str]
 
 
-"""
-Type alias for raw pica consumer callable (e.g. object or function)
-"""
+# Type alias for raw Pika consumer callback
 PikaConsumerCallable = Callable[
     [BlockingChannel, Basic.Deliver, BasicProperties, bytes], str]
 
+# Type alias for Task consumer callback
 TaskConsumerCallable = Callable[[Task], None]
 
 
-class TaskQueue:
+class MessageQueueClient:
   """
-  Implements task queue client and consumer. Connects to the task queue service,
-  retrieves, deserializes, validates and consumes tasks using a given
-  consumer callable object.
+  Implements a message queue client.
+  Connects to the message queue service, retrieves and consumes messages using
+  a given consumer.
   """
 
-  def __init__(self, host: str, consumer: TaskConsumerCallable):
-
-    self._consumer = consumer  # consumer callable object that implements the actual consumption
-
+  def __init__(self, host: str, queue: str, consumer: PikaConsumerCallable):
+    super().__init__()
     self._connection = pika.BlockingConnection(pika.ConnectionParameters(host))
     self._channel = self._connection.channel()
-    self._channel.queue_declare(queue="tasks")
-    self._channel.basic_consume(queue="tasks",
-                                on_message_callback=self,
+    self._channel.queue_declare(queue)
+    self._channel.basic_consume(queue,
+                                on_message_callback=consumer,
                                 auto_ack=True)
+
+  def start_consuming(self) -> None:
+    try:
+      print(" [*] Waiting for messages. To exit press CTRL+C")
+      self._channel.start_consuming()
+    except KeyboardInterrupt:
+      self._channel.stop_consuming()
+    finally:
+      self._connection.close()
+
+
+class TaskConsumerAdapter(PikaConsumerCallable):
+  """
+  Wraps Task consumer, allowing to consume raw messages from Pika queue.
+  Deserializes raw messages into Tasks, validates and consumes these tasks
+  using the wrapper consumer callable.
+  """
+
+  def __init__(self, consumer: TaskConsumerCallable):
+    super().__init__()
+    self._consumer = consumer
 
   def _deserialize_task(self, body: bytes) -> Task:
     """
@@ -71,17 +93,8 @@ class TaskQueue:
     task = self._deserialize_task(body)
     self._consumer(task)
 
-  def start_consuming(self) -> None:
-    try:
-      print(" [*] Waiting for messages. To exit press CTRL+C")
-      self._channel.start_consuming()
-    except KeyboardInterrupt:
-      self._channel.stop_consuming()
-    finally:
-      self._connection.close()
 
-
-class TaskConsumer:
+class TaskConsumer(TaskConsumerCallable):
   """ Consumes Task objects """
 
   def __init__(self, file_store):
@@ -120,9 +133,14 @@ def main():
       aws_access_key_id="minioadmin",
       aws_secret_access_key="minioadmin",
   )
-  task_consumer = TaskConsumer(file_store)
-  task_queue = TaskQueue(host="treetime-dev-taskqueue", consumer=task_consumer)
-  task_queue.start_consuming()
+
+  consumer = TaskConsumerAdapter(TaskConsumer(file_store=file_store))
+
+  queue = MessageQueueClient(host="treetime-dev-taskqueue",
+                             queue="tasks",
+                             consumer=consumer)
+
+  queue.start_consuming()
 
 
 if __name__ == "__main__":
