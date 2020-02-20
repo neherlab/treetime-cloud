@@ -88,14 +88,14 @@ export class TaskController {
       )
     }
 
-    const inputFilepaths = await this.fileStoreService.getFilepathsForTask(taskId) // prettier-ignore
-    if (!inputFilepaths) {
+    const inputFilenames = await this.fileStoreService.getFilenamesForTask(taskId) // prettier-ignore
+    if (!inputFilenames) {
       throw new NotFoundException(
         `Input files not found for task '${serialize(taskId)}'`,
       )
     }
 
-    await this.taskQueue.emit('tasks', { taskId, inputFilepaths }).toPromise()
+    await this.taskQueue.emit('tasks', { taskId, inputFilenames }).toPromise()
     return { payload: { taskId } }
   }
 }

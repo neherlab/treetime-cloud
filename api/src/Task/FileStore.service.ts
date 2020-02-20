@@ -36,7 +36,7 @@ export class FileStoreService {
   private readonly BUCKET_NAME = 'treetime'
 
   // TODO: persist this in a database instead
-  private readonly filepaths: Map<string, UploadedFilepaths> = new Map<string, UploadedFilepaths>() // prettier-ignore
+  private readonly filenames: Map<string, UploadedFilepaths> = new Map<string, UploadedFilepaths>() // prettier-ignore
 
   public async uploadInputFiles(prefix: string, filedata: UploadedFileData) {
     const files: UploadedFiles = {
@@ -52,23 +52,25 @@ export class FileStoreService {
         }
 
         const filename = file?.originalname ?? file?.filename
-        const filepath = `${prefix}/${filename}`
+        const filepath = `${prefix}/input/${filename}`
         const data = file.buffer
 
-        await this.addFilepathToTask(type, prefix, filepath)
+        // TODO: these 2 operations should be executed atomically:
+        // if one operation fails, all changes should be reverted.
+        await this.addFilenameToTask(type, prefix, filename)
         await this.uploadFileToS3(filepath, data)
       }),
     ])
   }
 
-  public async getFilepathsForTask(taskId: string) {
-    return this.filepaths.get(taskId)
+  public async getFilenamesForTask(taskId: string) {
+    return this.filenames.get(taskId)
   }
 
   // prettier-ignore
-  private async addFilepathToTask(type: string, prefix: string, filepath: string) {
-    const existingFiles = this.filepaths.get(prefix) ?? {}
-    this.filepaths.set(prefix, { ...existingFiles, [type]: filepath })
+  private async addFilenameToTask(type: string, prefix: string, filename: string) {
+    const existingFiles = this.filenames.get(prefix) ?? {}
+    this.filenames.set(prefix, { ...existingFiles, [type]: filename })
   }
 
   private async uploadFileToS3(filepath: string, data: Buffer) {
