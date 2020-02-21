@@ -4,7 +4,7 @@
   "main": "src/main.py",
   "license": "MIT",
   "scripts": {
-    "dev": "poetry run python src/main.py",
+    "dev": "PYTHONDONTWRITEBYTECODE=1 poetry run python src/main.py",
     "dev:watch": "nodemon --config config/nodemon/dev.json",
     "dev:docker:base": "nodemon --config config/nodemon/dev.docker.base.json",
     "dev:docker:main": "nodemon --config config/nodemon/dev.docker.main.json",
