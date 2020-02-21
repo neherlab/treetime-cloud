@@ -1,1 +1,0 @@
-// TODO separate axis rendering from the tree rendering
