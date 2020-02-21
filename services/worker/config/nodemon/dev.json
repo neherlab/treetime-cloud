@@ -1,4 +1,5 @@
 {
+  "signal": "SIGINT",
   "quiet": true,
   "legacyWatch": false,
   "delay": 0.1,
