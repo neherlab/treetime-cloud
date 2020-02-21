@@ -48,8 +48,8 @@ COPY ./tools/wait-file.sh /tools/
 RUN set -x \
   && npm install -g yarn@1.22.0
 
-ENV PYLINTHOME="/code/worker/.cache/pylint"
+ENV PYLINTHOME="/code/services/worker/.cache/pylint"
 
-WORKDIR /code/worker
+WORKDIR /code/services/worker
 
 CMD ["poetry", "run", "python3"]

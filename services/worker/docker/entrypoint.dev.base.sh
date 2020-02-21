@@ -8,7 +8,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-cd /code/worker
+cd /code/services/worker
 
 mkdir -p ".cache"
 
