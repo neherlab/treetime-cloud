@@ -2,6 +2,7 @@ __pycache__
 *.lock
 *.log
 \.build
+\.data
 \.cache
 \.editorconfig
 \.env

@@ -38,7 +38,8 @@ class TaskConsumer(Callable):
     inputs = TreetimeInputFilepaths(
         NWK=os.path.join(input_dir, input_filenames["NWK"]),
         FASTA=os.path.join(input_dir, input_filenames["FASTA"]),
-        DATES=os.path.join(input_dir, input_filenames["DATES"]))
+        DATES=os.path.join(input_dir, input_filenames["DATES"]),
+    )
 
     outputs = TreetimeOutputFilepaths(
         NWK=os.path.join(output_dir, f"{task_id}.nwk"),
@@ -50,22 +51,25 @@ class TaskConsumer(Callable):
         # MOLECULAR_CLOCK=os.path.join(output_dir, f"{task_id}.molecular_clock.csv"),
         TREE_JSON=os.path.join(output_dir, f"{task_id}.tree.json"),
         # LIKELIHOODS_JSON=os.path.join(output_dir, f"{task_id}.likelihoods.json"),
-        CONFIG_JSON=os.path.join(output_dir, f"{task_id}.config.json"))
+        CONFIG_JSON=os.path.join(output_dir, f"{task_id}.config.json"),
+    )
 
     output_zip_filename = os.path.join(zip_dir, f"{task_id}.zip")
 
-    config = TreetimeConfig(input_filenames=inputs,
-                            output_filenames=outputs,
-                            output_zip_filename=output_zip_filename,
-                            generate_tree=True,
-                            gtr="jc",
-                            root="best",
-                            do_marginal=False,
-                            resolve_polytomies=False,
-                            slope=None,
-                            coalescent_prior=None,
-                            max_iter=2,
-                            relaxed_clock=False)
+    config = TreetimeConfig(
+        input_filenames=inputs,
+        output_filenames=outputs,
+        output_zip_filename=output_zip_filename,
+        generate_tree=True,
+        gtr="jc",
+        root="best",
+        do_marginal=False,
+        resolve_polytomies=False,
+        slope=None,
+        coalescent_prior=None,
+        max_iter=2,
+        relaxed_clock=False,
+    )
 
     os.makedirs(input_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
@@ -75,7 +79,9 @@ class TaskConsumer(Callable):
 
     run_treetime(config)
 
-    nwk_filepath = outputs.NWK_GENERATED if config.generate_tree else outputs.NWK_GENERATED
+    nwk_filepath = (
+        outputs.NWK_GENERATED
+        if config.generate_tree else outputs.NWK_GENERATED)
     final_output_filepaths: List[str] = [
         nwk_filepath,
         outputs.NEX,
@@ -94,7 +100,6 @@ class TaskConsumer(Callable):
     for local_filepath in final_output_filepaths:
       self._file_store.upload_file(task_id, 'output', local_filepath)
 
-    make_zip(final_zip_filepaths,
-             config.output_zip_filename,
-             relative_to=data_dir)
+    make_zip(
+        final_zip_filepaths, config.output_zip_filename, relative_to=data_dir)
     self._file_store.upload_file(task_id, 'zip', config.output_zip_filename)

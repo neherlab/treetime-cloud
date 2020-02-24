@@ -291,8 +291,8 @@ def _distribution_to_human_readable(tt: TreeTime, dist: Any):
 
   peak_pos = dist.peak_pos
   fwhm = dist.fwhm
-  raw_x = dist.x[(dist.x > peak_pos - 3 * fwhm) &
-                 (dist.x < peak_pos + 3 * fwhm)]
+  raw_x = dist.x[(dist.x > peak_pos - 3 * fwhm)
+                 & (dist.x < peak_pos + 3 * fwhm)]
   dates_x = np.array(map(tt.date2dist.to_numdate, raw_x))
   y = dist.prob_relative(raw_x)
   return dates_x, y
@@ -364,29 +364,37 @@ def save_gtr(tt: TreeTime, config: TreetimeConfig):
 def run_treetime(config: TreetimeConfig):
 
   if config.generate_tree:
-    generate_tree(config.input_filenames.FASTA,
-                  config.output_filenames.NWK_GENERATED)
+    generate_tree(
+        config.input_filenames.FASTA,
+        config.output_filenames.NWK_GENERATED,
+    )
 
-  input_nwk = config.output_filenames.NWK_GENERATED if config.generate_tree else config.input_filenames.NWK
+  input_nwk = (
+      config.output_filenames.NWK_GENERATED
+      if config.generate_tree else config.input_filenames.NWK)
 
   tree = Phylo.read(input_nwk, "newick")
   aln = AlignIO.read(config.input_filenames.FASTA, "fasta")
-  dates, meta = read_metadata_from_file(config.input_filenames.DATES,
-                                        '.cache/log.txt')
+  dates, meta = read_metadata_from_file(
+      config.input_filenames.DATES,
+      '.cache/log.txt',
+  )
 
   # TODO: in case of config.gtr == "infer" shall we default to "jc" here ?
   # TreeTime.run() has additional "infer_gtr" option.
   # Why same thing in two places?
   tt = TreeTime(dates=dates, tree=tree, aln=aln, gtr="jc")
 
-  tt.run(root=config.root,
-         infer_gtr=config.gtr == "infer",
-         relaxed_clock=config.relaxed_clock,
-         resolve_polytomies=config.resolve_polytomies,
-         max_iter=config.max_iter,
-         Tc=config.coalescent_prior,
-         fixed_slope=config.slope,
-         do_marginal=config.do_marginal)
+  tt.run(
+      root=config.root,
+      infer_gtr=config.gtr == "infer",
+      relaxed_clock=config.relaxed_clock,
+      resolve_polytomies=config.resolve_polytomies,
+      max_iter=config.max_iter,
+      Tc=config.coalescent_prior,
+      fixed_slope=config.slope,
+      do_marginal=config.do_marginal,
+  )
 
   config_json = config._asdict()
   write_json(config_json, config.output_filenames.CONFIG_JSON)

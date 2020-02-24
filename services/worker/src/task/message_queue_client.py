@@ -15,9 +15,11 @@ class MessageQueueClient:
     self._connection = pika.BlockingConnection(pika.ConnectionParameters(host))
     self._channel = self._connection.channel()
     self._channel.queue_declare(queue)
-    self._channel.basic_consume(queue,
-                                on_message_callback=consumer,
-                                auto_ack=True)
+    self._channel.basic_consume(
+        queue,
+        on_message_callback=consumer,
+        auto_ack=True,
+    )
 
   def start_consuming(self) -> None:
     try:

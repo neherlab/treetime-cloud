@@ -174,12 +174,8 @@ class TreeTimeWeb(treetime.TreeTime):
       dates = {}
 
     gtr = "jc" if webconfig["gtr"] == "infer" else webconfig["gtr"]
-    super(TreeTimeWeb, self).__init__(dates=dates,
-                                      tree=tree,
-                                      aln=aln,
-                                      gtr=str(gtr),
-                                      *args,
-                                      **kwargs)
+    super(TreeTimeWeb, self).__init__(
+        dates=dates, tree=tree, aln=aln, gtr=str(gtr), *args, **kwargs)
 
   def run(self, **kwargs):
     _write_session_state(self._root_dir, SessionState.reading)
@@ -196,9 +192,9 @@ class TreeTimeWeb(treetime.TreeTime):
     Tc = (None if self._webconfig["use_coalescent_prior"] == "False" or
           not self._webconfig["use_coalescent_prior"] else float(
               self._webconfig["coalescent_prior_value"]))
-    max_iter = (int(self._webconfig["max_iter"])
-                if "max_iter" in self._webconfig and self._webconfig["max_iter"]
-                else 2)
+    max_iter = (
+        int(self._webconfig["max_iter"])
+        if "max_iter" in self._webconfig and self._webconfig["max_iter"] else 2)
 
     if (self._webconfig["use_relaxed_clock"] == "False" or
         not self._webconfig["use_relaxed_clock"]):
@@ -296,10 +292,10 @@ class TreeTimeWeb(treetime.TreeTime):
     self._save_gtr()
     # zip all results to one file
     with zipfile.ZipFile(os.path.join(self._root_dir, zipname), "w") as out_zip:
-      out_zip.write(os.path.join(self._root_dir, out_tree_nwk),
-                    arcname=out_tree_nwk)
-      out_zip.write(os.path.join(self._root_dir, out_tree_nex),
-                    arcname=out_tree_nex)
+      out_zip.write(
+          os.path.join(self._root_dir, out_tree_nwk), arcname=out_tree_nwk)
+      out_zip.write(
+          os.path.join(self._root_dir, out_tree_nex), arcname=out_tree_nex)
       out_zip.write(
           os.path.join(self._root_dir, out_aln_fasta),
           arcname=out_aln_fasta,
@@ -493,8 +489,8 @@ class TreeTimeWeb(treetime.TreeTime):
 
     peak_pos = dist.peak_pos
     fwhm = dist.fwhm
-    raw_x = dist.x[(dist.x > peak_pos - 3 * fwhm) &
-                   (dist.x < peak_pos + 3 * fwhm)]
+    raw_x = dist.x[(dist.x > peak_pos - 3 * fwhm)
+                   & (dist.x < peak_pos + 3 * fwhm)]
     dates_x = np.array(map(self.date2dist.to_numdate, raw_x))
     y = dist.prob_relative(raw_x)
     return dates_x, y
@@ -653,10 +649,10 @@ class TreeTimeWeb(treetime.TreeTime):
     self._save_alignment()
     self._save_gtr()
     with zipfile.ZipFile(os.path.join(self._root_dir, zipname), "w") as out_zip:
-      out_zip.write(os.path.join(self._root_dir, out_tree_nwk),
-                    arcname=out_tree_nwk)
-      out_zip.write(os.path.join(self._root_dir, out_tree_nex),
-                    arcname=out_tree_nex)
+      out_zip.write(
+          os.path.join(self._root_dir, out_tree_nwk), arcname=out_tree_nwk)
+      out_zip.write(
+          os.path.join(self._root_dir, out_tree_nex), arcname=out_tree_nex)
       out_zip.write(
           os.path.join(self._root_dir, out_aln_fasta),
           arcname=out_aln_fasta,

@@ -11,9 +11,11 @@ def main() -> None:
 
   consumer = TaskConsumerAdapter(TaskConsumer(file_store=file_store))
 
-  queue = MessageQueueClient(host="treetime-dev-taskqueue",
-                             queue="tasks",
-                             consumer=consumer)
+  queue = MessageQueueClient(
+      host="treetime-dev-taskqueue",
+      queue="tasks",
+      consumer=consumer,
+  )
 
   queue.start_consuming()
 
