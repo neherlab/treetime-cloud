@@ -26,7 +26,6 @@ class TaskConsumerAdapter:
       task = json.loads(body)["data"]
       task_id = task["taskId"]
       input_filenames = task["inputFilenames"]
-      print(type(input_filenames))
     except KeyError as error:
       # TODO: report failure back to api
       sys.stderr.write(f"Error: task {task_id}: data is corrupt. Aborting.\n")

@@ -11,6 +11,7 @@ ignore=
         .data,
         .git,
         .idea,
+        .ignore,
         .input,
         .output,
         .temp,
@@ -450,7 +451,9 @@ good-names=
            j,
            k,
            Run,
-           s3
+           s3,
+           df,
+           tt
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no
