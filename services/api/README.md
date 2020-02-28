@@ -1,4 +1,4 @@
-# treetime/api
+# services/api
 
 This module implements Treetime API server.
 It is to be deployed on a cloud hosting.

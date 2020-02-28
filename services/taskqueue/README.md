@@ -1,6 +1,6 @@
-# treetime/taskqueue
+# services/taskqueue
 
-This module implements multi-producer-multii-consumer message queue that
+This module implements multi-producer-multi-consumer message queue that
 serializes incoming tasks in order to balance the load across workers.
 
 Task producer (api) pushes tasks into the queue. Task consumers (workers) pop 

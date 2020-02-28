@@ -1,8 +1,9 @@
-# treetime/worker
+# services/worker
 
 This module implements Treetime worker instance.
 
-It is ran by Treetime API to fullfil requests of remote clients (web or cli).
+This private service is used by Treetime API in order to fullfil the
+computational task request from remote clients.
 
-Treetime worker consumes input data, processes it using Treetime library and 
-produces output files. 
+Treetime worker downloads input data from the filestore, processes it using
+Treetime library and uploads output files back to filestore.

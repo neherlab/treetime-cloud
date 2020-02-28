@@ -1,4 +1,4 @@
-# treetime/web
+# services/web
 
 This module implements Treetime web client.
 
