@@ -79,25 +79,25 @@ As a user you don't really need to worry about this repository, but you may find
 As a developer you are most likely interested in the actual source code (⭐) or
 configuration files (🛠️).
 
-| File or directory  | Flags  | Contents                                                                          |
-| ------------------ | ------ | --------------------------------------------------------------------------------- |
-| 📁.build/          | ⏰♻️   | Contains build artifacts                                                          |
-| 📁.cache/          | ⏰♻️   | Cache or temporary files, for example package manager cache or build system cache |
-| 📁.volumes/        | ⏰     | Writable docker volumes, to ensure persistence of files outside of containers     |
-| 📁docker/          | 🛠️⚙️   | Configuration related to docker containers and to their orchestration             |
-| 📁docs/            | 📘     | Contains documentation                                                            |
-| 📁examples/        | 📘     | Contains examples and tutorials                                                   |
-| 📁services/        |        | Implementation of services                                                        |
-| ├📁api/          | ☁️⚙️⭐ | Implementation of the API service                                                 |
-| ├📁reverseproxy/ | ☁️⚙️   | Implementation of the reverse proxy service                                       |
-| ├📁taskqueue/    | ☁️⚙️   | Implementation of the task queue service                                          |
-| ├📁web/          | ☁️⚙️⭐ | Implementation of the web client service                                          |
-| ├📁worker/       | ☁️⚙️⭐ | Implementation of the worker service                                              |
-| ├📁tools/        | 🛠️     | Various developer tools and scripts                                               |
-| 📄.env             | ⚙️     | Current environment configuration (created by the developer)                      |
-| 📄.env.example     | ⚙️     | Example environment configuration                                                 |
-| 📄package.json     | ⚙️     | Root package.json. Currently contains developer scrips                            |
-| 📄README.md        | 📘     | This document                                                                     |
+| File or directory | Flags  | Contents                                                                          |
+| ----------------- | ------ | --------------------------------------------------------------------------------- |
+| 📁.build/         | ⏰♻️   | Contains build artifacts                                                          |
+| 📁.cache/         | ⏰♻️   | Cache or temporary files, for example package manager cache or build system cache |
+| 📁.volumes/       | ⏰     | Writable docker volumes, to ensure persistence of files outside of containers     |
+| 📁docker/         | 🛠️⚙️   | Configuration related to docker containers and to their orchestration             |
+| 📁docs/           | 📘     | Contains documentation                                                            |
+| 📁examples/       | 📘     | Contains examples and tutorials                                                   |
+| 📁services/       |        | Implementation of services                                                        |
+| ├📁api/           | ☁️⚙️⭐ | Implementation of the API service                                                 |
+| ├📁reverseproxy/  | ☁️⚙️   | Implementation of the reverse proxy service                                       |
+| ├📁taskqueue/     | ☁️⚙️   | Implementation of the task queue service                                          |
+| ├📁web/           | ☁️⚙️⭐ | Implementation of the web client service                                          |
+| ├📁worker/        | ☁️⚙️⭐ | Implementation of the worker service                                              |
+| 📁tools/          | 🛠️     | Various developer tools and scripts                                               |
+| 📄.env            | ⚙️     | Current environment configuration (created by the developer)                      |
+| 📄.env.example    | ⚙️     | Example environment configuration                                                 |
+| 📄package.json    | ⚙️     | Root package.json. Currently contains developer scrips                            |
+| 📄README.md       | 📘     | This document                                                                     |
 
 #### Legend
 
@@ -142,14 +142,14 @@ The recommended developer tools also include:
 
 > ℹ️ Directory `tools/` contains, among others, the following utility scripts:
 >
-> - [`tools/ubuntu-install-docker`](tools/ubuntu-install-docker) - installs docker
->   and docker-compose, adds current user to `docker` group.
-> 
+> - [`tools/ubuntu-install-docker`](tools/ubuntu-install-docker) - installs
+>   docker and docker-compose, adds current user to `docker` group.
+>
 >   > ⚠️ This script requires superuser privileges.
-> 
+>
 >   > ⚠️ This script modifies the system. Make sure you understand what it does
 >   > **before** running it!
-> 
+>
 > - [`tools/ubuntu-install-node`](tools/ubuntu-install-node) - installs nvm,
 >   Node.js and yarn
 > - [`tools/ubuntu-install-lazydocker`](tools/ubuntu-install-lazydocker) -
