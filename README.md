@@ -141,20 +141,20 @@ The recommended developer tools also include:
 > ℹ️ As of right now, the only supported host OS is Ubuntu 18.04 LTS.
 
 > ℹ️ Directory `tools/` contains, among others, the following utility scripts:
-
-- [`tools/ubuntu-install-docker`](tools/ubuntu-install-docker) - installs docker
-  and docker-compose, adds current user to `docker` group.
-
-  > ⚠️ This script requires superuser privileges.
-
-  > ⚠️ This script modifies the system. Make sure you understand what it does
-  > **before** running it!
-
-- [`tools/ubuntu-install-node`](tools/ubuntu-install-node) - installs nvm,
-  Node.js and yarn
-- [`tools/ubuntu-install-lazydocker`](tools/ubuntu-install-lazydocker) -
-  installs lazydocker
-- [`tools/ubuntu-install-ctop`](tools/ubuntu-install-ctop) - installs ctop
+>
+> - [`tools/ubuntu-install-docker`](tools/ubuntu-install-docker) - installs docker
+>   and docker-compose, adds current user to `docker` group.
+> 
+>   > ⚠️ This script requires superuser privileges.
+> 
+>   > ⚠️ This script modifies the system. Make sure you understand what it does
+>   > **before** running it!
+> 
+> - [`tools/ubuntu-install-node`](tools/ubuntu-install-node) - installs nvm,
+>   Node.js and yarn
+> - [`tools/ubuntu-install-lazydocker`](tools/ubuntu-install-lazydocker) -
+>   installs lazydocker
+> - [`tools/ubuntu-install-ctop`](tools/ubuntu-install-ctop) - installs ctop
 
 > ℹ️ Node.js and yarn are currently only used to run npm scripts, which further
 > run services through docker-compose. Yarn scripts are likely to be replaced
