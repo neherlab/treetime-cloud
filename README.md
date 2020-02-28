@@ -79,24 +79,25 @@ As a user you don't really need to worry about this repository, but you may find
 As a developer you are most likely interested in the actual source code (⭐) or
 configuration files (🛠️).
 
-| File or directory         | Flags  | Contents                                                                          |
-| ------------------------- | ------ | --------------------------------------------------------------------------------- |
-| 📁 .build/                | ⏰♻️   | Contains build artifacts                                                          |
-| 📁 .cache/                | ⏰♻️   | Cache or temporary files, for example package manager cache or build system cache |
-| 📁 .volumes/              | ⏰     | Writable docker volumes, to ensure persistence of files outside of containers     |
-| 📁 docker/                | 🛠️⚙️   | Configuration related to docker containers and to their orchestration             |
-| 📁 docs/                  | 📘     | Contains documentation                                                            |
-| 📁 examples/              | 📘     | Contains examples and tutorials                                                   |
-| 📁 services/api/          | ☁️⚙️⭐ | Implementation of the API service                                                 |
-| 📁 services/reverseproxy/ | ☁️⚙️   | Implementation of the reverse proxy service                                       |
-| 📁 services/taskqueue/    | ☁️⚙️   | Implementation of the task queue service                                          |
-| 📁 services/web/          | ☁️⚙️⭐ | Implementation of the web client service                                          |
-| 📁 services/worker/       | ☁️⚙️⭐ | Implementation of the worker service                                              |
-| 📁 tools/                 | 🛠️     | Various developer tools and scripts                                               |
-| 📄 .env                   | ⚙️     | Current environment configuration (created by the developer)                      |
-| 📄 .env.example           | ⚙️     | Example environment configuration                                                 |
-| 📄 package.json           | ⚙️     | Root package.json. Currently contains developer scrips                            |
-| 📄 README.md              | 📘     | This document                                                                     |
+| File or directory  | Flags  | Contents                                                                          |
+| ------------------ | ------ | --------------------------------------------------------------------------------- |
+| 📁.build/          | ⏰♻️   | Contains build artifacts                                                          |
+| 📁.cache/          | ⏰♻️   | Cache or temporary files, for example package manager cache or build system cache |
+| 📁.volumes/        | ⏰     | Writable docker volumes, to ensure persistence of files outside of containers     |
+| 📁docker/          | 🛠️⚙️   | Configuration related to docker containers and to their orchestration             |
+| 📁docs/            | 📘     | Contains documentation                                                            |
+| 📁examples/        | 📘     | Contains examples and tutorials                                                   |
+| 📁services/        |        | Implementation of services                                                        |
+| ├📁api/          | ☁️⚙️⭐ | Implementation of the API service                                                 |
+| ├📁reverseproxy/ | ☁️⚙️   | Implementation of the reverse proxy service                                       |
+| ├📁taskqueue/    | ☁️⚙️   | Implementation of the task queue service                                          |
+| ├📁web/          | ☁️⚙️⭐ | Implementation of the web client service                                          |
+| ├📁worker/       | ☁️⚙️⭐ | Implementation of the worker service                                              |
+| ├📁tools/        | 🛠️     | Various developer tools and scripts                                               |
+| 📄.env             | ⚙️     | Current environment configuration (created by the developer)                      |
+| 📄.env.example     | ⚙️     | Example environment configuration                                                 |
+| 📄package.json     | ⚙️     | Root package.json. Currently contains developer scrips                            |
+| 📄README.md        | 📘     | This document                                                                     |
 
 #### Legend
 
@@ -110,6 +111,9 @@ configuration files (🛠️).
 - 🛠️ - useful tools
 
 ### Development setup
+
+This section describes how to run the application in development mode. You need
+this as a developer, in order to develop and test new features and bug fixes.
 
 #### 0. Clone git repository
 
