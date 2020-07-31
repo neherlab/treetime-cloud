@@ -1,15 +1,31 @@
-module.exports = {
-  getenv(key, defaultValue) {
-    const value = process.env[key]
-    if (!value) {
-      if (defaultValue) {
-        return defaultValue
-      }
+const EnvVarError = require('./EnvVarError')
 
-      throw new TypeError(
-        `"process.env.${key}" is expected to be a valid string, but got "${value}"`,
-      )
+function getenv(key, defaultValue) {
+  const value = process.env[key]
+  if (!value) {
+    if (typeof defaultValue !== 'undefined') {
+      return defaultValue
     }
-    return value
-  },
+
+    throw new EnvVarError(key, value)
+  }
+  return value
+}
+
+function getbool(key, defaultValue) {
+  const value = process.env[key]
+  if (!value) {
+    if (typeof defaultValue !== 'undefined') {
+      return defaultValue
+    }
+
+    throw new EnvVarError(key, value)
+  }
+
+  return value === '1' || value === 'true' || value === 'yes'
+}
+
+module.exports = {
+  getenv,
+  getbool,
 }

@@ -8,9 +8,5 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express'
  * @param fields Fields in the form data to be verified
  */
 export function UploadUnique(fields: string[]) {
-  return UseInterceptors(
-    FileFieldsInterceptor(
-      fields.map((field) => ({ name: field, maxCount: 1 })),
-    ),
-  )
+  return UseInterceptors(FileFieldsInterceptor(fields.map((field) => ({ name: field, maxCount: 1 }))))
 }

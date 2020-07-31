@@ -42,7 +42,7 @@ export interface GetTaskIdResponse {
 
 // TODO: return values should be different for different endpoints
 export interface PostTaskResponse {
-  payload: object
+  payload: Record<string, unknown>
 }
 
 @Controller()
@@ -70,9 +70,7 @@ export class TaskController {
   }
 
   @Post('/api/v1/task')
-  public async postTask(
-    @Body() body: PostTaskRequest,
-  ): Promise<PostTaskResponse> {
+  public async postTask(@Body() body: PostTaskRequest): Promise<PostTaskResponse> {
     const task = body?.payload?.task
 
     if (!task) {
@@ -90,9 +88,7 @@ export class TaskController {
 
     const inputFilenames = await this.fileStoreService.getFilenamesForTask(taskId) // prettier-ignore
     if (!inputFilenames) {
-      throw new NotFoundException(
-        `Input files not found for task '${serialize(taskId)}'`,
-      )
+      throw new NotFoundException(`Input files not found for task '${serialize(taskId)}'`)
     }
 
     await this.taskQueue.emit('tasks', { taskId, inputFilenames }).toPromise()

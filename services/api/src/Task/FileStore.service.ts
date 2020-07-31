@@ -1,24 +1,31 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 
 import S3 from 'aws-sdk/clients/s3'
+import { concurrent } from 'fasy'
+import { isEqual } from 'lodash'
 
-export interface UploadedFileData {
-  DATES: Express.Multer.File[]
-  FASTA: Express.Multer.File[]
-  NWK: Express.Multer.File[]
+export enum FileType {
+  DATES = 'DATES',
+  FASTA = 'FASTA',
+  NWK = 'NWK',
 }
 
-export interface UploadedFiles {
-  DATES?: Express.Multer.File
-  FASTA?: Express.Multer.File
-  NWK?: Express.Multer.File
+export interface UploadedFileData {
+  [key: string]: Express.Multer.File[]
 }
 
 export interface UploadedFilepaths {
-  DATES?: string
-  FASTA?: string
-  NWK?: string
+  [key: string]: string | undefined
 }
+
+export interface Upload {
+  type: string
+  file: Express.Multer.File
+}
+
+// export async function upload(prefix: string) {
+//   return async ({ type, file }: Upload) =>
+// }
 
 @Injectable()
 export class FileStoreService {
@@ -39,28 +46,37 @@ export class FileStoreService {
   private readonly filenames: Map<string, UploadedFilepaths> = new Map<string, UploadedFilepaths>() // prettier-ignore
 
   public async uploadInputFiles(prefix: string, filedata: UploadedFileData) {
-    const files: UploadedFiles = {
-      DATES: filedata?.DATES?.[0],
-      FASTA: filedata?.FASTA?.[0],
-      NWK: filedata?.NWK?.[0],
+    const expectedFileTypes = Object.keys(FileType)
+
+    const fileTypes = Object.keys(filedata).sort()
+    if (!isEqual(fileTypes, expectedFileTypes)) {
+      const numExpectedFileTypes = expectedFileTypes.length
+      const fileTypesList = fileTypes.join(', ')
+      const expectedFileTypesList = expectedFileTypes.join(', ')
+
+      throw new BadRequestException(
+        `Expected ${numExpectedFileTypes} files to be uploaded of types: "${expectedFileTypesList}", but got "${fileTypesList}"'`,
+      )
     }
 
-    return Promise.all([
-      Object.entries(files).map(async ([type, file]) => {
-        if (!file) {
-          return
-        }
+    const files: Upload[] = Object.entries(filedata).map(([type, files]) => ({ type, file: files[0] }))
+    return concurrent.map(({ type, file }: Upload) => {
+      if (!file) {
+        throw new BadRequestException(`Unable to read file of type ${type}`)
+      }
 
-        const filename = file?.originalname ?? file?.filename
-        const filepath = `${prefix}/input/${filename}`
-        const data = file.buffer
+      const filename = file.originalname ?? file.filename
+      if (!filename) {
+        throw new BadRequestException(`File with type ${type} did not have a filename`)
+      }
 
-        // TODO: these 2 operations should be executed atomically:
-        // if one operation fails, all changes should be reverted.
-        await this.addFilenameToTask(type, prefix, filename)
-        await this.uploadFileToS3(filepath, data)
-      }),
-    ])
+      const filepath = `${prefix}/input/${filename}`
+      const data = file.buffer
+
+      // TODO: these 2 operations should be executed atomically:
+      // if one operation fails, all changes should be reverted.
+      return Promise.all([this.addFilenameToTask(type, prefix, filename), this.uploadFileToS3(filepath, data)])
+    }, files)
   }
 
   public async getFilenamesForTask(taskId: string) {

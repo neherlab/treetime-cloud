@@ -27,19 +27,28 @@
   "exclude": [
     ".build",
     ".cache",
+    ".idea",
     ".ignore",
+    ".reports",
+    ".vscode",
+    "3rdparty",
     "node_modules",
+    "public",
     "static",
     "tsconfig.json"
   ],
   "include": [
-    "./**/*.js",
-    "./**/*.jsx",
-    "./**/*.ts",
-    "./**/*.tsx",
     "./*.js",
     "./*.jsx",
     "./*.ts",
-    "./*.tsx"
+    "./*.tsx",
+    "./**/.*.js",
+    "./**/.*.jsx",
+    "./**/.*.ts",
+    "./**/.*.tsx",
+    "./**/*.js",
+    "./**/*.jsx",
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }

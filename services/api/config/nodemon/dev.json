@@ -21,15 +21,9 @@
     "yarn.lock"
   ],
   "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
-  "ignore": [
-    ".build",
-    "node_modules",
-    "**/__tests__",
-    "**/*.test.*sx",
-    "**/*.test.*s"
-  ],
+  "ignore": [".build", "node_modules", "**/__tests__", "**/*.test.*sx", "**/*.test.*s"],
   "events": {
     "restart": "yarn dev:kill"
   },
-  "exec": "node -e 'console.clear()'; yarn install; yarn dev:clean; yarn dev:nowatch; true"
+  "exec": "run-s -c clear dev:clean dev:nowatch || cd .",
 }

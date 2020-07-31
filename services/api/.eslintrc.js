@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
@@ -14,6 +12,7 @@ module.exports = {
     project: './tsconfig.json',
     warnOnUnsupportedTypeScriptVersion: true,
   },
+  reportUnusedDisableDirectives: true,
   globals: {},
   extends: [
     'eslint:recommended',
@@ -82,6 +81,7 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-empty-function': 'off',
+    'array-func/no-unnecessary-this-arg': 'off',
     'import/no-extraneous-dependencies': ['warn', { devDependencies: true }],
     'import/order': 'warn',
     'import/prefer-default-export': 'off',
@@ -125,11 +125,7 @@ module.exports = {
     'unicorn/prefer-spread': 'off',
     'unicorn/prevent-abbreviations': 'off',
 
-    'lines-between-class-members': [
-      'warn',
-      'always',
-      { exceptAfterSingleLine: true },
-    ],
+    'lines-between-class-members': ['warn', 'always', { exceptAfterSingleLine: true }],
 
     'require-await': 'off',
     '@typescript-eslint/require-await': 'off',
@@ -147,12 +143,15 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['*.js', '*.jsx'],
+      rules: {
+        '@typescript-eslint/restrict-template-expressions': 'off',
+      },
+    },
+    {
       files: ['*.d.ts'],
       rules: {
-        '@typescript-eslint/ban-types': [
-          'warn',
-          { extendDefaults: true, types: { object: false } },
-        ],
+        '@typescript-eslint/ban-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-unused-vars': 'off',
         'import/no-duplicates': 'off',
@@ -166,7 +165,9 @@ module.exports = {
         'babel.config.js',
         'config/**/*.js',
         'config/**/*.ts',
+        'lib/EnvVarError.js',
         'lib/findModuleRoot.js',
+        'lib/getenv.js',
       ],
       rules: {
         '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -181,14 +182,7 @@ module.exports = {
       },
     },
     {
-      files: [
-        '**/e2e/**',
-        '**/*.test.*',
-        '**/__test__/**',
-        '**/__tests__/**',
-        '**/test/**',
-        '**/tests/**',
-      ],
+      files: ['**/e2e/**', '**/*.test.*', '**/__test__/**', '**/__tests__/**', '**/test/**', '**/tests/**'],
       rules: {
         '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',

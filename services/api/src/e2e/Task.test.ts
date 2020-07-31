@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import 'reflect-metadata'
 
 import path from 'path'
@@ -50,15 +51,13 @@ describe('tasks', () => {
     await app.init()
   })
 
-  afterEach(() => {
-    app?.close()
+  afterEach(async () => {
+    await app?.close()
     app = null
   })
 
   function post<Payload>(endpoint: string, payload?: Payload) {
-    const req = request(app?.getHttpServer())
-      .post(endpoint)
-      .set({ Accept: 'application/json' })
+    const req = request(app?.getHttpServer()).post(endpoint).set({ Accept: 'application/json' })
 
     if (payload) {
       req.send({ payload })

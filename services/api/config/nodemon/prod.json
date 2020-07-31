@@ -23,12 +23,6 @@
     "yarn.lock"
   ],
   "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
-  "ignore": [
-    ".build",
-    "node_modules",
-    "**/__tests__",
-    "**/*.test.*sx",
-    "**/*.test.*s"
-  ],
-  "exec": "yarn prod:clean; yarn prod:build && yarn prod:run; true"
+  "ignore": [".build", "node_modules", "**/__tests__", "**/*.test.*sx", "**/*.test.*s"],
+  "exec": "run-s -c clear prod:clean prod:build prod:run || cd .",
 }

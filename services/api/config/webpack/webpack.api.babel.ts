@@ -78,17 +78,7 @@ module.exports = {
 
   resolve: {
     symlinks: false,
-    extensions: [
-      '.wasm',
-      '.ts',
-      '.tsx',
-      '.mjs',
-      '.es.js',
-      '.js',
-      '.jsx',
-      '.json',
-      '.yml',
-    ],
+    extensions: ['.wasm', '.ts', '.tsx', '.mjs', '.es.js', '.js', '.jsx', '.json', '.yml'],
     alias: alias(development),
   },
 
@@ -108,10 +98,7 @@ module.exports = {
       memoryLimit: 1024,
       eslint: true,
       typeChecking: true,
-      exclude: [
-        'src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-        'src/**/*.(spec|test).{js,jsx,ts,tsx}',
-      ],
+      exclude: ['src/**/__tests__/**/*.{js,jsx,ts,tsx}', 'src/**/*.(spec|test).{js,jsx,ts,tsx}'],
     }),
 
     new webpack.EnvironmentPlugin({
@@ -145,8 +132,6 @@ module.exports = {
     minimize: true,
     runtimeChunk: false,
     splitChunks: false,
-    minimizer: [
-      production && webpackTerser({ sourceMaps, node: true, profile: false }),
-    ].filter(Boolean),
+    minimizer: [production && webpackTerser({ sourceMaps, node: true, profile: false })].filter(Boolean),
   },
 }
