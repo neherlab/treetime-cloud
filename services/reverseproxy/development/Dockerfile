@@ -1,6 +1,7 @@
 FROM alpine:3.11 as builder
 
 ENV NGINX_VERSION 1.17.8
+ENV NGX_BROTLI_VERSION v1.0.0rc
 
 RUN set -x \
 && apk add --no-cache --virtual .build-deps \
@@ -36,9 +37,8 @@ RUN set -x \
 
 RUN set -x \
 && cd "/src" \
-&& git clone --recursive --depth=1 "https://github.com/google/ngx_brotli" \
-&& cd ngx_brotli \
-&& git checkout e505dce68acc190cc5a1e780a3b0275e39f160ca
+&& git clone --recursive --depth=1 -b ${NGX_BROTLI_VERSION} "https://github.com/google/ngx_brotli" \
+&& cd ngx_brotli
 
 
 RUN set -x \
