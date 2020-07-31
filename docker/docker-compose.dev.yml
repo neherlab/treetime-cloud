@@ -25,6 +25,7 @@ services:
     restart: 'no'
     init: true
     tty: true
+    network_mode: "bridge"
 
   treetime-dev-api:
     depends_on:
@@ -51,6 +52,7 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    network_mode: "bridge"
 
   treetime-dev-web:
     depends_on:
@@ -74,6 +76,7 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    network_mode: "bridge"
 
   treetime-dev-worker-base:
     container_name: treetime-dev-worker-base
@@ -94,6 +97,7 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    network_mode: "bridge"
 
   treetime-dev-worker:
     depends_on:
@@ -117,6 +121,7 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    network_mode: "bridge"
     deploy:
       replicas: 3
 
@@ -147,6 +152,7 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    network_mode: "bridge"
 
   treetime-dev-filestore:
     container_name: treetime-dev-filestore
@@ -167,3 +173,4 @@ services:
     init: true
     user: '${UID}'
     tty: true
+    network_mode: "bridge"
