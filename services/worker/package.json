@@ -4,8 +4,8 @@
   "main": "src/main.py",
   "license": "MIT",
   "scripts": {
-    "dev": "PYTHONDONTWRITEBYTECODE=1 poetry run python src/main.py",
-    "dev:watch": "nodemon --config config/nodemon/dev.json",
+    "dev": "nodemon --config config/nodemon/dev.json",
+    "dev:nowatch": "PYTHONDONTWRITEBYTECODE=1 poetry run python src/main.py",
     "dev:docker:base": "nodemon --config config/nodemon/dev.docker.base.json",
     "dev:docker:main": "nodemon --config config/nodemon/dev.docker.main.json",
     "lint": "yarn pylint; yarn flake8; yarn mypy",

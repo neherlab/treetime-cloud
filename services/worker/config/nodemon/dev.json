@@ -14,5 +14,5 @@
     "docker",
     "node_modules"
   ],
-  "exec": "yarn dev; true"
+  "exec": "yarn dev:nowatch; true"
 }
