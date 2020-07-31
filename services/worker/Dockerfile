@@ -46,7 +46,7 @@ COPY ./tools/wait-file.sh /tools/
 # Install yarn
 # https://github.com/yarnpkg/yarn
 RUN set -x \
-  && npm install -g yarn@1.22.0
+  && npm install -g nodemon yarn@1.22.0
 
 ENV PYLINTHOME="/code/services/worker/.cache/pylint"
 
