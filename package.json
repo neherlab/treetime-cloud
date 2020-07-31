@@ -1,11 +1,11 @@
 {
-  "name": "treetime",
+  "name": "@neherlab/treetime",
   "version": "x.x.x",
   "repository": "",
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn dev:prepare && yarn _docker-compose -f docker/docker-compose.dev.yml --compatibility up --build",
+    "dev": "yarn dev:prepare && yarn _docker-compose -f docker/docker-compose.dev.yml -f docker/docker-compose.dev.override.yml --compatibility up --build",
     "dev:prepare": "bash docker/tools/make-dirs.dev.sh",
     "dev:clean": "find . -maxdepth 3 -regextype egrep -type d -regex '.*(node_modules|__pycache__|\\.venv|\\.cache|\\.build|\\.reports?)$' -exec rm -rf {} \\;",
     "dev:cleanest": "yarn dev:clean && find . -maxdepth 3 -regextype egrep -type d -regex '.*(\\.volumes|\\.data)$' -exec rm -rf {} \\;",

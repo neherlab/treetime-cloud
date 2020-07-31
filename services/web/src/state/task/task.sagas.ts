@@ -1,16 +1,9 @@
+import axios from 'axios'
 import { takeLatest } from 'redux-saga/effects'
 
-import axios from 'axios'
+import fsaSaga from 'src/state/util/fsaSaga'
 
-import {
-  asyncPostTask,
-  getTaskIdAsync,
-  PostTaskPayload,
-  triggerGetTaskId,
-  triggerPostTask,
-} from './task.actions'
-
-import fsaSaga from '../util/fsaSaga'
+import { postTaskAsync, getTaskIdAsync, PostTaskPayload, getTaskIdTrigger, postTaskTrigger } from './task.actions'
 
 function apiGetTaskId() {
   return axios.get(`/api/v1/taskId`, {
@@ -21,16 +14,12 @@ function apiGetTaskId() {
   })
 }
 
-export const sagaGetTaskId = takeLatest(
-  triggerGetTaskId,
-  fsaSaga(getTaskIdAsync, apiGetTaskId),
-)
+export const sagaGetTaskId = takeLatest(getTaskIdTrigger, fsaSaga(getTaskIdAsync, apiGetTaskId))
 
 function apiPostTask(payload: PostTaskPayload) {
   return axios.post(`/api/v1/task`, { payload })
 }
 
-export const sagaPostTask = takeLatest(
-  triggerPostTask,
-  fsaSaga(asyncPostTask, apiPostTask),
-)
+export const sagaPostTask = takeLatest(postTaskTrigger, fsaSaga(postTaskAsync, apiPostTask))
+
+export default [sagaGetTaskId, sagaPostTask]

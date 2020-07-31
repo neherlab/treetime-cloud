@@ -13,15 +13,15 @@
     ".prettierrc",
     "babel.config.js",
     "config",
+    "cypress",
     "jest.config.js",
     "package.json",
     "src",
     "tsconfig.json",
-    "tslint.json",
     "webpack.config.js",
     "yarn.lock"
   ],
   "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
-  "ignore": [".build", "node_modules"],
-  "exec": "node -e 'console.clear()'; yarn lint:fix && echo '\u2714 OK' || echo '\u274C FAILED'; true"
+  "ignore": ["**/*.test.*s", "**/*.test.*sx", "**/__tests__", ".build", "config/jest", "node_modules"],
+  "exec": "yarn clear && yarn lint:fix && echo '\u2714 OK' || echo '\u274C FAILED' || cd ."
 }

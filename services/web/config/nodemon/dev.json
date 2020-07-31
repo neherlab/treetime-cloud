@@ -13,21 +13,16 @@
     ".prettierrc",
     "babel.config.js",
     "config",
+    "next.config.js",
     "package.json",
     "postcss.config.js",
+    "schemas",
     "stylelint.config.js",
     "tsconfig.json",
-    "tslint.json",
     "webpack.config.js",
     "yarn.lock"
   ],
   "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
-  "ignore": [
-    ".build",
-    "node_modules",
-    "**/__tests__",
-    "**/*.test.*sx",
-    "**/*.test.*s"
-  ],
-  "exec": "node -e 'console.clear()'; yarn install; yarn dev:clean; yarn dev:nowatch; true"
+  "ignore": ["**/*.test.*s", "**/*.test.*sx", "**/__tests__", ".build", "config/jest", "node_modules"],
+  "exec": "run-s -c clear dev:clean dev:start || cd ."
 }

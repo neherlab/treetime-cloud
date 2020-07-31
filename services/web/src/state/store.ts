@@ -1,57 +1,73 @@
-import { routerMiddleware } from 'connected-react-router'
-import { createBrowserHistory } from 'history'
-import { applyMiddleware, createStore, StoreEnhancer } from 'redux'
+import { format } from 'url'
+
+import type { Router } from 'next/router'
+import { applyMiddleware, createStore, StoreEnhancer, Store, Middleware } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
+import type { PersistorOptions, Persistor } from 'redux-persist/es/types'
+import reduxImmutableStateInvariant from 'redux-immutable-state-invariant'
 import createSagaMiddleware from 'redux-saga'
+import thunk from 'redux-thunk'
+import { createRouterMiddleware, initialRouterState } from 'connected-next-router'
+import { persistStore } from 'redux-persist'
+import { createLogger } from 'redux-logger'
 
 import createRootReducer from './reducer'
 import createRootSaga from './sagas'
 
-import { triggerGetTaskId } from './task/task.actions'
-
-const development = process.env.NODE_ENV === 'development'
-const debug = development || process.env.DEBUGGABLE_PROD === '1'
-
-interface StoreParams {
-  url: string
+export function persistStoreAsync(store: Store, options: PersistorOptions): Promise<Persistor> {
+  return new Promise((resolve) => {
+    const persistor = persistStore(store, options, () => resolve(persistor))
+  })
 }
 
-const storeDefaults: StoreParams = {
-  url: '/',
+export interface ConfigureStoreParams {
+  router: Router
 }
 
-export default function configureStore({ url }: StoreParams = storeDefaults) {
-  const history = createBrowserHistory()
-
+export async function configureStore({ router }: ConfigureStoreParams) {
+  const routerMiddleware = createRouterMiddleware()
   const sagaMiddleware = createSagaMiddleware()
-  const middlewares = [
-    debug && require('redux-immutable-state-invariant').default(),
-    routerMiddleware(history),
-    sagaMiddleware,
-  ].filter(Boolean)
+
+  let middlewares: Middleware<string>[] = [routerMiddleware, thunk, sagaMiddleware].filter(Boolean)
+
+  if (process.env.ENABLE_REDUX_IMMUTABLE_STATE_INVARIANT === 'true') {
+    middlewares = [...middlewares, reduxImmutableStateInvariant() as Middleware<string>]
+  }
+
+  if (process.env.ENABLE_REDUX_LOGGER === 'true') {
+    const logger = createLogger({})
+    middlewares = [...middlewares, logger]
+  }
 
   let enhancer = applyMiddleware(...middlewares)
-  const devToolsCompose = require('redux-devtools-extension')
-    .composeWithDevTools
 
-  if (debug && devToolsCompose) {
-    enhancer = devToolsCompose({
-      trace: true,
-      traceLimit: 25,
+  if (process.env.ENABLE_REDUX_DEV_TOOLS === 'true' && composeWithDevTools) {
+    enhancer = composeWithDevTools({
+      // trace: true,
+      // traceLimit: 25,
       actionsBlacklist: '@@INIT',
     })(enhancer)
   }
 
-  const store = createStore(createRootReducer(history), {}, enhancer)
+  const { asPath, pathname, query } = router
+  let initialState
+  if (asPath) {
+    const url = format({ pathname, query })
+    initialState = {
+      router: initialRouterState(url, asPath),
+    }
+  }
+
+  const store = createStore(createRootReducer(), initialState, enhancer)
+  const persistor = await persistStoreAsync(store, {})
 
   let rootSagaTask = sagaMiddleware.run(createRootSaga())
-
-  store.dispatch(triggerGetTaskId())
 
   if (module.hot) {
     // Setup hot reloading of root reducer
     module.hot.accept('./reducer', () => {
-      store.replaceReducer(createRootReducer(history))
-      console.info('[HMR] root reducer reloaded succesfully')
+      store.replaceReducer(createRootReducer())
+      console.info('[HMR] root reducer reloaded successfully')
     })
 
     // Setup hot reloading of root saga
@@ -61,14 +77,14 @@ export default function configureStore({ url }: StoreParams = storeDefaults) {
         .toPromise()
         .then(() => {
           rootSagaTask = sagaMiddleware.run(createRootSaga())
-          console.info('[HMR] root saga reloaded succesfully')
+          console.info('[HMR] root saga reloaded successfully')
           return true
         })
         .catch((error: Error) => console.error(error))
     })
   }
 
-  return { store, history }
+  return { store, persistor }
 }
 
 declare const window: Window & {

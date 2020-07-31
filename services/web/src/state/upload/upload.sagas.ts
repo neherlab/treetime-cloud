@@ -1,14 +1,9 @@
+import axios from 'axios'
 import { takeLatest } from 'redux-saga/effects'
 
-import axios from 'axios'
+import fsaSaga from 'src/state/util/fsaSaga'
 
-import {
-  triggerUploadFiles,
-  uploadFilesAsync,
-  UploadFilesPayload,
-} from './upload.actions'
-
-import fsaSaga from '../util/fsaSaga'
+import { triggerUploadFiles, uploadFilesAsync, UploadFilesPayload } from './upload.actions'
 
 function uploadFilesApi({ files, taskId }: UploadFilesPayload) {
   const formData = new FormData()
@@ -28,9 +23,6 @@ function uploadFilesApi({ files, taskId }: UploadFilesPayload) {
   })
 }
 
-export const uploadSaga = takeLatest(
-  triggerUploadFiles,
-  fsaSaga(uploadFilesAsync, uploadFilesApi),
-)
+export const uploadSaga = takeLatest(triggerUploadFiles, fsaSaga(uploadFilesAsync, uploadFilesApi))
 
 export default [uploadSaga]

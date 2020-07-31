@@ -8,3 +8,4 @@ __pycache__
 \.volumes
 \.vscode
 \.mypy_cache
+node_modules

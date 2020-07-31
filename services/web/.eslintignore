@@ -1,9 +1,13 @@
+3rdparty
 \.build
 \.cache
 \.env
+\.github
+\.idea
 \.ignore
 \.reports
-3rdparty
+\.vscode
 node_modules
-static
+public
+styles
 tsconfig.json

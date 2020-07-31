@@ -1,61 +1,30 @@
-import React from 'react'
+import React, { PropsWithChildren, HTMLProps } from 'react'
 
-import { Location } from 'history'
-import { connect } from 'react-redux'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import styled from 'styled-components'
 
-import Loading from '../../pages/Loading'
-import PageSwitcher from '../PageSwitcher/PageSwitcher'
-import NavigationBar from './NavigationBar'
+import { NavigationBar } from './NavigationBar'
 
-import links from '../../links'
-import routes from '../../routes'
+export const Container = styled.div`
+  max-width: 1700px;
+  margin: 0 auto;
+`
 
-import { State } from '../../state/reducer'
+const Header = styled.header``
 
-const transitionClassNames = {
-  enter: 'animated',
-  enterActive: 'fadeIn',
-  exit: 'animated',
-  exitActive: 'fadeOut',
-}
+const MainContent = styled.main`
+  margin: 0 1rem;
+`
 
-const transitionDuration = 150
+export type LayoutMainProps = PropsWithChildren<HTMLProps<HTMLDivElement>>
 
-interface LayoutProps {
-  location: Location
-}
-
-function Layout({ location }: LayoutProps) {
+export function Layout({ children }: LayoutMainProps) {
   return (
-    <div className="container">
-      <div className="row">
-        <NavigationBar navLinks={links} />
-      </div>
+    <Container>
+      <Header>
+        <NavigationBar />
+      </Header>
 
-      <div className="row">
-        <TransitionGroup component={null}>
-          <CSSTransition
-            key={location.key}
-            classNames={transitionClassNames}
-            timeout={transitionDuration}
-          >
-            <main className="container absolute" role="main">
-              <PageSwitcher
-                location={location}
-                routes={routes}
-                loadingComponent={<Loading />}
-              />
-            </main>
-          </CSSTransition>
-        </TransitionGroup>
-      </div>
-    </div>
+      <MainContent>{children}</MainContent>
+    </Container>
   )
 }
-
-const mapStateToProps = (state: State) => ({
-  location: state.router.location,
-})
-
-export default connect(mapStateToProps)(Layout)

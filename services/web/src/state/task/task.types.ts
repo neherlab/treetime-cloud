@@ -1,4 +1,4 @@
-import { Id } from '../../helpers/types'
+import { Id } from 'src/helpers/types'
 
 export type TaskId = Id<'TaskId'>
 

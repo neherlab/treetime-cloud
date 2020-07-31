@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios'
 import { SagaIterator } from 'redux-saga'
 import { call, cancelled, put } from 'redux-saga/effects'
 import { Action, AsyncActionCreators } from 'typescript-fsa'
@@ -38,27 +37,23 @@ export default function fsaSaga<Params, Result>(
 
     try {
       // Call worker
-      const response: AxiosResponse<{payload: Result}> =
-        yield call(worker, params) // prettier-ignore
-      const result: Result = response.data.payload
+      const response = ((yield call(worker, params)) as unknown) as { data: { payload: Result } }
+      const result = (response.data.payload as unknown) as Result
 
-      // We are still here? All good, dispatch "done" action with results
+      // Worker succeeded. dispatch "done" action with results
       yield put(asyncActionCreators.done({ params, result }))
     } catch (error) {
-      // Worker has failed. Dispatch "failed" action with the error.
-      yield put(
-        asyncActionCreators.failed({
-          params,
-          error: { error: error.message },
-        }),
-      )
+      if (error instanceof Error) {
+        // Worker has failed. Dispatch "failed" action with the error.
+        yield put(asyncActionCreators.failed({ params, error: { error } }))
+      } else {
+        throw error
+      }
     } finally {
-      // Check if the saga was cancelled (e.g. manually or as a result of take*)
+      // Worker was cancelled (e.g. manually or as a result of take*).
+      // Dispatch "failed" action with the special error value.
       if (yield cancelled()) {
-        // If it was, dispatch "failed" action with the special error value.
-        yield put(
-          asyncActionCreators.failed({ params, error: { error: 'cancelled' } }),
-        )
+        yield put(asyncActionCreators.failed({ params, error: { error: 'cancelled' } }))
       }
     }
   }

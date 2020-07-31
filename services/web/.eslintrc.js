@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
@@ -11,8 +9,7 @@ module.exports = {
       globalReturn: false,
     },
     tsconfigRootDir: __dirname,
-    project: ['./tsconfig.json'],
-    extraFileExtensions: ['.json'],
+    project: './tsconfig.json',
     warnOnUnsupportedTypeScriptVersion: true,
   },
   globals: {},
@@ -50,7 +47,6 @@ module.exports = {
     'cflint',
     'import',
     'jest',
-    'json',
     'jsx-a11y',
     'lodash',
     'no-loops',
@@ -69,14 +65,15 @@ module.exports = {
     'only-warn',
 
     '@typescript-eslint',
-    '@typescript-eslint/tslint',
 
     // prettier should go last
     'prettier',
   ],
+  reportUnusedDisableDirectives: true,
   rules: {
     '@typescript-eslint/array-type': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/unbound-method': ['off'],
     'array-func/prefer-array-from': 'off',
     'cflint/no-substr': 'warn',
@@ -92,6 +89,7 @@ module.exports = {
         tsx: 'never',
       },
     ],
+    '@typescript-eslint/no-empty-function': 'off',
     'import/no-extraneous-dependencies': ['warn', { devDependencies: true }],
     'import/order': 'warn',
     'import/prefer-default-export': 'off',
@@ -105,46 +103,51 @@ module.exports = {
     'lodash/prefer-lodash-chain': 'off',
     'lodash/prefer-lodash-method': 'off',
     'lodash/prefer-lodash-typecheck': 'off',
+    'lodash/prefer-noop': 'off',
+    'max-classes-per-file': 'off',
     'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
     'no-loops/no-loops': 'warn',
+    'no-param-reassign': ['warn', { ignorePropertyModificationsFor: ['draft'] }],
     'no-secrets/no-secrets': ['warn', { tolerance: 5 }],
     'no-shadow': 'off',
     'only-ascii/only-ascii': 'warn',
+    'prefer-for-of': 'off',
     'prettier/prettier': 'warn',
+    'react-redux/no-unused-prop-types': 'off',
     'react-redux/prefer-separate-component-file': 'off',
     'react/jsx-curly-brace-presence': 'off',
-    'react/jsx-filename-extension': [
-      'warn',
-      { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
-    ],
+    'react/jsx-filename-extension': ['warn', { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
     'react/jsx-props-no-spreading': 'off',
+    'react/no-unused-prop-types': 'off',
     'react/prop-types': 'off',
+    'react/require-default-props': 'off',
     'react/state-in-constructor': 'off',
     'redux-saga/no-unhandled-errors': 'off',
     'security/detect-non-literal-fs-filename': 'off',
     'security/detect-object-injection': 'off',
+    'sonarjs/cognitive-complexity': ['warn', 20],
+    'unicorn/escape-case': 'off',
     'unicorn/filename-case': 'off',
     'unicorn/new-for-builtins': 'off',
     'unicorn/no-abusive-eslint-disable': 'warn',
+    'unicorn/no-fn-reference-in-iterator': 'off',
+    'unicorn/no-null': 'off',
+    'unicorn/no-reduce': 'off',
+    'unicorn/no-useless-undefined': 'off',
+    'unicorn/no-zero-fractions': 'off',
     'unicorn/prefer-query-selector': 'off',
+    'unicorn/prefer-spread': 'off',
     'unicorn/prevent-abbreviations': 'off',
 
-    'lines-between-class-members': [
-      'warn',
-      'always',
-      { exceptAfterSingleLine: true },
-    ],
-
-    '@typescript-eslint/tslint/config': [
-      'warn',
-      { lintFile: path.join(__dirname, 'tslint.json') },
-    ],
+    'lines-between-class-members': ['warn', 'always', { exceptAfterSingleLine: true }],
 
     'require-await': 'off',
     '@typescript-eslint/require-await': 'off',
 
     'no-unused-expressions': 'off',
     '@typescript-eslint/no-unused-expressions': 'warn',
+
+    '@typescript-eslint/no-duplicate-imports': 'off',
   },
   env: {
     browser: true,
@@ -153,22 +156,37 @@ module.exports = {
     node: true,
   },
   settings: {
-    react: {
+    'react': {
       version: 'detect',
+    },
+    'import/parsers': {
+      '@typescript-eslint/parser': ['.js', '.jsx', '.ts', '.tsx'],
+    },
+    'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+      },
     },
   },
   overrides: [
     {
-      files: ['*.json'],
+      files: ['src/algorithms/**/*.{js,ts}'],
       rules: {
-        '@typescript-eslint/no-useless-files': 'off',
+        'no-loops/no-loops': 'off',
+        'no-plusplus': 'off',
+        'sonarjs/cognitive-complexity': 'off',
+        'unicorn/no-for-loop': 'off',
       },
     },
     {
       files: ['*.d.ts'],
       rules: {
+        '@typescript-eslint/ban-types': ['warn', { extendDefaults: true, types: { object: false } }],
+        '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-unused-vars': 'off',
+        'import/no-duplicates': 'off',
         'no-useless-constructor': 'off',
+        'react/prefer-stateless-function': 'off',
       },
     },
     {
@@ -177,36 +195,28 @@ module.exports = {
         'babel.config.js',
         'config/**/*.js',
         'config/**/*.ts',
+        'config/jest/mocks/**/*.js',
+        'infra/**/*.js',
         'jest-runner-eslint.config.js',
         'jest.config.js',
-        'postcss.config.js',
+        'lib/EnvVarError.js',
         'lib/findModuleRoot.js',
+        'lib/getenv.js',
+        'next.config.js',
+        'postcss.config.js',
         'stylelint.config.js',
         'webpack.config.js',
       ],
       rules: {
-        'global-require': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
         '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
+        'global-require': 'off',
+        'security/detect-child-process': 'off',
         'sonarjs/cognitive-complexity': ['warn', 50],
-      },
-    },
-    {
-      files: ['src/index.polyfilled.*'],
-      rules: {
-        '@typescript-eslint/no-typeof-undefined': 'off',
-        '@typescript-eslint/tslint/no-typeof-undefined': 'off',
-        'global-require': 'off',
-        'lodash/prefer-lodash-typecheck': 'off',
-        'no-typeof-undefined': 'off',
-        'tslint:no-typeof-undefined': 'off',
-        'unicorn/import-index': 'off',
-      },
-    },
-    {
-      files: ['src/state/store.ts'],
-      rules: {
-        'global-require': 'off',
-        'no-underscore-dangle': 'off',
       },
     },
     {
@@ -216,8 +226,14 @@ module.exports = {
       },
     },
     {
-      files: ['**/__tests__/**', '**/*.test.*'],
+      files: ['**/*.test.*', '**/__test__/**', '**/__tests__/**', '**/test/**', '**/tests/**'],
       rules: {
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
+        'sonarjs/no-duplicate-string': 'off',
         'sonarjs/no-identical-functions': 'off',
       },
     },
@@ -234,15 +250,6 @@ module.exports = {
       ],
       rules: {
         'jest/expect-expect': 'off',
-      },
-    },
-    {
-      files: ['**/*.reducer.*', '**/*.reducers.*'],
-      rules: {
-        'no-param-reassign': [
-          'warn',
-          { ignorePropertyModificationsFor: ['draft'] },
-        ],
       },
     },
   ],

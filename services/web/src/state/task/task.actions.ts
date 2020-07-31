@@ -20,20 +20,12 @@ export interface TaskError {
   error: Error
 }
 
-const action = actionCreatorFactory('TASK')
+const action = actionCreatorFactory('Task')
 
-export const triggerGetTaskId = action('GET_TASK_ID_TRIGGER')
+export const getTaskIdTrigger = action('getTaskIdTrigger')
 
-export const getTaskIdAsync = action.async<
-  void,
-  GetTaskIdAsyncResult,
-  TaskError
->('GET_TASK_ID_ASYNC')
+export const getTaskIdAsync = action.async<void, GetTaskIdAsyncResult, TaskError>('getTaskIdAsync')
 
-export const triggerPostTask = action<PostTaskPayload>('POST_TASK_TRIGGER')
+export const postTaskTrigger = action<PostTaskPayload>('postTaskTrigger')
 
-export const asyncPostTask = action.async<
-  PostTaskPayload,
-  PostTaskResult,
-  TaskError
->('POST_TASK_ASYNC')
+export const postTaskAsync = action.async<PostTaskPayload, PostTaskResult, TaskError>('postTaskAsync')

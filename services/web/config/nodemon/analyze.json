@@ -15,20 +15,22 @@
     "config",
     "package.json",
     "postcss.config.js",
+    "schemas",
     "src",
     "stylelint.config.js",
     "tsconfig.json",
-    "tslint.json",
     "webpack.config.js",
     "yarn.lock"
   ],
   "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
   "ignore": [
-    ".build",
-    "node_modules",
-    "**/__tests__",
+    "**/*.test.*s",
     "**/*.test.*sx",
-    "**/*.test.*s"
+    "**/__tests__",
+    ".build",
+    "config/jest",
+    "node_modules",
+    "src/.generated"
   ],
-  "exec": "node -e 'console.clear()'; yarn analyze; true"
+  "exec": "yarn clear && yarn install && yarn analyze || cd ."
 }

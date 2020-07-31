@@ -1,24 +1,17 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
-import immerCase from '../util/fsaImmerReducer'
+import immerCase from 'src/state/util/fsaImmerReducer'
 
-import { getTaskIdAsync } from './task.actions'
-
-import { Task } from './task.types'
-
-export interface TaskState {
-  task?: Task
-  pending: number
-  error: Error | null
-}
-
-export const taskDefaultState: TaskState = {
-  task: undefined,
-  pending: 0, // number of async updates in-flight
-  error: null,
-}
+import { getTaskIdAsync, getTaskIdTrigger } from './task.actions'
+import { taskDefaultState } from './task.state'
 
 export const taskReducer = reducerWithInitialState(taskDefaultState)
+  .withHandling(
+    immerCase(getTaskIdTrigger, (draft, payload) => {
+      console.log('getTaskIdTrigger reducer')
+    }),
+  )
+
   .withHandling(
     immerCase(getTaskIdAsync.started, (draft, payload) => {
       draft.pending += 1

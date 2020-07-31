@@ -20,16 +20,10 @@ export interface UploadError {
   error: Error
 }
 
-const action = actionCreatorFactory('UPLOAD')
+const action = actionCreatorFactory('Upload')
 
-export const removeFiles = action<RemoveFilesPayload>('REMOVE_FILES')
+export const removeFiles = action<RemoveFilesPayload>('removeFiles')
 
-export const triggerUploadFiles = action<UploadFilesPayload>(
-  'UPLOAD_FILES_TRIGGER',
-)
+export const triggerUploadFiles = action<UploadFilesPayload>('triggerUploadFiles')
 
-export const uploadFilesAsync = action.async<
-  UploadFilesPayload,
-  FileUploadAsyncResult,
-  UploadError
->('UPLOAD_FILES_ASYNC')
+export const uploadFilesAsync = action.async<UploadFilesPayload, FileUploadAsyncResult, UploadError>('uploadFilesAsync')

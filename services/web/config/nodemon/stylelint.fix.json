@@ -19,6 +19,6 @@
     "yarn.lock"
   ],
   "ext": "js,jsx,ts,tsx,json,flow,css,scss,sass,styl,html,ejs,d,txt,yml,sh",
-  "ignore": [".build", ".cache", "node_modules"],
-  "exec": "node -e 'console.clear()'; yarn stylelint:fix && echo '\u2714 OK' || echo '\u274C FAILED'; true"
+  "ignore": ["**/*.test.*s", "**/*.test.*sx", "**/__tests__", ".build", "config/jest", "node_modules"],
+  "exec": "yarn clear && yarn stylelint:fix && echo '\u2714 OK' || echo '\u274C FAILED'|| cd ."
 }
