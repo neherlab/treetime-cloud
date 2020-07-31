@@ -1,6 +1,5 @@
 import { Inject, Module } from '@nestjs/common'
-import { Transport } from '@nestjs/common/enums/transport.enum'
-import { ClientRMQ, ClientsModule } from '@nestjs/microservices'
+import { ClientRMQ, ClientsModule, Transport } from '@nestjs/microservices'
 
 import { TaskController } from './Task.controller'
 

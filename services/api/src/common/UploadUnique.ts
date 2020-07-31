@@ -9,6 +9,8 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express'
  */
 export function UploadUnique(fields: string[]) {
   return UseInterceptors(
-    FileFieldsInterceptor(fields.map(field => ({ name: field, maxCount: 1 }))),
+    FileFieldsInterceptor(
+      fields.map((field) => ({ name: field, maxCount: 1 })),
+    ),
   )
 }

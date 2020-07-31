@@ -5,12 +5,13 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
+    ecmaVersion: 2020,
     ecmaFeatures: {
       jsx: false,
       globalReturn: false,
     },
+    tsconfigRootDir: __dirname,
     project: './tsconfig.json',
-    extraFileExtensions: ['.json'],
     warnOnUnsupportedTypeScriptVersion: true,
   },
   globals: {},
@@ -43,7 +44,6 @@ module.exports = {
     'cflint',
     'import',
     'jest',
-    'json',
     'lodash',
     'no-loops',
     'no-secrets',
@@ -57,7 +57,6 @@ module.exports = {
     'only-warn',
 
     '@typescript-eslint',
-    '@typescript-eslint/tslint',
 
     // prettier should go last
     'prettier',
@@ -65,6 +64,8 @@ module.exports = {
   rules: {
     '@typescript-eslint/array-type': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/unbound-method': ['off'],
     'array-func/prefer-array-from': 'off',
     'cflint/no-substr': 'warn',
     'cflint/no-this-assignment': 'warn',
@@ -80,6 +81,7 @@ module.exports = {
         tsx: 'never',
       },
     ],
+    '@typescript-eslint/no-empty-function': 'off',
     'import/no-extraneous-dependencies': ['warn', { devDependencies: true }],
     'import/order': 'warn',
     'import/prefer-default-export': 'off',
@@ -91,9 +93,13 @@ module.exports = {
     'lodash/prefer-constant': 'off',
     'lodash/prefer-lodash-chain': 'off',
     'lodash/prefer-lodash-method': 'off',
+    'lodash/prefer-lodash-typecheck': 'off',
+    'lodash/prefer-noop': 'off',
+    'max-classes-per-file': 'off',
     'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
     'no-loops/no-loops': 'warn',
     'no-secrets/no-secrets': ['warn', { tolerance: 5 }],
+    'no-shadow': 'off',
     'no-useless-constructor': 'off',
     'node/no-missing-import': 'off',
     'node/no-unpublished-import': 'off',
@@ -101,13 +107,22 @@ module.exports = {
     'node/no-unsupported-features/es-builtins': 'off',
     'node/no-unsupported-features/es-syntax': 'off',
     'only-ascii/only-ascii': 'warn',
+    'prefer-for-of': 'off',
     'prettier/prettier': 'warn',
     'security/detect-non-literal-fs-filename': 'off',
     'security/detect-object-injection': 'off',
+    'sonarjs/cognitive-complexity': ['warn', 20],
+    'unicorn/escape-case': 'off',
     'unicorn/filename-case': 'off',
     'unicorn/new-for-builtins': 'off',
     'unicorn/no-abusive-eslint-disable': 'warn',
+    'unicorn/no-fn-reference-in-iterator': 'off',
+    'unicorn/no-null': 'off',
+    'unicorn/no-reduce': 'off',
+    'unicorn/no-useless-undefined': 'off',
+    'unicorn/no-zero-fractions': 'off',
     'unicorn/prefer-query-selector': 'off',
+    'unicorn/prefer-spread': 'off',
     'unicorn/prevent-abbreviations': 'off',
 
     'lines-between-class-members': [
@@ -116,16 +131,13 @@ module.exports = {
       { exceptAfterSingleLine: true },
     ],
 
-    '@typescript-eslint/tslint/config': [
-      'warn',
-      { lintFile: path.join(__dirname, 'tslint.json') },
-    ],
-
     'require-await': 'off',
     '@typescript-eslint/require-await': 'off',
 
     'no-unused-expressions': 'off',
     '@typescript-eslint/no-unused-expressions': 'warn',
+
+    '@typescript-eslint/no-duplicate-imports': 'off',
   },
   env: {
     browser: false,
@@ -135,16 +147,17 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.json'],
-      rules: {
-        '@typescript-eslint/no-useless-files': 'off',
-      },
-    },
-    {
       files: ['*.d.ts'],
       rules: {
+        '@typescript-eslint/ban-types': [
+          'warn',
+          { extendDefaults: true, types: { object: false } },
+        ],
+        '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-unused-vars': 'off',
+        'import/no-duplicates': 'off',
         'no-useless-constructor': 'off',
+        'react/prefer-stateless-function': 'off',
       },
     },
     {
@@ -156,16 +169,34 @@ module.exports = {
         'lib/findModuleRoot.js',
       ],
       rules: {
-        'global-require': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
         '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
+        'global-require': 'off',
+        'security/detect-child-process': 'off',
         'sonarjs/cognitive-complexity': ['warn', 50],
       },
     },
     {
-      files: ['**/__tests__/**', '**/e2e/**', '**/*.test.*'],
+      files: [
+        '**/e2e/**',
+        '**/*.test.*',
+        '**/__test__/**',
+        '**/__tests__/**',
+        '**/test/**',
+        '**/tests/**',
+      ],
       rules: {
-        'jest/expect-expect': 'off',
-        'unicorn/consistent-function-scoping': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
+        'sonarjs/no-duplicate-string': 'off',
+        'sonarjs/no-identical-functions': 'off',
       },
     },
   ],

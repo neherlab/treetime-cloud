@@ -106,13 +106,11 @@ module.exports = {
 
     webpackTsChecker({
       memoryLimit: 1024,
-      tslint: path.join(moduleRoot, 'tslint.json'),
-      tsconfig: path.join(moduleRoot, 'tsconfig.json'),
-      reportFiles: [
-        'src/**/*.{js,jsx,ts,tsx}',
-        '!src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-        '!src/**/*.(spec|test).{js,jsx,ts,tsx}',
-        '!static/**/*',
+      eslint: true,
+      typeChecking: true,
+      exclude: [
+        'src/**/__tests__/**/*.{js,jsx,ts,tsx}',
+        'src/**/*.(spec|test).{js,jsx,ts,tsx}',
       ],
     }),
 
