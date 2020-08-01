@@ -3,9 +3,9 @@ import '../dotenv'
 import path from 'path'
 
 import ExtraWatchWebpackPlugin from 'extra-watch-webpack-plugin'
-import NodeHotLoaderWebpackPlugin from 'node-hot-loader/NodeHotLoaderWebpackPlugin'
 import webpack from 'webpack'
 import nodeExternals from 'webpack-node-externals'
+import StartServerPlugin from 'start-server-webpack-plugin'
 
 import webpackFriendlyConsole from './lib/webpackFriendlyConsole'
 import webpackLoadJavascript from './lib/webpackLoadJavascript'
@@ -27,6 +27,7 @@ const fancyClearConsole = getenv('DEV_FANCY_CLEAR_CONSOLE', '0') === '1'
 
 const { moduleRoot, pkg } = findModuleRoot()
 const buildPath = path.join(moduleRoot, '.build', MODE)
+const outputFilename = 'api.js' as const
 
 function alias(development: boolean) {
   let productionAliases = {}
@@ -43,6 +44,7 @@ function alias(development: boolean) {
 module.exports = {
   mode: MODE,
   bail: true,
+  watch: true,
   name: 'api',
   target: 'node',
   devtool: 'cheap-module-source-map',
@@ -59,10 +61,10 @@ module.exports = {
     hints: false,
   },
 
-  entry: `./src/index.ts`,
+  entry: ['webpack/hot/poll?100', './src/index.ts'],
 
   output: {
-    filename: 'api.js',
+    filename: outputFilename,
     path: path.join(buildPath, 'node'),
     pathinfo: !development,
   },
@@ -82,7 +84,11 @@ module.exports = {
     alias: alias(development),
   },
 
-  externals: [nodeExternals()],
+  externals: [
+    nodeExternals({
+      allowlist: ['webpack/hot/poll?100'],
+    }),
+  ],
 
   node: {
     __dirname: true,
@@ -116,9 +122,9 @@ module.exports = {
         })
       : []),
 
-    development && new NodeHotLoaderWebpackPlugin({force: true, logLevel: 'minimal'}), // prettier-ignore
-
     development && new webpack.HotModuleReplacementPlugin(),
+    development && new StartServerPlugin({ name: outputFilename }),
+    // development && new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
 
     new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
   ].filter(Boolean),

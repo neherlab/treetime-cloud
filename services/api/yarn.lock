@@ -1613,6 +1613,13 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
 
+"@types/start-server-webpack-plugin@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@types/start-server-webpack-plugin/-/start-server-webpack-plugin-2.2.0.tgz#a7c4595c715eda083d92ca1ea184d97db3d8fc7b"
+  integrity sha512-TFiZWMPuiMR/utvjk6ENi0HPtQl38HnPMYfJqm04ztpzITHzTCXt7T7LyXnP9eTwg4lLQkmRUaFy04iEyjoJmw==
+  dependencies:
+    "@types/webpack" "*"
+
 "@types/superagent@*":
   version "4.1.8"
   resolved "https://registry.yarnpkg.com/@types/superagent/-/superagent-4.1.8.tgz#f663dcdd24705e07fce055003ace9b824f2a51c9"
@@ -8674,6 +8681,11 @@ stackframe@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/stackframe/-/stackframe-1.2.0.tgz#52429492d63c62eb989804c11552e3d22e779303"
   integrity sha512-GrdeshiRmS1YLMYgzF16olf2jJ/IzxXY9lhKOskuVziubpTYcYqyOwYeJKzQkwy7uN0fYSsbsC4RQaXf9LCrYA==
+
+start-server-webpack-plugin@2.2.5:
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/start-server-webpack-plugin/-/start-server-webpack-plugin-2.2.5.tgz#4a2838759b0f36acd11b0b2f5f196f289ae29d31"
+  integrity sha512-DRCkciwCJoCFZ+wt3wWMkR1M2mpVhJbUKFXqhK3FWyIUKYb42NnocH5sMwqgo+nPNHupqNwK/v8lgfBbr2NKdg==
 
 static-extend@^0.1.1:
   version "0.1.2"
