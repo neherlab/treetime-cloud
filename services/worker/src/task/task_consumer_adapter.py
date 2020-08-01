@@ -4,7 +4,7 @@ import sys
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
 
-from .types import Task, TaskConsumerCallable
+from .types import Task, TaskConsumerCallable, TaskResult
 
 
 class TaskConsumerAdapter:
@@ -34,7 +34,7 @@ class TaskConsumerAdapter:
     return Task(task_id, input_filenames)
 
   def __call__(self, _1: BlockingChannel, _2: Basic.Deliver,
-               _3: BasicProperties, body: bytes) -> None:
+               _3: BasicProperties, body: bytes) -> TaskResult:
     """
     Implements call interface, so that we can pass this object as a callblack
     to Pika.
@@ -44,4 +44,4 @@ class TaskConsumerAdapter:
 
     # TODO: introduce a schema, proper deserialization and validation
     task = self._deserialize_task(body)
-    self._consumer(task)
+    return self._consumer(task)

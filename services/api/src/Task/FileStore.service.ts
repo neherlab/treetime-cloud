@@ -23,10 +23,6 @@ export interface Upload {
   file: Express.Multer.File
 }
 
-// export async function upload(prefix: string) {
-//   return async ({ type, file }: Upload) =>
-// }
-
 @Injectable()
 export class FileStoreService {
   // TODO: replace hardcoded values with dynamically configurable variables

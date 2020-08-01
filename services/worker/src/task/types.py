@@ -9,9 +9,17 @@ class Task(NamedTuple):
   input_filenames: Dict[str, str]
 
 
+class TaskResult(NamedTuple):
+    task_id: str
+    input_filenames: Dict[str, str]
+    output_filenames: Dict[str, str]
+
+
 # Describes raw Pika consumer callback
 PikaConsumerCallable = Callable[
     [BlockingChannel, Basic.Deliver, BasicProperties, bytes], None]
 
 # Describes Task consumer callback
-TaskConsumerCallable = Callable[[Task], None]
+TaskConsumerCallable = Callable[[Task], TaskResult]
+
+

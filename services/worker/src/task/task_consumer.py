@@ -7,7 +7,7 @@ from filestore import FileStore
 from worker import (TreetimeConfig, TreetimeInputFilepaths,
                     TreetimeOutputFilepaths, make_zip, run_treetime)
 
-from .types import Task
+from .types import Task, TaskResult
 
 
 class TaskConsumer(Callable):
@@ -16,13 +16,13 @@ class TaskConsumer(Callable):
   def __init__(self, file_store: FileStore):
     self._file_store = file_store
 
-  def __call__(self, task: Task) -> None:
+  def __call__(self, task: Task) -> TaskResult:
     """
     Implements Callable interface, so that we can pass this object as a callback
     """
-    self._consume_task(task)
+    return self._consume_task(task)
 
-  def _consume_task(self, task: Task) -> None:
+  def _consume_task(self, task: Task) -> TaskResult:
     """
     Consumes a task by running a useful job on it
     """
@@ -82,6 +82,7 @@ class TaskConsumer(Callable):
     nwk_filepath = (
         outputs.NWK_GENERATED
         if config.generate_tree else outputs.NWK_GENERATED)
+
     final_output_filepaths: List[str] = [
         nwk_filepath,
         outputs.NEX,
@@ -91,6 +92,11 @@ class TaskConsumer(Callable):
         outputs.TREE_JSON,
         outputs.CONFIG_JSON,
     ]
+
+    output_filenames = {
+        filetype: os.path.basename(filepath)
+        for filetype, filepath in outputs._asdict().items()
+    }
 
     nwk_input_filepath: List[str] = [] if config.generate_tree else [inputs.NWK]
     final_zip_filepaths = final_output_filepaths + nwk_input_filepath + [
@@ -103,3 +109,9 @@ class TaskConsumer(Callable):
     make_zip(
         final_zip_filepaths, config.output_zip_filename, relative_to=data_dir)
     self._file_store.upload_file(task_id, 'zip', config.output_zip_filename)
+
+    return TaskResult(
+        task_id,
+        input_filenames,
+        output_filenames,
+    )

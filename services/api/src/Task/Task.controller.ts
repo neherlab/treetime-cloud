@@ -11,7 +11,7 @@ import {
   UploadedFiles,
 } from '@nestjs/common'
 
-import { ClientRMQ } from '@nestjs/microservices'
+import { ClientRMQ, EventPattern } from '@nestjs/microservices'
 
 import serialize from 'serialize-javascript'
 
@@ -74,24 +74,26 @@ export class TaskController {
     const task = body?.payload?.task
 
     if (!task) {
-      throw new BadRequestException(
-        `Expected body.payload.task to be a valid Task, got '${serialize(task)}'`, // prettier-ignore
-      )
+      throw new BadRequestException(`Expected body.payload.task to be a valid Task, got '${serialize(task)}'`)
     }
 
     const taskId = task?.taskId
     if (!taskId) {
-      throw new BadRequestException(
-        `Expected body.payload.task.taskId to be a valid ID, got '${serialize(taskId)}'`, // prettier-ignore
-      )
+      throw new BadRequestException(`Expected body.payload.task.taskId to be a valid ID, got '${serialize(taskId)}'`)
     }
 
-    const inputFilenames = await this.fileStoreService.getFilenamesForTask(taskId) // prettier-ignore
+    const inputFilenames = await this.fileStoreService.getFilenamesForTask(taskId)
     if (!inputFilenames) {
       throw new NotFoundException(`Input files not found for task '${serialize(taskId)}'`)
     }
 
     await this.taskQueue.emit('tasks', { taskId, inputFilenames }).toPromise()
     return { payload: { taskId } }
+  }
+
+  @EventPattern('taskResults')
+  async handleTaskResults(data: Record<string, unknown>) {
+    // TODO: send the result back to the client
+    console.info(data)
   }
 }
