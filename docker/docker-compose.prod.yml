@@ -1,0 +1,136 @@
+version: '3.7'
+
+services:
+#  treetime-prod-reverseproxy:
+#    depends_on:
+#      - treetime-prod-api
+#      - treetime-prod-web
+#    container_name: treetime-prod-reverseproxy
+#    image: treetime-prod-reverseproxy
+#    build:
+#      context: ./
+#      dockerfile: ../services/reverseproxy/production/Dockerfile
+#    volumes:
+#      - ../services/reverseproxy/production/etc/nginx:/etc/nginx:ro
+#      - ../.volumes/nginx:/volumes
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+#    ports:
+#      - 44443:44443
+#      - 8080:8080
+#    environment:
+#      - COLORTERM=truecolor
+#      - TERM=xterm-truecolor
+#    restart: 'no'
+
+#  treetime-prod-api:
+#    container_name: treetime-prod-api
+#    image: treetime-prod-api
+#    build:
+#      context: ../
+#      dockerfile: ./services/api/Dockerfile
+#    restart: 'no'
+
+  treetime-prod-web:
+    container_name: treetime-prod-web
+    image: treetime-prod-web
+    build:
+      context: ../
+      dockerfile: ./services/web/Dockerfile
+    ports:
+      - 8080:8080
+    restart: 'no'
+
+#  treetime-prod-worker-base:
+#    container_name: treetime-prod-worker-base
+#    image: treetime-prod-worker-base
+#    build:
+#      context: ../
+#      dockerfile: services/worker/Dockerfile
+#    command:
+#      sh -c "cd /code/services/worker && yarn install --silent && yarn
+#      prod:docker:base"
+#    volumes:
+#      - ../:/code
+#      - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+#    environment:
+#      - COLORTERM=truecolor
+#      - TERM=xterm-truecolor
+#    restart: 'no'
+#
+#    user: '${UID}'
+#
+#  treetime-prod-worker:
+#    depends_on:
+#      - treetime-prod-worker-base
+#      - treetime-prod-taskqueue
+#      - treetime-prod-filestore
+#    image: treetime-prod-worker
+#    build:
+#      context: ../
+#      dockerfile: services/worker/Dockerfile
+#    command:
+#      sh -c "cd /code/services/worker && bash /tools/wait-file.sh
+#      '.cache/venv.ready' && yarn prod:docker:main"
+#    volumes:
+#      - ../:/code
+#      - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+#    environment:
+#      - COLORTERM=truecolor
+#      - TERM=xterm-truecolor
+#    restart: 'no'
+#
+#    user: '${UID}'
+#
+#    deploy:
+#      replicas: 3
+#
+#  treetime-prod-taskqueue:
+#    container_name: treetime-prod-taskqueue
+#    image: rabbitmq:3.8.2-management-alpine
+#    volumes:
+#      - ../:/code
+#      - ../.volumes/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
+#      - ../services/taskqueue/prod/etc/rabbitmq:/etc/rabbitmq:ro
+#      - ../services/taskqueue/prod/var/lib/rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+#    ports:
+#      - 5672:5672
+#      - 15672:15672
+#    env_file:
+#      - ../.env
+#    environment:
+#      - RABBITMQ_NODENAME=taskqueue001
+#      - RABBITMQ_HOME=/code/.volumes/taskqueue/home
+#      - RABBITMQ_MNESIA_BASE=/code/.volumes/taskqueue/mnesia
+#      - RABBITMQ_LOG_BASE=/code/.volumes/taskqueue/log
+#      - RABBITMQ_SCHEMA_DIR=/code/.volumes/taskqueue/schema
+#      - COLORTERM=truecolor
+#      - TERM=xterm-truecolor
+#    restart: 'no'
+#
+#    user: '${UID}'
+#
+#  treetime-prod-filestore:
+#    container_name: treetime-prod-filestore
+#    image: minio/minio:RELEASE.2020-02-07T23-28-16Z
+#    command: server --quiet /code/.volumes/filestore
+#    volumes:
+#      - ../:/code
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+#    ports:
+#      - 9000:9000
+#    env_file:
+#      - ../.env
+#    environment:
+#      - COLORTERM=truecolor
+#      - TERM=xterm-truecolor
+#    restart: 'no'
+#
+#    user: '${UID}'
