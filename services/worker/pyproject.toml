@@ -22,6 +22,7 @@ mypy = "0.750"
 phylo-treetime = "0.5.1"
 pika = "1.1.0"
 numpy = "1.15.1"
+requests = "^2.24.0"
 
 [tool.poetry.dev-dependencies]
 data-science-types = "^0.2.5"

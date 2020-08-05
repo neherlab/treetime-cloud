@@ -1,5 +1,6 @@
 import json
 from pprint import pprint
+import requests
 
 import pika
 
@@ -25,19 +26,13 @@ class MessageQueueClient:
         auto_ack=True,
     )
 
-    self._connection_results = pika.BlockingConnection(pika.ConnectionParameters(host))
-    self._channel_results = self._connection_results.channel()
-    self._channel_tasks.queue_declare('taskResults', durable=False)
-
   def on_message(self, channel, method, properties, body):
     result = self._consumer(channel, method, properties, body)
-    data = json.dumps(result._asdict())
+    data = dict(result._asdict())
+    data = json.loads(json.dumps(data))
+    # print(type(data))
     pprint(data)
-    self._channel_results.basic_publish(
-      exchange='',
-      routing_key='taskResults',
-      body=f'{{ "pattern": "taskResults", "data": {data} }}'
-    )
+    requests.post("http://treetime-dev-api:5000/api/v1/taskResults", data=data)
 
   def start_consuming(self) -> None:
     try:
