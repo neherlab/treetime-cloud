@@ -26,7 +26,7 @@
     "test:watch": "nodemon --config config/nodemon/test.json",
     "launch": "poetry run",
     "packages:add": "poetry add",
-    "packages:install": "yarn install --silent && poetry install --no-root --no-interaction",
+    "packages:install": "yarn install --silent >/dev/null && poetry install --no-root --no-interaction",
     "packages:upgrade": "poetry update --no-interaction"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@
   "scripts": {
     "clear": "node ./lib/clear.js",
     "dev": "nodemon --config config/nodemon/dev.json",
-    "dev:start": "yarn install && yarn dev:nowatch || cd .",
+    "dev:start": "yarn install >/dev/null && yarn dev:nowatch || cd .",
     "dev:nowatch": "cross-env NODE_ENV=development BABEL_ENV=development NODE_OPTIONS=--max_old_space_size=8192 babel-node --extensions \".js,.ts\" -- node_modules/.bin/next dev --hostname 0.0.0.0 --port 3000",
     "dev:clean": "rimraf '.build/development/{*,.*}' 'node_modules/.cache'",
     "prod:build": "yarn run next:build && yarn run next:export",

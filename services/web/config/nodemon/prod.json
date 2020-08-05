@@ -33,5 +33,5 @@
     "node_modules",
     "src/.generated"
   ],
-  "exec": "run-s -c clear prod:clean prod:start || cd ."
+  "exec": "run-s -c prod:clean prod:start || cd ."
 }

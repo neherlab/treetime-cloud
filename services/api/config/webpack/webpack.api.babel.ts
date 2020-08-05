@@ -7,7 +7,6 @@ import webpack from 'webpack'
 import nodeExternals from 'webpack-node-externals'
 import StartServerPlugin from 'start-server-webpack-plugin'
 
-import webpackFriendlyConsole from './lib/webpackFriendlyConsole'
 import webpackLoadJavascript from './lib/webpackLoadJavascript'
 import webpackTerser from './lib/webpackTerser'
 import webpackTsChecker from './lib/webpackTsChecker'
@@ -22,8 +21,6 @@ const MODE: 'development' | 'production' = getenv('NODE_ENV') === 'development' 
 const production = MODE === 'production'
 const development = MODE === 'development'
 const sourceMaps = true
-const fancyConsole = getenv('DEV_FANCY_CONSOLE', '0') === '1'
-const fancyClearConsole = getenv('DEV_FANCY_CLEAR_CONSOLE', '0') === '1'
 
 const { moduleRoot, pkg } = findModuleRoot()
 const buildPath = path.join(moduleRoot, '.build', MODE)
@@ -48,15 +45,13 @@ module.exports = {
   name: 'api',
   target: 'node',
   devtool: 'cheap-module-source-map',
-  stats: fancyConsole
-    ? false
-    : {
-        all: false,
-        errors: true,
-        warnings: true,
-        moduleTrace: true,
-        colors: true,
-      },
+  stats: {
+    all: false,
+    errors: true,
+    warnings: true,
+    moduleTrace: true,
+    colors: true,
+  },
   performance: {
     hints: false,
   },
@@ -112,15 +107,6 @@ module.exports = {
       DEBUGGABLE_PROD: process.env.DEBUGGABLE_PROD,
       NODE_ENV: process.env.NODE_ENV,
     }),
-
-    ...(fancyConsole
-      ? webpackFriendlyConsole({
-          clearConsole: fancyClearConsole,
-          projectRoot: path.resolve(moduleRoot, '..'),
-          packageName: pkg.name || 'api',
-          progressBarColor: 'red',
-        })
-      : []),
 
     development && new webpack.HotModuleReplacementPlugin(),
     development && new StartServerPlugin({ name: outputFilename }),

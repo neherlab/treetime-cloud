@@ -25,5 +25,5 @@
   "events": {
     "restart": "yarn dev:kill"
   },
-  "exec": "run-s -c clear dev:clean dev:nowatch || cd ."
+  "exec": "run-s -c dev:clean dev:nowatch || cd ."
 }

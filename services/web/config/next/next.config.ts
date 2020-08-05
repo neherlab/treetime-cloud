@@ -16,7 +16,6 @@ import { getGitCommitHash } from '../../lib/getGitCommitHash'
 import { getEnvVars } from './lib/getEnvVars'
 
 import getWithExtraWatch from './withExtraWatch'
-import getWithFriendlyConsole from './withFriendlyConsole'
 import getWithLodash from './withLodash'
 import getWithStaticCompression from './withStaticCompression'
 import getWithTypeChecking from './withTypeChecking'
@@ -84,13 +83,6 @@ const withMDX = getWithMDX({
   rehypePlugins: [].map(require),
 })
 
-const withFriendlyConsole = getWithFriendlyConsole({
-  clearConsole: false,
-  projectRoot: path.resolve(moduleRoot),
-  packageName: pkg.name || 'web',
-  progressBarColor: 'blue',
-})
-
 const withExtraWatch = getWithExtraWatch({
   files: [path.join(moduleRoot, 'src/types/**/*.d.ts')],
   dirs: [],
@@ -138,7 +130,6 @@ const config = withPlugins(
     [withSvg],
     [withImages],
     [withRaw],
-    [withFriendlyConsole],
     [withMDX, { pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'] }],
     [withLodash],
     [withTypeChecking],
