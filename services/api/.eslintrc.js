@@ -64,6 +64,7 @@ module.exports = {
     '@typescript-eslint/array-type': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/unbound-method': ['off'],
     'array-func/prefer-array-from': 'off',
     'cflint/no-substr': 'warn',

@@ -2,16 +2,10 @@ import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
 import immerCase from 'src/state/util/fsaImmerReducer'
 
-import { getTaskIdAsync, getTaskIdTrigger } from './task.actions'
+import { getTaskIdAsync } from './task.actions'
 import { taskDefaultState } from './task.state'
 
 export const taskReducer = reducerWithInitialState(taskDefaultState)
-  .withHandling(
-    immerCase(getTaskIdTrigger, (draft, payload) => {
-      console.log('getTaskIdTrigger reducer')
-    }),
-  )
-
   .withHandling(
     immerCase(getTaskIdAsync.started, (draft, payload) => {
       draft.pending += 1

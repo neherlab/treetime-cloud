@@ -16,8 +16,6 @@ const TASK_QUEUE_HOST = getenv('TASK_QUEUE_HOST')
 const TASK_QUEUE_PORT = getenv('TASK_QUEUE_PORT')
 const TASK_QUEUE_ADDRESS = `${TASK_QUEUE_HOST}:${TASK_QUEUE_PORT}`
 
-console.log({ TASK_QUEUE_ADDRESS })
-
 async function bootstrap() {
   const httpServer = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn'],
