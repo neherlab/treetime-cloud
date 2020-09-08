@@ -1,44 +1,48 @@
 version: '3.7'
 
 services:
-#  treetime-prod-reverseproxy:
-#    depends_on:
-#      - treetime-prod-api
-#      - treetime-prod-web
-#    container_name: treetime-prod-reverseproxy
-#    image: treetime-prod-reverseproxy
-#    build:
-#      context: ./
-#      dockerfile: ../services/reverseproxy/production/Dockerfile
-#    volumes:
-#      - ../services/reverseproxy/production/etc/nginx:/etc/nginx:ro
-#      - ../.volumes/nginx:/volumes
-#      - /etc/timezone:/etc/timezone:ro
-#      - /etc/localtime:/etc/localtime:ro
-#    ports:
-#      - 44443:44443
-#      - 8080:8080
-#    environment:
-#      - COLORTERM=truecolor
-#      - TERM=xterm-truecolor
-#    restart: 'no'
+  treetime-prod-reverseproxy:
+    depends_on:
+      - treetime-prod-api
+      - treetime-prod-web
+    container_name: treetime-prod-reverseproxy
+    image: treetime-prod-reverseproxy
+    build:
+      context: ./
+      dockerfile: ../services/reverseproxy/production/Dockerfile
+    volumes:
+      - ../services/reverseproxy/production/etc/nginx:/etc/nginx:ro
+      - ../.volumes/production/nginx:/volumes
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 44443:44443
+      - 8080:8080
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
 
-#  treetime-prod-api:
-#    container_name: treetime-prod-api
-#    image: treetime-prod-api
-#    build:
-#      context: ../
-#      dockerfile: ./services/api/Dockerfile
-#    restart: 'no'
+  treetime-prod-api:
+    depends_on:
+      - treetime-prod-taskqueue
+    container_name: treetime-prod-api
+    image: treetime-prod-api
+    build:
+      context: ../
+      dockerfile: ./services/api/Dockerfile
+    restart: 'no'
 
   treetime-prod-web:
+    depends_on:
+      - treetime-prod-api
     container_name: treetime-prod-web
     image: treetime-prod-web
     build:
       context: ../
       dockerfile: ./services/web/Dockerfile
-    ports:
-      - 8080:8080
+    # ports:
+    #   - 8080:8080
     restart: 'no'
 
 #  treetime-prod-worker-base:
@@ -88,38 +92,37 @@ services:
 #
 #    deploy:
 #      replicas: 3
-#
-#  treetime-prod-taskqueue:
-#    container_name: treetime-prod-taskqueue
-#    image: rabbitmq:3.8.2-management-alpine
-#    volumes:
-#      - ../:/code
-#      - ../.volumes/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
-#      - ../services/taskqueue/prod/etc/rabbitmq:/etc/rabbitmq:ro
-#      - ../services/taskqueue/prod/var/lib/rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro
-#      - /etc/timezone:/etc/timezone:ro
-#      - /etc/localtime:/etc/localtime:ro
-#    ports:
-#      - 5672:5672
-#      - 15672:15672
-#    env_file:
-#      - ../.env
-#    environment:
-#      - RABBITMQ_NODENAME=taskqueue001
-#      - RABBITMQ_HOME=/code/.volumes/taskqueue/home
-#      - RABBITMQ_MNESIA_BASE=/code/.volumes/taskqueue/mnesia
-#      - RABBITMQ_LOG_BASE=/code/.volumes/taskqueue/log
-#      - RABBITMQ_SCHEMA_DIR=/code/.volumes/taskqueue/schema
-#      - COLORTERM=truecolor
-#      - TERM=xterm-truecolor
-#    restart: 'no'
-#
-#    user: '${UID}'
-#
+
+  treetime-prod-taskqueue:
+    container_name: treetime-prod-taskqueue
+    image: rabbitmq:3.8.2-management-alpine
+    volumes:
+      - ../:/code
+      - ../.volumes/production/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
+      - ../services/taskqueue/prod/etc/rabbitmq:/etc/rabbitmq:ro
+      - ../services/taskqueue/prod/var/lib/rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - ../.env
+    environment:
+      - RABBITMQ_NODENAME=taskqueue001
+      - RABBITMQ_HOME=/code/.volumes/production/taskqueue/home
+      - RABBITMQ_MNESIA_BASE=/code/.volumes/production/taskqueue/mnesia
+      - RABBITMQ_LOG_BASE=/code/.volumes/production/taskqueue/log
+      - RABBITMQ_SCHEMA_DIR=/code/.volumes/production/taskqueue/schema
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+    user: '${UID}'
+
 #  treetime-prod-filestore:
 #    container_name: treetime-prod-filestore
 #    image: minio/minio:RELEASE.2020-02-07T23-28-16Z
-#    command: server --quiet /code/.volumes/filestore
+#    command: server --quiet /code/.volumes/production/filestore
 #    volumes:
 #      - ../:/code
 #      - /etc/timezone:/etc/timezone:ro

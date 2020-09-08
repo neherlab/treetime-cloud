@@ -20,7 +20,7 @@ async function bootstrap() {
   const rmqConsumer = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
-      urls: [`amqp://treetime-dev-taskqueue:5672`],
+      urls: [`amqp://treetime-prod-taskqueue:5672`],
       queue: 'taskResults',
       noAck: false,
       queueOptions: { durable: false },
