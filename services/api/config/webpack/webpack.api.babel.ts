@@ -85,9 +85,7 @@ module.exports = {
     }),
   ],
 
-  node: {
-    __dirname: true,
-  },
+  node: false,
 
   plugins: [
     new ExtraWatchWebpackPlugin({
@@ -116,6 +114,7 @@ module.exports = {
   ].filter(Boolean),
 
   optimization: {
+    nodeEnv: false,
     concatenateModules: false,
     noEmitOnErrors: true,
     occurrenceOrder: false,

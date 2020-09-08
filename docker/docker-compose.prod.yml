@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   treetime-prod-reverseproxy:
@@ -21,7 +21,7 @@ services:
     environment:
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
-    restart: 'no'
+    restart: "no"
 
   treetime-prod-api:
     depends_on:
@@ -31,7 +31,16 @@ services:
     build:
       context: ../
       dockerfile: ./services/api/Dockerfile
-    restart: 'no'
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TASK_QUEUE_HOST=amqp://treetime-prod-taskqueue
+      - TASK_QUEUE_PORT=5672
+    restart: "no"
+    tty: true
+    init: true
+    user: "${UID}"
 
   treetime-prod-web:
     depends_on:
@@ -41,57 +50,58 @@ services:
     build:
       context: ../
       dockerfile: ./services/web/Dockerfile
-    # ports:
-    #   - 8080:8080
-    restart: 'no'
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: "no"
 
-#  treetime-prod-worker-base:
-#    container_name: treetime-prod-worker-base
-#    image: treetime-prod-worker-base
-#    build:
-#      context: ../
-#      dockerfile: services/worker/Dockerfile
-#    command:
-#      sh -c "cd /code/services/worker && yarn install --silent && yarn
-#      prod:docker:base"
-#    volumes:
-#      - ../:/code
-#      - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
-#      - /etc/timezone:/etc/timezone:ro
-#      - /etc/localtime:/etc/localtime:ro
-#    environment:
-#      - COLORTERM=truecolor
-#      - TERM=xterm-truecolor
-#    restart: 'no'
-#
-#    user: '${UID}'
-#
-#  treetime-prod-worker:
-#    depends_on:
-#      - treetime-prod-worker-base
-#      - treetime-prod-taskqueue
-#      - treetime-prod-filestore
-#    image: treetime-prod-worker
-#    build:
-#      context: ../
-#      dockerfile: services/worker/Dockerfile
-#    command:
-#      sh -c "cd /code/services/worker && bash /tools/wait-file.sh
-#      '.cache/venv.ready' && yarn prod:docker:main"
-#    volumes:
-#      - ../:/code
-#      - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
-#      - /etc/timezone:/etc/timezone:ro
-#      - /etc/localtime:/etc/localtime:ro
-#    environment:
-#      - COLORTERM=truecolor
-#      - TERM=xterm-truecolor
-#    restart: 'no'
-#
-#    user: '${UID}'
-#
-#    deploy:
-#      replicas: 3
+  #  treetime-prod-worker-base:
+  #    container_name: treetime-prod-worker-base
+  #    image: treetime-prod-worker-base
+  #    build:
+  #      context: ../
+  #      dockerfile: services/worker/Dockerfile
+  #    command:
+  #      sh -c "cd /code/services/worker && yarn install --silent && yarn
+  #      prod:docker:base"
+  #    volumes:
+  #      - ../:/code
+  #      - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
+  #      - /etc/timezone:/etc/timezone:ro
+  #      - /etc/localtime:/etc/localtime:ro
+  #    environment:
+  #      - COLORTERM=truecolor
+  #      - TERM=xterm-truecolor
+  #    restart: 'no'
+  #
+  #    user: '${UID}'
+  #
+  #  treetime-prod-worker:
+  #    depends_on:
+  #      - treetime-prod-worker-base
+  #      - treetime-prod-taskqueue
+  #      - treetime-prod-filestore
+  #    image: treetime-prod-worker
+  #    build:
+  #      context: ../
+  #      dockerfile: services/worker/Dockerfile
+  #    command:
+  #      sh -c "cd /code/services/worker && bash /tools/wait-file.sh
+  #      '.cache/venv.ready' && yarn prod:docker:main"
+  #    volumes:
+  #      - ../:/code
+  #      - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
+  #      - /etc/timezone:/etc/timezone:ro
+  #      - /etc/localtime:/etc/localtime:ro
+  #    environment:
+  #      - COLORTERM=truecolor
+  #      - TERM=xterm-truecolor
+  #    restart: 'no'
+  #
+  #    user: '${UID}'
+  #
+  #    deploy:
+  #      replicas: 3
 
   treetime-prod-taskqueue:
     container_name: treetime-prod-taskqueue
@@ -116,9 +126,8 @@ services:
       - RABBITMQ_SCHEMA_DIR=/code/.volumes/production/taskqueue/schema
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
-    restart: 'no'
-    user: '${UID}'
-
+    restart: "no"
+    user: "${UID}"
 #  treetime-prod-filestore:
 #    container_name: treetime-prod-filestore
 #    image: minio/minio:RELEASE.2020-02-07T23-28-16Z

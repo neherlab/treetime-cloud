@@ -3,8 +3,11 @@ FROM alpine:3.11 as builder
 ENV NGINX_VERSION 1.17.8
 ENV NGX_BROTLI_VERSION v1.0.0rc
 
+ENV DOCKERIZE_VERSION v0.6.1
+ENV DOCKERIZE_URL "https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz"
+
 RUN set -x \
-&& apk add --no-cache --virtual .build-deps \
+  && apk add --no-cache --virtual .build-deps \
   curl \
   gcc \
   gettext \
@@ -19,31 +22,32 @@ RUN set -x \
   pcre-dev \
   zlib-dev
 
+RUN curl -fsSL "${DOCKERIZE_URL}" | tar xfz - -C "/usr/local/bin/"
 
 RUN set -x \
-&& mkdir "/src" \
-&& cd "/src" \
-&& curl -OJfsSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" \
-&& curl -OJfsSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz.asc" \
-&& curl -OJfsSL "https://nginx.org/keys/mdounin.key" \
-&& gpg --import "mdounin.key" \
-&& gpg --verify "nginx-${NGINX_VERSION}.tar.gz.asc" "nginx-${NGINX_VERSION}.tar.gz"
-
-
-RUN set -x \
-&& cd "/src" \
-&& tar -xf "nginx-${NGINX_VERSION}.tar.gz"
+  && mkdir "/src" \
+  && cd "/src" \
+  && curl -OJfsSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" \
+  && curl -OJfsSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz.asc" \
+  && curl -OJfsSL "https://nginx.org/keys/mdounin.key" \
+  && gpg --import "mdounin.key" \
+  && gpg --verify "nginx-${NGINX_VERSION}.tar.gz.asc" "nginx-${NGINX_VERSION}.tar.gz"
 
 
 RUN set -x \
-&& cd "/src" \
-&& git clone --recursive --depth=1 -b ${NGX_BROTLI_VERSION} "https://github.com/google/ngx_brotli" \
-&& cd ngx_brotli
+  && cd "/src" \
+  && tar -xf "nginx-${NGINX_VERSION}.tar.gz"
 
 
 RUN set -x \
-&& cd "/src/nginx-${NGINX_VERSION}" \
-&& ./configure \
+  && cd "/src" \
+  && git clone --recursive --depth=1 -b ${NGX_BROTLI_VERSION} "https://github.com/google/ngx_brotli" \
+  && cd ngx_brotli
+
+
+RUN set -x \
+  && cd "/src/nginx-${NGINX_VERSION}" \
+  && ./configure \
   --prefix=/var/lib/nginx \
   --sbin-path=/usr/sbin/nginx \
   --conf-path=/etc/nginx/nginx.conf \
@@ -96,10 +100,10 @@ RUN set -x \
 
 
 RUN set -x \
-&& cd "/src/nginx-${NGINX_VERSION}" \
-&& make -j$(getconf _NPROCESSORS_ONLN) \
-&& make install \
-&& strip /usr/sbin/nginx
+  && cd "/src/nginx-${NGINX_VERSION}" \
+  && make -j$(getconf _NPROCESSORS_ONLN) \
+  && make install \
+  && strip /usr/sbin/nginx
 
 
 
@@ -115,27 +119,28 @@ COPY --from=builder /usr/bin/envsubst /usr/bin/envsubst
 COPY --from=builder /usr/bin/inotifywait /usr/bin/inotifywait
 COPY --from=builder /usr/lib/libinotifytools.so.0 /usr/lib/libinotifytools.so.0
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=builder /usr/local/bin/dockerize /usr/local/bin/
 
 RUN set -x \
-&& apk add --no-cache libcrypto1.1 libssl1.1 musl zlib pcre libgcc
-
-
-RUN set -x \
-&& addgroup -g $GID -S nginx \
-&& adduser -S -D -H -u $UID -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+  && apk add --no-cache libcrypto1.1 libssl1.1 musl zlib pcre libgcc
 
 
 RUN set -x \
-&& mkdir -p /web \
-&& mkdir -p /sourcemaps \
-&& mkdir -p /var/lib/nginx/logs \
-&& touch /var/lib/nginx/logs/access.log \
-&& touch /var/lib/nginx/logs/error.log \
-&& ln -sf /dev/stdout /var/lib/nginx/logs/access.log \
-&& ln -sf /dev/stderr /var/lib/nginx/logs/error.log \
-&& chown $UID:$GID -R /var/lib/nginx \
-&& chown $UID:$GID -R /web \
-&& chown $UID:$GID -R /sourcemaps
+  && addgroup -g $GID -S nginx \
+  && adduser -S -D -H -u $UID -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+
+
+RUN set -x \
+  && mkdir -p /web \
+  && mkdir -p /sourcemaps \
+  && mkdir -p /var/lib/nginx/logs \
+  && touch /var/lib/nginx/logs/access.log \
+  && touch /var/lib/nginx/logs/error.log \
+  && ln -sf /dev/stdout /var/lib/nginx/logs/access.log \
+  && ln -sf /dev/stderr /var/lib/nginx/logs/error.log \
+  && chown $UID:$GID -R /var/lib/nginx \
+  && chown $UID:$GID -R /web \
+  && chown $UID:$GID -R /sourcemaps
 
 USER nginx
 
@@ -146,4 +151,6 @@ EXPOSE 44443
 
 STOPSIGNAL SIGTERM
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD sh -c "dockerize -wait http://treetime-prod-api:5000/api/v1/healthcheck/ready -timeout 60s >& /dev/null \
+  && nginx -g 'daemon off;' \
+  "

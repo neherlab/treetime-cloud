@@ -13,7 +13,7 @@ services:
     command: sh /etc/nginx/nginx-watch.sh
     volumes:
       - ../services/reverseproxy/development/etc/nginx:/etc/nginx:ro
-      - ../.volumes/nginx:/volumes
+      - ../.volumes/development/nginx:/volumes
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -49,6 +49,8 @@ services:
     environment:
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
+      - TASK_QUEUE_HOST=amqp://treetime-dev-taskqueue
+      - TASK_QUEUE_PORT=5672
     restart: 'no'
     init: true
     user: '${UID}'
@@ -135,7 +137,7 @@ services:
     image: rabbitmq:3.8.2-management-alpine
     volumes:
       - ../:/code
-      - ../.volumes/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
+      - ../.volumes/development/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
       - ../services/taskqueue/dev/etc/rabbitmq:/etc/rabbitmq:ro
       - ../services/taskqueue/dev/var/lib/rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro
       - /etc/timezone:/etc/timezone:ro
@@ -147,10 +149,10 @@ services:
       - ../.env
     environment:
       - RABBITMQ_NODENAME=taskqueue001
-      - RABBITMQ_HOME=/code/.volumes/taskqueue/home
-      - RABBITMQ_MNESIA_BASE=/code/.volumes/taskqueue/mnesia
-      - RABBITMQ_LOG_BASE=/code/.volumes/taskqueue/log
-      - RABBITMQ_SCHEMA_DIR=/code/.volumes/taskqueue/schema
+      - RABBITMQ_HOME=/code/.volumes/development/taskqueue/home
+      - RABBITMQ_MNESIA_BASE=/code/.volumes/development/taskqueue/mnesia
+      - RABBITMQ_LOG_BASE=/code/.volumes/development/taskqueue/log
+      - RABBITMQ_SCHEMA_DIR=/code/.volumes/development/taskqueue/schema
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
     restart: 'no'
@@ -161,7 +163,7 @@ services:
   treetime-dev-filestore:
     container_name: treetime-dev-filestore
     image: minio/minio:RELEASE.2020-02-07T23-28-16Z
-    command: server --quiet /code/.volumes/filestore
+    command: server --quiet /code/.volumes/development/filestore
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
