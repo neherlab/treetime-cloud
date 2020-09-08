@@ -220,7 +220,7 @@ module.exports = {
       },
     },
     {
-      files: ['src/state/sagas.ts'],
+      files: ['src/state/**/*[Ss]aga*(s).ts'],
       rules: {
         'no-loops/no-loops': 'off',
       },

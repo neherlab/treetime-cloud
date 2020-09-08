@@ -1,8 +1,10 @@
 import '../config/dotenv'
 
 import { NestFactory } from '@nestjs/core'
+import { WebSocketAdapter } from "@nestjs/common";
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
+import { IoAdapter } from '@nestjs/platform-socket.io'
 
 import { AppModule } from './App.module'
 import { requestLogger } from './common/logger.middleware'
@@ -11,6 +13,16 @@ import { getenv } from '../lib/getenv'
 import pkg from '../package.json'
 
 declare const module: NodeHotModule
+
+export class SocketIOAdapter extends IoAdapter implements WebSocketAdapter {
+  createIOServer(port: number, options?: any): any {
+    const server = super.createIOServer(port, options)
+    // const redisAdapter = redisIoAdapter({ host: 'localhost', port: 6379 })
+
+    // server.adapter(redisAdapter)
+    return server
+  }
+}
 
 async function bootstrap() {
   const httpServer = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -33,6 +45,10 @@ async function bootstrap() {
   httpServer.set('x-powered-by', false)
 
   httpServer.use(requestLogger())
+
+  const wsPort = 8081
+  httpServer.useWebSocketAdapter(new SocketIOAdapter(httpServer))
+  // httpServer.useWebSocketAdapter(new RedisIoAdapter(wsPort, {}))
 
   const port = getenv('API_PORT_INTERNAL')
 
