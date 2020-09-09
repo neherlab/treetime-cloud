@@ -89,7 +89,7 @@ services:
       context: ../
       dockerfile: services/worker/docker/development.dockerfile
     command:
-      sh -c "cd /code/services/worker && yarn install --silent --no-progress
+      bash -c "cd /code/services/worker && yarn install --silent --no-progress
       --non-interactive >/dev/null && yarn dev:docker:base"
     volumes:
       - ../:/code
@@ -114,7 +114,7 @@ services:
       context: ../
       dockerfile: services/worker/docker/development.dockerfile
     command:
-      sh -c "cd /code/services/worker && bash /tools/wait-file.sh
+      bash -c "cd /code/services/worker && bash /tools/wait-file.sh
       '.cache/venv.ready' && yarn install --silent --no-progress
       --non-interactive >/dev/null && dockerize -wait
       tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null && yarn
