@@ -5,11 +5,11 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn dev:prepare && yarn _docker-compose -f docker/docker-compose.dev.yml -f docker/docker-compose.dev.override.yml --compatibility build --parallel --compress && yarn _docker-compose -f docker/docker-compose.dev.yml -f docker/docker-compose.dev.override.yml --compatibility up",
+    "dev": "yarn dev:prepare && yarn _docker-compose -f docker/docker-compose.dev.yml -f docker/docker-compose.dev.override.yml --compatibility build --parallel --compress --progress plain && yarn _docker-compose -f docker/docker-compose.dev.yml -f docker/docker-compose.dev.override.yml --compatibility up",
     "dev:prepare": "bash docker/tools/make-dirs.dev.sh",
     "dev:clean": "find . -maxdepth 3 -regextype egrep -type d -regex '.*(node_modules|__pycache__|\\.venv|\\.cache|\\.build|\\.reports?)$' -exec rm -rf {} \\;",
     "dev:cleanest": "yarn dev:clean && find . -maxdepth 3 -regextype egrep -type d -regex '.*(\\.volumes|\\.data)$' -exec rm -rf {} \\;",
-    "prod": "yarn prod:prepare && yarn _docker-compose -f docker/docker-compose.prod.yml -f docker/docker-compose.dev.override.yml --compatibility build --parallel --compress && yarn _docker-compose -f docker/docker-compose.prod.yml -f docker/docker-compose.dev.override.yml --compatibility up --build",
+    "prod": "yarn prod:prepare && yarn _docker-compose -f docker/docker-compose.prod.yml -f docker/docker-compose.dev.override.yml --compatibility build --parallel --compress --progress plain && yarn _docker-compose -f docker/docker-compose.prod.yml -f docker/docker-compose.dev.override.yml --compatibility up --build",
     "prod:prepare": "bash docker/tools/make-dirs.prod.sh",
     "prod:clean": "find . -maxdepth 3 -regextype egrep -type d -regex '.*(node_modules|__pycache__|\\.venv|\\.cache|\\.build|\\.reports?)$' -exec rm -rf {} \\;",
     "prod:cleanest": "yarn prod:clean && find . -maxdepth 3 -regextype egrep -type d -regex '.*(\\.volumes|\\.data)$' -exec rm -rf {} \\;",
