@@ -87,7 +87,7 @@ services:
     image: treetime-dev-worker-base
     build:
       context: ../
-      dockerfile: services/worker/Dockerfile
+      dockerfile: services/worker/docker/development.dockerfile
     command:
       sh -c "cd /code/services/worker && yarn install --silent --no-progress
       --non-interactive >/dev/null && yarn dev:docker:base"
@@ -112,7 +112,7 @@ services:
     image: treetime-dev-worker
     build:
       context: ../
-      dockerfile: services/worker/Dockerfile
+      dockerfile: services/worker/docker/development.dockerfile
     command:
       sh -c "cd /code/services/worker && bash /tools/wait-file.sh
       '.cache/venv.ready' && yarn install --silent --no-progress

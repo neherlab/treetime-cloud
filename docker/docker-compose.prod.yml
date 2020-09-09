@@ -64,7 +64,7 @@ services:
     image: treetime-prod-worker
     build:
       context: ../
-      dockerfile: services/worker/production.dockerfile
+      dockerfile: services/worker/docker/production.dockerfile
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
