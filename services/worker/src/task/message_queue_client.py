@@ -1,11 +1,15 @@
 import json
-from pprint import pprint
+import os
 import requests
+from pprint import pprint
 
 import pika
 
 from .types import PikaConsumerCallable
 
+API_HOST = os.environ['API_HOST']
+API_PORT = os.environ['API_PORT']
+API_ADDRESS = f"{API_HOST}:{API_PORT}"
 
 class MessageQueueClient:
   """
@@ -32,7 +36,7 @@ class MessageQueueClient:
     data = json.loads(json.dumps(data))
     # print(type(data))
     pprint(data)
-    requests.post("http://treetime-dev-api:5000/api/v1/taskResults", data=data)
+    requests.post(f"http://{API_ADDRESS}/api/v1/taskResults", data=data)
 
   def start_consuming(self) -> None:
     try:

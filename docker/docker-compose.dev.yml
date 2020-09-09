@@ -36,10 +36,9 @@ services:
       context: ./
       dockerfile: node-git-alpine/Dockerfile
     command:
-      sh -c "cd /code/services/api
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && dockerize -wait tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null
-      && yarn dev"
+      sh -c "cd /code/services/api && yarn install --silent --no-progress
+      --non-interactive >/dev/null && dockerize -wait
+      tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null && yarn dev"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -51,6 +50,8 @@ services:
       - TERM=xterm-truecolor
       - TASK_QUEUE_HOST=amqp://treetime-dev-taskqueue
       - TASK_QUEUE_PORT=5672
+      - FILESTORE_HOST=http://treetime-dev-filestore
+      - FILESTORE_PORT=9000
     restart: 'no'
     init: true
     user: '${UID}'
@@ -64,10 +65,9 @@ services:
     build:
       context: ./
       dockerfile: node-git-alpine/Dockerfile
-    command: sh -c "cd /code/services/web
-      && cp .env.example .env
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && yarn dev"
+    command:
+      sh -c "cd /code/services/web && cp .env.example .env && yarn install
+      --silent --no-progress --non-interactive >/dev/null && yarn dev"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -88,9 +88,9 @@ services:
     build:
       context: ../
       dockerfile: services/worker/Dockerfile
-    command: sh -c "cd /code/services/worker
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && yarn dev:docker:base"
+    command:
+      sh -c "cd /code/services/worker && yarn install --silent --no-progress
+      --non-interactive >/dev/null && yarn dev:docker:base"
     volumes:
       - ../:/code
       - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
@@ -113,10 +113,12 @@ services:
     build:
       context: ../
       dockerfile: services/worker/Dockerfile
-    command: sh -c "cd /code/services/worker
-      && bash /tools/wait-file.sh '.cache/venv.ready'
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && yarn dev:docker:main"
+    command:
+      sh -c "cd /code/services/worker && bash /tools/wait-file.sh
+      '.cache/venv.ready' && yarn install --silent --no-progress
+      --non-interactive >/dev/null && dockerize -wait
+      tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null && yarn
+      dev:docker:main"
     volumes:
       - ../:/code
       - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
@@ -125,6 +127,11 @@ services:
     environment:
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
+      - API_HOST=treetime-dev-api
+      - API_PORT=5000
+      - FILESTORE_HOST=http://treetime-dev-filestore
+      - FILESTORE_PORT=9000
+      - TASK_QUEUE_HOST=treetime-dev-taskqueue
     restart: 'no'
     init: true
     user: '${UID}'

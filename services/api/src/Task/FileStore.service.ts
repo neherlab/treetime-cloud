@@ -1,8 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-
 import S3 from 'aws-sdk/clients/s3'
 import { concurrent } from 'fasy'
 import { isEqual } from 'lodash'
+
+import { getenv } from '../../lib/getenv'
+
+const FILESTORE_HOST = getenv('FILESTORE_HOST')
+const FILESTORE_PORT = getenv('FILESTORE_PORT')
+const FILESTORE_ADDRESS = `${FILESTORE_HOST}:${FILESTORE_PORT}`
 
 export enum FileType {
   DATES = 'DATES',
@@ -29,7 +34,7 @@ export class FileStoreService {
   private readonly s3 = new S3({
     accessKeyId: 'minioadmin',
     secretAccessKey: 'minioadmin',
-    endpoint: 'http://treetime-dev-filestore:9000',
+    endpoint: FILESTORE_ADDRESS,
     s3ForcePathStyle: true,
     signatureVersion: 'v4',
     region: 'eu-central-1',

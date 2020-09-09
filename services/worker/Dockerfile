@@ -5,20 +5,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN set -x \
   && apt-get update -qq > /dev/null \
   && apt-get install -qq --yes --force-yes --no-install-recommends \
-    bash \
-    build-essential \
-    ca-certificates \
-    coreutils \
-    curl \
-    fasttree \
-    git \
-    inotify-tools \
-    make \
-    nodejs \
-    npm \
-    python3 \
-    python3-pip \
-    python3-venv \
+  bash \
+  build-essential \
+  ca-certificates \
+  coreutils \
+  curl \
+  fasttree \
+  git \
+  inotify-tools \
+  make \
+  nodejs \
+  npm \
+  python3 \
+  python3-pip \
+  python3-venv \
   > /dev/null
 
 # Install dockerize

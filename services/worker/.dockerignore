@@ -6,7 +6,6 @@
 .ignore/
 .volumes/
 .vscode/
-docker/
 docs/
 examples/
 node_modules/

@@ -7,7 +7,6 @@
 .ignore/
 .volumes/
 .vscode/
-docker/
 docs/
 examples/
 node_modules/
@@ -22,7 +21,6 @@ node_modules/
 **/.ignore/
 **/.volumes/
 **/.vscode/
-**/docker/
 **/docs/
 **/examples/
 **/node_modules/
