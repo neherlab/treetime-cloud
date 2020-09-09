@@ -13,7 +13,9 @@ services:
     command: sh /etc/nginx/nginx-watch.sh
     volumes:
       - ../services/reverseproxy/development/etc/nginx:/etc/nginx:ro
-      - ../.volumes/development/nginx:/volumes
+      - ../.volumes/development/nginx/cache:/var/cache/nginx
+      - ../.volumes/development/nginx/logs:/var/lib/nginx/logs
+      - ../.volumes/development/nginx/tmp:/tmp
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:

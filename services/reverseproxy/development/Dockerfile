@@ -22,6 +22,7 @@ RUN set -x \
   && mkdir -p /var/cache/nginx \
   && touch /var/lib/nginx/logs/access.log \
   && touch /var/lib/nginx/logs/error.log \
+  && touch /var/lib/nginx/logs/access.full.log \
   && ln -sf /dev/stdout /var/lib/nginx/logs/access.log \
   && ln -sf /dev/stderr /var/lib/nginx/logs/error.log \
   && chown $UID:$GID -R /home/$USER \
