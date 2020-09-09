@@ -8,11 +8,9 @@ services:
     container_name: treetime-prod-reverseproxy
     image: treetime-prod-reverseproxy
     build:
-      context: ./
-      dockerfile: ../services/reverseproxy/production/Dockerfile
+      context: ../
+      dockerfile: ./services/reverseproxy/production/Dockerfile
     volumes:
-      - ../services/reverseproxy/production/etc/nginx:/etc/nginx:ro
-      - ../.volumes/production/nginx:/volumes
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:

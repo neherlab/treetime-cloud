@@ -59,7 +59,7 @@ WORKDIR /code/services/worker
 RUN set -x \
   && poetry install --no-root --no-interaction
 
-CMD bash -c "set -x \
+CMD bash -c "echo '' \
   && export POETRY_HOME=${POETRY_HOME} \
   && export POETRY_VIRTUALENVS_IN_PROJECT=${POETRY_VIRTUALENVS_IN_PROJECT} \
   && export POETRY_NO_INTERACTION=${POETRY_NO_INTERACTION} \
