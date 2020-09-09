@@ -10,6 +10,8 @@ set -o pipefail
 
 cd /code/services/worker
 
+mkdir -p ".cache"
+
 # Wait until base container prepares the virtual environement
 /tools/wait-file.sh ".cache/venv.ready"
 
