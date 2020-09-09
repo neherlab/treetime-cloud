@@ -13,7 +13,7 @@ cd /code/services/worker
 mkdir -p ".cache"
 
 # Wait until base container prepares the virtual environement
-/tools/wait-file.sh ".cache/venv.ready"
+/code/tools/wait-file.sh ".cache/venv.ready"
 
 # Wait until taskqueue service is available
 dockerize -wait "tcp://treetime-dev-taskqueue:5672" -timeout 60s >& /dev/null

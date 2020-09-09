@@ -113,12 +113,7 @@ services:
     build:
       context: ../
       dockerfile: services/worker/docker/development.dockerfile
-    command:
-      bash -c "cd /code/services/worker && bash /tools/wait-file.sh
-      '.cache/venv.ready' && yarn install --silent --no-progress
-      --non-interactive >/dev/null && dockerize -wait
-      tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null && yarn
-      dev:docker:main"
+    command: bash -c "yarn dev:docker:main"
     volumes:
       - ../:/code
       - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
