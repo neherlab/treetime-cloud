@@ -31,3 +31,20 @@ spec:
             limits:
               cpu: '0.25'
               memory: '512Mi'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treetime-prod-taskqueue
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-taskqueue
+spec:
+  type: ClusterIP
+  selector:
+    app: treetime
+    env: prod
+    service: treetime-prod-taskqueue
+  ports:
+    - port: 5672

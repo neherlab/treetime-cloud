@@ -44,3 +44,20 @@ spec:
             limits:
               cpu: '4'
               memory: '4096Mi'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treetime-prod-worker
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-worker
+spec:
+  type: ClusterIP
+  selector:
+    app: treetime
+    env: prod
+    service: treetime-prod-worker
+  ports:
+    - port: 9000
