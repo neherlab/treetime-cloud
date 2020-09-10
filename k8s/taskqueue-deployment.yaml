@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treetime-prod-taskqueue
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-taskqueue
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: treetime
+      env: prod
+      service: treetime-prod-taskqueue
+
+  template:
+    metadata:
+      labels:
+        app: treetime
+        env: prod
+        service: treetime-prod-taskqueue
+
+    spec:
+      containers:
+        - name: treetime-prod-taskqueue
+          image: localhost:5050/treetime-prod-taskqueue:latest
+          resources:
+            limits:
+              cpu: '0.25'
+              memory: '512Mi'

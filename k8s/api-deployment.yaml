@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treetime-prod-api
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-api
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: treetime
+      env: prod
+      service: treetime-prod-api
+
+  template:
+    metadata:
+      labels:
+        app: treetime
+        env: prod
+        service: treetime-prod-api
+
+    spec:
+      containers:
+        - name: treetime-prod-api
+          image: localhost:5050/treetime-prod-api:latest
+          env:
+            - name: FILESTORE_HOST
+              value: http://treetime-prod-filestore
+            - name: FILESTORE_PORT
+              value: '9000'
+            - name: TASK_QUEUE_HOST
+              value: amqp://treetime-prod-taskqueue
+            - name: TASK_QUEUE_PORT
+              value: '5672'
+          resources:
+            limits:
+              cpu: '0.5'
+              memory: '512Mi'
