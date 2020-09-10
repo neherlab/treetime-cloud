@@ -13,6 +13,11 @@ if [ -f "${THIS_DIR}/settings" ]; then
   export $(echo $(cat "${THIS_DIR}/settings" | sed 's/#.*//g'| xargs))
 fi
 
+if ! command -v kind --version &> /dev/null; then
+  echo "Error: kind is not installed. Visit the official site https://kind.sigs.k8s.io/"
+  exit 1
+fi
+
 # Creates a cluster network, if not already present
 maybe-create-cluster-network() {
   if ! docker network ls --format "{{.Name}}" | grep -w -q "${CLUSTER_NETWORK_NAME}"; then
