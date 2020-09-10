@@ -12,6 +12,10 @@ import pkg from '../package.json'
 
 declare const module: NodeHotModule
 
+const TASK_QUEUE_HOST = getenv('TASK_QUEUE_HOST')
+const TASK_QUEUE_PORT = getenv('TASK_QUEUE_PORT')
+const TASK_QUEUE_ADDRESS = `${TASK_QUEUE_HOST}:${TASK_QUEUE_PORT}`
+
 async function bootstrap() {
   const httpServer = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn'],
@@ -20,7 +24,7 @@ async function bootstrap() {
   const rmqConsumer = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
-      urls: [`amqp://treetime-dev-taskqueue:5672`],
+      urls: [TASK_QUEUE_ADDRESS],
       queue: 'taskResults',
       noAck: false,
       queueOptions: { durable: false },

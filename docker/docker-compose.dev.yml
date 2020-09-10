@@ -13,7 +13,9 @@ services:
     command: sh /etc/nginx/nginx-watch.sh
     volumes:
       - ../services/reverseproxy/development/etc/nginx:/etc/nginx:ro
-      - ../.volumes/nginx:/volumes
+      - ../.volumes/development/nginx/cache:/var/cache/nginx
+      - ../.volumes/development/nginx/logs:/var/lib/nginx/logs
+      - ../.volumes/development/nginx/tmp:/tmp
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -36,10 +38,9 @@ services:
       context: ./
       dockerfile: node-git-alpine/Dockerfile
     command:
-      sh -c "cd /code/services/api
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && dockerize -wait tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null
-      && yarn dev"
+      sh -c "cd /code/services/api && yarn install --silent --no-progress
+      --non-interactive >/dev/null && dockerize -wait
+      tcp://treetime-dev-taskqueue:5672 -timeout 60s >& /dev/null && yarn dev"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -49,6 +50,10 @@ services:
     environment:
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
+      - TASK_QUEUE_HOST=amqp://treetime-dev-taskqueue
+      - TASK_QUEUE_PORT=5672
+      - FILESTORE_HOST=http://treetime-dev-filestore
+      - FILESTORE_PORT=9000
     restart: 'no'
     init: true
     user: '${UID}'
@@ -62,10 +67,9 @@ services:
     build:
       context: ./
       dockerfile: node-git-alpine/Dockerfile
-    command: sh -c "cd /code/services/web
-      && cp .env.example .env
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && yarn dev"
+    command:
+      sh -c "cd /code/services/web && cp .env.example .env && yarn install
+      --silent --no-progress --non-interactive >/dev/null && yarn dev"
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro
@@ -85,10 +89,10 @@ services:
     image: treetime-dev-worker-base
     build:
       context: ../
-      dockerfile: services/worker/Dockerfile
-    command: sh -c "cd /code/services/worker
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && yarn dev:docker:base"
+      dockerfile: services/worker/docker/development.dockerfile
+    command:
+      bash -c "cd /code/services/worker && yarn install --silent --no-progress
+      --non-interactive >/dev/null && yarn dev:docker:base"
     volumes:
       - ../:/code
       - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
@@ -110,11 +114,8 @@ services:
     image: treetime-dev-worker
     build:
       context: ../
-      dockerfile: services/worker/Dockerfile
-    command: sh -c "cd /code/services/worker
-      && bash /tools/wait-file.sh '.cache/venv.ready'
-      && yarn install --silent --no-progress --non-interactive >/dev/null
-      && yarn dev:docker:main"
+      dockerfile: services/worker/docker/development.dockerfile
+    command: bash -c "yarn dev:docker:main"
     volumes:
       - ../:/code
       - ../services/worker/docker/.config/pypoetry/config.toml:/.config/pypoetry/config.toml
@@ -123,6 +124,11 @@ services:
     environment:
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
+      - API_HOST=treetime-dev-api
+      - API_PORT=5000
+      - FILESTORE_HOST=http://treetime-dev-filestore
+      - FILESTORE_PORT=9000
+      - TASK_QUEUE_HOST=treetime-dev-taskqueue
     restart: 'no'
     init: true
     user: '${UID}'
@@ -135,7 +141,7 @@ services:
     image: rabbitmq:3.8.2-management-alpine
     volumes:
       - ../:/code
-      - ../.volumes/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
+      - ../.volumes/development/taskqueue/config/generated:/var/lib/rabbitmq/config/generated
       - ../services/taskqueue/dev/etc/rabbitmq:/etc/rabbitmq:ro
       - ../services/taskqueue/dev/var/lib/rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie:ro
       - /etc/timezone:/etc/timezone:ro
@@ -147,10 +153,10 @@ services:
       - ../.env
     environment:
       - RABBITMQ_NODENAME=taskqueue001
-      - RABBITMQ_HOME=/code/.volumes/taskqueue/home
-      - RABBITMQ_MNESIA_BASE=/code/.volumes/taskqueue/mnesia
-      - RABBITMQ_LOG_BASE=/code/.volumes/taskqueue/log
-      - RABBITMQ_SCHEMA_DIR=/code/.volumes/taskqueue/schema
+      - RABBITMQ_HOME=/code/.volumes/development/taskqueue/home
+      - RABBITMQ_MNESIA_BASE=/code/.volumes/development/taskqueue/mnesia
+      - RABBITMQ_LOG_BASE=/code/.volumes/development/taskqueue/log
+      - RABBITMQ_SCHEMA_DIR=/code/.volumes/development/taskqueue/schema
       - COLORTERM=truecolor
       - TERM=xterm-truecolor
     restart: 'no'
@@ -161,7 +167,7 @@ services:
   treetime-dev-filestore:
     container_name: treetime-dev-filestore
     image: minio/minio:RELEASE.2020-02-07T23-28-16Z
-    command: server --quiet /code/.volumes/filestore
+    command: server --quiet /code/.volumes/development/filestore
     volumes:
       - ../:/code
       - /etc/timezone:/etc/timezone:ro

@@ -1,0 +1,90 @@
+version: '3.7'
+
+services:
+  treetime-prod-reverseproxy:
+    depends_on:
+      - treetime-prod-api
+      - treetime-prod-web
+    container_name: treetime-prod-reverseproxy
+    image: treetime-prod-reverseproxy
+    build:
+      context: ../
+      dockerfile: ./services/reverseproxy/production/Dockerfile
+    ports:
+      - 44443:44443
+      - 8080:8080
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+
+  treetime-prod-api:
+    depends_on:
+      - treetime-prod-taskqueue
+    container_name: treetime-prod-api
+    image: treetime-prod-api
+    build:
+      context: ../
+      dockerfile: ./services/api/Dockerfile
+    environment:
+      - TASK_QUEUE_HOST=amqp://treetime-prod-taskqueue
+      - TASK_QUEUE_PORT=5672
+      - FILESTORE_HOST=http://treetime-prod-filestore
+      - FILESTORE_PORT=9000
+    restart: 'no'
+    tty: true
+    user: '${UID}'
+
+  treetime-prod-web:
+    depends_on:
+      - treetime-prod-api
+    container_name: treetime-prod-web
+    image: treetime-prod-web
+    build:
+      context: ../
+      dockerfile: ./services/web/Dockerfile
+    restart: 'no'
+
+  treetime-prod-worker:
+    depends_on:
+      - treetime-prod-taskqueue
+      - treetime-prod-filestore
+    container_name: treetime-prod-worker
+    image: treetime-prod-worker
+    build:
+      context: ../
+      dockerfile: services/worker/docker/production.dockerfile
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+      - API_HOST=treetime-prod-api
+      - API_PORT=5000
+      - FILESTORE_HOST=http://treetime-prod-filestore
+      - FILESTORE_PORT=9000
+      - TASK_QUEUE_HOST=treetime-prod-taskqueue
+      - TASK_QUEUE_PORT=5672
+    restart: 'no'
+    user: '${UID}'
+    deploy:
+      replicas: 3
+
+  treetime-prod-taskqueue:
+    container_name: treetime-prod-taskqueue
+    image: treetime-prod-taskqueue
+    build:
+      context: ../
+      dockerfile: services/taskqueue/prod/production.dockerfile
+    restart: 'no'
+    user: '${UID}'
+
+  treetime-prod-filestore:
+    container_name: treetime-prod-filestore
+    image: minio/minio:RELEASE.2020-02-07T23-28-16Z
+    command: minio server --quiet /tmp
+    ports:
+      - 9000:9000
+    environment:
+      - COLORTERM=truecolor
+      - TERM=xterm-truecolor
+    restart: 'no'
+    user: '${UID}'

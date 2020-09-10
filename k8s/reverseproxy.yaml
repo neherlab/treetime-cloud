@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treetime-prod-reverseproxy
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-reverseproxy
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: treetime
+      env: prod
+      service: treetime-prod-reverseproxy
+
+  template:
+    metadata:
+      labels:
+        app: treetime
+        env: prod
+        service: treetime-prod-reverseproxy
+
+    spec:
+      containers:
+        - name: treetime-prod-reverseproxy
+          image: localhost:5050/treetime-prod-reverseproxy:latest
+          resources:
+            limits:
+              cpu: '0.25'
+              memory: '128Mi'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treetime-prod-reverseproxy
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-reverseproxy
+spec:
+  selector:
+    app: treetime
+    env: prod
+    service: treetime-prod-reverseproxy
+
+  type: LoadBalancer
+
+  ports:
+    - port: 8080
+      targetPort: 8080

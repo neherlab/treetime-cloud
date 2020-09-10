@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treetime-prod-worker
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-worker
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: treetime
+      env: prod
+      service: treetime-prod-worker
+
+  template:
+    metadata:
+      labels:
+        app: treetime
+        env: prod
+        service: treetime-prod-worker
+
+    spec:
+      containers:
+        - name: treetime-prod-worker
+          image: localhost:5050/treetime-prod-worker:latest
+          env:
+            - name: API_HOST
+              value: treetime-prod-api
+            - name: API_PORT
+              value: '5000'
+            - name: FILESTORE_HOST
+              value: http://treetime-prod-filestore
+            - name: FILESTORE_PORT
+              value: '9000'
+            - name: TASK_QUEUE_HOST
+              value: treetime-prod-taskqueue
+            - name: TASK_QUEUE_PORT
+              value: '5672'
+          resources:
+            limits:
+              cpu: '4'
+              memory: '4096Mi'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treetime-prod-worker
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-worker
+spec:
+  type: ClusterIP
+  selector:
+    app: treetime
+    env: prod
+    service: treetime-prod-worker
+  ports:
+    - port: 9000

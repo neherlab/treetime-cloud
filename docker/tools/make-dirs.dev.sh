@@ -7,12 +7,12 @@ set -o nounset
 set -o pipefail
 
 mkdir -p \
-  .volumes/filestore \
-  .volumes/nginx/logs \
-  .volumes/nginx/tmp/client_body_temp_path \
-  .volumes/nginx/tmp/proxy_temp_path \
-  .volumes/nginx/cache \
-  .volumes/taskqueue/config/generated \
-  .volumes/taskqueue/home \
-  .volumes/taskqueue/log \
-  .volumes/taskqueue/schema
+  .volumes/development/filestore \
+  .volumes/development/nginx/logs \
+  .volumes/development/nginx/tmp/client_body_temp_path \
+  .volumes/development/nginx/tmp/proxy_temp_path \
+  .volumes/development/nginx/cache \
+  .volumes/development/taskqueue/config/generated \
+  .volumes/development/taskqueue/home \
+  .volumes/development/taskqueue/log \
+  .volumes/development/taskqueue/schema

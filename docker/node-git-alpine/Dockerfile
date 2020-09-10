@@ -6,7 +6,7 @@ ENV DOCKERIZE_URL "https://github.com/jwilder/dockerize/releases/download/${DOCK
 RUN apk add --update --no-cache \
   curl \
   git \
-> /dev/null
+  > /dev/null
 
 RUN curl -fsSL "${DOCKERIZE_URL}" | tar xfz - -C "/usr/local/bin/"
 

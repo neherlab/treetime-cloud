@@ -13,7 +13,6 @@ export async function initialize({ router }: InitializeParams) {
 
   const { persistor, store } = await configureStore({ router })
 
-  console.log('store.dispatch(getTaskIdTrigger())')
   store.dispatch(getTaskIdTrigger())
 
   return { persistor, store }

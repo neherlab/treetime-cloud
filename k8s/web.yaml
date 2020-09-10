@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-web
+  name: treetime-prod-web
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: treetime
+      env: prod
+      service: treetime-prod-web
+
+  template:
+    metadata:
+      labels:
+        app: treetime
+        env: prod
+        service: treetime-prod-web
+
+    spec:
+      containers:
+        - name: treetime-prod-web
+          image: localhost:5050/treetime-prod-web:latest
+          resources:
+            limits:
+              cpu: '0.25'
+              memory: '128Mi'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treetime-prod-web
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-web
+spec:
+  type: ClusterIP
+  selector:
+    app: treetime
+    env: prod
+    service: treetime-prod-web
+  ports:
+    - port: 9000

@@ -1,0 +1,11 @@
+.build/
+.cache/
+.data/
+.env/
+.idea/
+.ignore/
+.volumes/
+.vscode/
+docs/
+examples/
+node_modules/

@@ -41,7 +41,6 @@ function alias(development: boolean) {
 module.exports = {
   mode: MODE,
   bail: true,
-  watch: true,
   name: 'api',
   target: 'node',
   devtool: 'cheap-module-source-map',
@@ -56,7 +55,7 @@ module.exports = {
     hints: false,
   },
 
-  entry: ['webpack/hot/poll?100', './src/index.ts'],
+  entry: [development && 'webpack/hot/poll?100', './src/index.ts'].filter(Boolean),
 
   output: {
     filename: outputFilename,
@@ -81,13 +80,12 @@ module.exports = {
 
   externals: [
     nodeExternals({
-      allowlist: ['webpack/hot/poll?100'],
+      // @ts-ignore
+      allowlist: [development && 'webpack/hot/poll?100'].filter(Boolean),
     }),
   ],
 
-  node: {
-    __dirname: true,
-  },
+  node: false,
 
   plugins: [
     new ExtraWatchWebpackPlugin({
@@ -109,13 +107,14 @@ module.exports = {
     }),
 
     development && new webpack.HotModuleReplacementPlugin(),
+
     development && new StartServerPlugin({ name: outputFilename }),
-    // development && new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
 
     new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
   ].filter(Boolean),
 
   optimization: {
+    nodeEnv: false,
     concatenateModules: false,
     noEmitOnErrors: true,
     occurrenceOrder: false,
