@@ -26,7 +26,8 @@ spec:
     spec:
       containers:
         - name: treetime-prod-worker
-          image: localhost:5050/treetime-prod-worker:latest
+          image: treetime-prod-worker
+          imagePullPolicy: IfNotPresent
           env:
             - name: API_HOST
               value: treetime-prod-api

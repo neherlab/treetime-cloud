@@ -26,7 +26,8 @@ spec:
     spec:
       containers:
         - name: treetime-prod-taskqueue
-          image: localhost:5050/treetime-prod-taskqueue:latest
+          image: treetime-prod-taskqueue
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: '0.25'

@@ -26,7 +26,8 @@ spec:
     spec:
       containers:
         - name: treetime-prod-api
-          image: localhost:5050/treetime-prod-api:latest
+          image: treetime-prod-api
+          imagePullPolicy: IfNotPresent
           env:
             - name: FILESTORE_HOST
               value: http://treetime-prod-filestore

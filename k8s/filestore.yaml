@@ -26,7 +26,8 @@ spec:
     spec:
       containers:
         - name: treetime-prod-filestore
-          image: minio/minio:latest
+          image: minio/minio
+          imagePullPolicy: IfNotPresent
           command: ['minio']
           args: ['server', '/filestore']
           resources:

@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: treetime-prod-web
   labels:
     app: treetime
     env: prod
     service: treetime-prod-web
-  name: treetime-prod-web
 
 spec:
   replicas: 1
@@ -26,7 +26,8 @@ spec:
     spec:
       containers:
         - name: treetime-prod-web
-          image: localhost:5050/treetime-prod-web:latest
+          image: treetime-prod-web
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: '0.25'
@@ -47,4 +48,26 @@ spec:
     env: prod
     service: treetime-prod-web
   ports:
-    - port: 9000
+    - port: 80
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: loadbalancer
+#   labels:
+#     app: treetime
+#     env: prod
+#     service: treetime-prod-web
+
+# spec:
+#   type: LoadBalancer
+
+#   selector:
+#     app: treetime
+#     env: prod
+#     service: treetime-prod-web
+
+#   ports:
+#     - port: 80
+#       targetPort: 80

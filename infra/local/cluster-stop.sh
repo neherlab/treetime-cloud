@@ -11,4 +11,9 @@ if [ -f "${THIS_DIR}/settings" ]; then
   export $(echo $(cat "${THIS_DIR}/settings" | sed 's/#.*//g'| xargs))
 fi
 
-kind delete cluster --name "${CLUSTER_NAME}"
+if minikube status --profile="${CLUSTER_NAME}" >/dev/null; then
+  minikube stop --profile "${CLUSTER_NAME}"
+else
+  echo "Cluster '${CLUSTER_NAME}' does not exist"
+  exit 1
+fi
