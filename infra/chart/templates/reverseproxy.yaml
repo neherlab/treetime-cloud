@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: treetime-prod-ingress
+  labels:
+    app: treetime
+    env: prod
+    service: treetime-prod-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: treetime-prod-web
+              servicePort: 80
+
+          - path: /api
+            backend:
+              serviceName: treetime-prod-api
+              servicePort: 5000

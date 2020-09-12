@@ -33,6 +33,7 @@ minikube start \
 --profile="${CLUSTER_NAME}" \
 --kubernetes-version="${KUBECTL_VERSION}" \
 --addons=dashboard \
+--addons=ingress \
 --cpus=${CLUSTER_NUM_CPUS} \
 --memory=${CLUSTER_MEMORY} \
 --nodes=${CLUSTER_NUM_NODES} \
@@ -41,7 +42,9 @@ minikube start \
 
 # --addons=default-storageclass \
 # --addons=helm-tiller \
-# --addons=ingress \
 # --addons=logviewer \
 # --addons=registry \
 # --addons=storage-provisioner \
+
+echo "Cluster IP address for Ingress:"
+minikube ip
