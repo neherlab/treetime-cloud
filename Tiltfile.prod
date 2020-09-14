@@ -10,6 +10,10 @@ HELM_VALUES_PATH=os.path.join(HELM_CHART_DIR, '/values.yaml')
 compose = read_yaml('./docker/docker-compose.prod.yml')
 for service, config in compose['services'].items():
   image=config['image']
+
+  if image == 'treetime-prod-reverseproxy':
+    continue
+
   dockerfile=config['build']['dockerfile']
 
   docker_build(
