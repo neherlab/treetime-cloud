@@ -1,0 +1,36 @@
+PROJECT_ROOT='../..'
+UID = local('id -u') # Local user ID
+TERM='xterm-256color'
+COLORTERM='256color'
+
+HELM_RELEASE_NAME='treetime-cloud'
+HELM_CHART_DIR=os.path.join(PROJECT_ROOT, 'infra/chart')
+HELM_VALUES_PATH=os.path.join(HELM_CHART_DIR, 'values.yaml')
+COMPOSE_FILE=os.path.join(PROJECT_ROOT, 'docker/docker-compose.prod.yml')
+
+# Use docker-compose file to build images
+compose = read_yaml(COMPOSE_FILE)
+for service, config in compose['services'].items():
+  image=config['image']
+
+  if image == 'treetime-prod-reverseproxy':
+    continue
+
+  dockerfile = config['build']['dockerfile']
+  dockerfile_full = os.path.join(PROJECT_ROOT, dockerfile)
+
+  docker_build(
+    ref=image,
+    context=PROJECT_ROOT,
+    dockerfile=dockerfile_full,
+    build_args={ 'UID': UID, 'TERM': TERM, 'COLORTERM': COLORTERM }
+  )
+
+# Run on Kubernetes with Helm
+yaml = helm(
+  HELM_CHART_DIR,
+  name=HELM_RELEASE_NAME,
+  values=[HELM_VALUES_PATH],
+)
+
+k8s_yaml(yaml)

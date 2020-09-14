@@ -1,4 +1,4 @@
-TILTFILE_PROD='Tiltfile.prod'
+TILTFILE_PROD='infra/local/production.tiltfile'
 
 .PHONY: all
 
