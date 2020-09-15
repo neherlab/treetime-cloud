@@ -16,3 +16,6 @@ mkdir -p \
   .volumes/development/taskqueue/home \
   .volumes/development/taskqueue/log \
   .volumes/development/taskqueue/schema
+
+# Prevent rabbitmq from crashing with error ".erlang.cookie must be accessible by owner only"
+chmod 600 services/taskqueue/dev/var/lib/rabbitmq/.erlang.cookie
