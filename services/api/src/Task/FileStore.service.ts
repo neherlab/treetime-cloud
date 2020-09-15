@@ -4,7 +4,6 @@ import { concurrent } from 'fasy'
 import { isEqual } from 'lodash'
 
 import { getenv } from '../../lib/getenv'
-import { AWSError } from 'aws-sdk'
 
 const FILESTORE_HOST = getenv('FILESTORE_HOST')
 const FILESTORE_PORT = getenv('FILESTORE_PORT')
