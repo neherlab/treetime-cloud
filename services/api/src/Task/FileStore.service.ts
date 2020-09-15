@@ -4,6 +4,7 @@ import { concurrent } from 'fasy'
 import { isEqual } from 'lodash'
 
 import { getenv } from '../../lib/getenv'
+import { AWSError } from 'aws-sdk'
 
 const FILESTORE_HOST = getenv('FILESTORE_HOST')
 const FILESTORE_PORT = getenv('FILESTORE_PORT')
@@ -91,6 +92,8 @@ export class FileStoreService {
   }
 
   private async uploadFileToS3(filepath: string, data: Buffer) {
+    await this.ensureBucket()
+
     return this.s3
       .putObject({
         Bucket: this.BUCKET_NAME,
@@ -98,5 +101,25 @@ export class FileStoreService {
         Body: data,
       })
       .promise()
+  }
+
+  private async ensureBucket() {
+    try {
+      await this.s3
+        .createBucket({
+          Bucket: this.BUCKET_NAME,
+          CreateBucketConfiguration: {
+            LocationConstraint: 'eu-central-1',
+          },
+        })
+        .promise()
+    } catch (error) {
+      // This is a bug in aws-sdk that prevents from implementing this check in a type-safe way
+      // See: https://github.com/aws/aws-sdk-js/issues/2611
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (/* !(error instanceof AWSError) || */ error?.code !== 'BucketAlreadyOwnedByYou') {
+        throw error
+      }
+    }
   }
 }
