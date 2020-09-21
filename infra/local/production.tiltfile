@@ -34,3 +34,9 @@ yaml = helm(
 )
 
 k8s_yaml(yaml)
+
+# Forward from localhost:8080 to the Ingress
+local_resource(
+  'minikube-forward',
+  serve_cmd='socat TCP-LISTEN:8080,reuseaddr,fork TCP:$(minikube ip):80'
+)
