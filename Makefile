@@ -4,6 +4,18 @@ TILTFILE_PROD='infra/local/production.tiltfile'
 
 all: prod
 
+cluster-start:
+	./infra/local/cluster-start.sh
+
+cluster-stop:
+	./infra/local/cluster-stop.sh
+
+cluster-delete:
+	./infra/local/cluster-delete.sh
+
+cluster-dashboard:
+	./infra/local/cluster-dashboard.sh
+
 prod-up:
 	tilt up -f '${TILTFILE_PROD}' --stream
 
