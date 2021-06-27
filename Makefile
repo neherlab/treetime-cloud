@@ -16,6 +16,9 @@ cluster-delete:
 cluster-dashboard:
 	./infra/local/cluster-dashboard.sh
 
+octant:
+	octant --disable-open-browser
+
 prod-up:
 	$(MAKE) cluster-start
 	tilt up -f '${TILTFILE_PROD}' --stream
