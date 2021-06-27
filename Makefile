@@ -17,10 +17,12 @@ cluster-dashboard:
 	./infra/local/cluster-dashboard.sh
 
 prod-up:
+	$(MAKE) cluster-start
 	tilt up -f '${TILTFILE_PROD}' --stream
 
 prod-down:
 	tilt down -f '${TILTFILE_PROD}'
+	$(MAKE) cluster-stop
 
 prod:
 	# Run `tilt up` and ensure `tilt down` runs on Ctrl+C or error
