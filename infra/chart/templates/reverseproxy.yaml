@@ -25,3 +25,20 @@ spec:
                 name: treetime-prod-api
                 port:
                   number: 5000
+
+          - path: /minio
+            pathType: Prefix
+            backend:
+              service:
+                name: treetime-prod-filestore
+                port:
+                  number: 9000
+
+          - path: /rmq
+            pathType: Prefix
+            backend:
+              service:
+                name: treetime-prod-taskqueue
+                port:
+                  number: 15672
+
